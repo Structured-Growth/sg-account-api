@@ -59,11 +59,13 @@ export class ResolverController extends BaseController {
 	@DescribeAction("resolve/actions")
 	async actions(): Promise<ResolveActionsResponseInterface> {
 		const actions = [];
+		const { actionToRouteMap } = require("../../routes/v1");
 		for (let controller in controllers as any) {
 			const prototype = Object.getPrototypeOf(controllers[controller].prototype);
 			const methods = Object.getOwnPropertyNames(prototype);
 			for (let method of methods) {
 				const action = Reflect.getMetadata(`__action:${method}`, prototype);
+				const route = actionToRouteMap[`${controller}.${method}`];
 				if (action) {
 					const resources =
 						action.resources?.map(({ resource, arnPattern }) => {
@@ -73,7 +75,8 @@ export class ResolverController extends BaseController {
 						}) || [];
 					actions.push({
 						action: `${this.appPrefix}:${action.action}`,
-						resources: resources,
+						route,
+						resources,
 					});
 				}
 			}

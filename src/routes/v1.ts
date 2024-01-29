@@ -18,15 +18,27 @@ export const router = Router();
 //PingController
 router.get('/v1/ping/alive', handleRequest(Controllers.PingController, "pingGet", handlerOpts));
 
-//ExampleController
-router.get('/v1/examples', handleRequest(Controllers.ExampleController, "search", handlerOpts));
-router.post('/v1/examples', handleRequest(Controllers.ExampleController, "create", handlerOpts));
-router.get('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "get", handlerOpts));
-router.put('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "update", handlerOpts));
-router.delete('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "delete", handlerOpts));
+//OrganizationsController
+router.get('/v1/organizations', handleRequest(Controllers.OrganizationsController, "search", handlerOpts));
+router.post('/v1/organizations', handleRequest(Controllers.OrganizationsController, "create", handlerOpts));
+router.get('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "get", handlerOpts));
+router.put('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "update", handlerOpts));
+router.delete('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "delete", handlerOpts));
 
 //ResolverController
 router.get('/v1/resolver/resolve', handleRequest(Controllers.ResolverController, "resolve", handlerOpts));
 router.get('/v1/resolver/actions', handleRequest(Controllers.ResolverController, "actions", handlerOpts));
 router.get('/v1/resolver/models', handleRequest(Controllers.ResolverController, "models", handlerOpts));
 
+// map is required for correct resolving action by route
+export const actionToRouteMap = {
+	"PingController.pingGet": 'get /v1/ping/alive',
+	"OrganizationsController.search": 'get /v1/organizations',
+	"OrganizationsController.create": 'post /v1/organizations',
+	"OrganizationsController.get": 'get /v1/organizations/:organizationId',
+	"OrganizationsController.update": 'put /v1/organizations/:organizationId',
+	"OrganizationsController.delete": 'delete /v1/organizations/:organizationId',
+	"ResolverController.resolve": 'get /v1/resolver/resolve',
+	"ResolverController.actions": 'get /v1/resolver/actions',
+	"ResolverController.models": 'get /v1/resolver/models',
+};
