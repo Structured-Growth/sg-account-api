@@ -1,3 +1,3 @@
 export { PingController } from "./ping.controller";
-export { ExampleController } from "./example.controller";
+export { OrganizationsController } from "./organizations.controller";
 export { ResolverController } from "./resolver.controller";

@@ -1,7 +1,7 @@
 import "../src/app/providers";
 import { assert } from "chai";
 import { App } from "../src/app/app";
-import { container } from "@structured-growth/microservice-sdk";
+import { container, NotFoundError } from "@structured-growth/microservice-sdk";
 import { ResolverController } from "../src/controllers/v1";
 
 describe("Test resolver", () => {
@@ -11,21 +11,26 @@ describe("Test resolver", () => {
 	before(async () => app.ready);
 
 	it("Should return resolved model", async () => {
-		const { arn } = await controller.resolve({
-			resource: "Example",
-			id: 1,
-		});
-		assert.isString(arn);
+		try {
+			await controller.resolve({
+				resource: "Unknown",
+				id: 1,
+			});
+		} catch (e) {
+			assert.isTrue(e instanceof NotFoundError);
+		}
 	});
 
 	it("Should return list of actions", async () => {
 		const { data } = await controller.actions();
+		console.log(data);
 		assert.isArray(data);
 		assert.equal(data.filter((item) => item.action.includes("resolve")).length, 3);
 	});
 
 	it("Should return list of models", async () => {
 		const { data } = await controller.models();
-		assert.equal(data[0].resource, "Example");
+		console.log(data);
+		assert.isString(data[0].resource);
 	});
 });

@@ -1,0 +1,63 @@
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
+import { Optional } from "sequelize";
+import {
+	container,
+	RegionEnum,
+	DefaultModelInterface,
+	BelongsToOrgInterface,
+	BelongsToAccountInterface,
+} from "@structured-growth/microservice-sdk";
+
+export interface OrganizationAttributes
+	extends Omit<DefaultModelInterface, keyof BelongsToOrgInterface | keyof BelongsToAccountInterface> {
+	region: RegionEnum;
+	parentOrgId: number | null;
+	title: string;
+	name: string;
+	imageUuid: string | null;
+	status: "active" | "inactive" | "deleted";
+}
+
+export interface OrganizationCreationAttributes extends Optional<OrganizationAttributes, "id"> {}
+
+@Table({
+	tableName: "organizations",
+	timestamps: true,
+	underscored: true,
+})
+export class Organization
+	extends Model<OrganizationAttributes, OrganizationCreationAttributes>
+	implements OrganizationAttributes
+{
+	@Column(DataType.STRING)
+	region: RegionEnum;
+
+	@Column
+	@ForeignKey(() => Organization)
+	parentOrgId: number | null;
+
+	@BelongsTo(() => Organization)
+	parentOrg: Organization;
+
+	@Column
+	title: string;
+
+	@Column
+	name: string;
+
+	@Column
+	imageUuid: string | null;
+
+	@Column(DataType.STRING)
+	status: OrganizationAttributes["status"];
+
+	static get arnPattern(): string {
+		return [container.resolve("appPrefix"), "<region>", "<orgId>"].join(":");
+	}
+
+	get arn(): string {
+		return [container.resolve("appPrefix"), this.region, this.id].join(":");
+	}
+}
+
+export default Organization;
