@@ -1,3 +1,7 @@
 export { PingController } from "./ping.controller";
-export { OrganizationsController } from "./organizations.controller";
 export { ResolverController } from "./resolver.controller";
+export { OrganizationsController } from "./organizations.controller";
+export { AccountsController } from "./accounts.controller";
+export { EmailsController } from "./emails.controller";
+export { UsersController } from "./users.controller";
+export { PreferencesController } from "./preferences.controller";

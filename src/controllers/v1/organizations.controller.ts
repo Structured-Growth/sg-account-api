@@ -14,11 +14,13 @@ import { OrganizationCreateBodyInterface } from "./interfaces/organization-creat
 import { OrganizationUpdateBodyInterface } from "./interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "./validators/organization-search-params.validator";
 
-/**
- * This is just an organization of a controller with search and CRUD operations over a model.
- */
+type PublicOrganizationAttributes = Pick<
+	OrganizationAttributes,
+	"id" | "parentOrgId" | "region" | "title" | "name" | "status" | "createdAt" | "updatedAt" | "arn"
+> & { imageUrl: string };
+
 @Route("v1/organizations")
-@Tags("OrganizationsController")
+@Tags("Organizations")
 @autoInjectable()
 export class OrganizationsController extends BaseController {
 	/**
@@ -37,7 +39,7 @@ export class OrganizationsController extends BaseController {
 	@ValidateFuncArgs(OrganizationSearchParamsValidator)
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
-	): Promise<SearchResultInterface<OrganizationAttributes>> {
+	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
 		return undefined;
 	}
 
@@ -48,8 +50,11 @@ export class OrganizationsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created organization")
 	@DescribeAction("organizations/create")
-	@DescribeResource("Organization", ({ query }) => Number(query.parentOrgId))
-	async create(@Queries() query: {}, @Body() body: OrganizationCreateBodyInterface): Promise<OrganizationAttributes> {
+	@DescribeResource("Organization", ({ body }) => Number(body.parentOrgId))
+	async create(
+		@Queries() query: {},
+		@Body() body: OrganizationCreateBodyInterface
+	): Promise<PublicOrganizationAttributes> {
 		return undefined;
 	}
 
@@ -61,7 +66,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns organization")
 	@DescribeAction("organizations/read")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
-	async get(@Path() organizationId: number): Promise<OrganizationAttributes> {
+	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
 		return undefined;
 	}
 
@@ -77,7 +82,7 @@ export class OrganizationsController extends BaseController {
 		@Path() organizationId: number,
 		@Queries() query: {},
 		@Body() body: OrganizationUpdateBodyInterface
-	): Promise<OrganizationAttributes> {
+	): Promise<PublicOrganizationAttributes> {
 		return undefined;
 	}
 
