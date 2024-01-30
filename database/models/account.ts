@@ -1,0 +1,45 @@
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
+import { Optional } from "sequelize";
+import {
+	container,
+	RegionEnum,
+	DefaultModelInterface,
+	BelongsToAccountInterface,
+} from "@structured-growth/microservice-sdk";
+import Organization from "./organization";
+
+export interface AccountAttributes extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface> {
+	status: "active" | "inactive" | "deleted";
+}
+
+export interface AccountCreationAttributes extends Optional<AccountAttributes, "id"> {}
+
+@Table({
+	tableName: "accounts",
+	timestamps: true,
+	underscored: true,
+})
+export class Account extends Model<AccountAttributes, AccountCreationAttributes> implements AccountAttributes {
+	@Column
+	@ForeignKey(() => Organization)
+	orgId: number;
+
+	@BelongsTo(() => Organization)
+	org: Organization;
+
+	@Column(DataType.STRING)
+	region: RegionEnum;
+
+	@Column(DataType.STRING)
+	status: AccountAttributes["status"];
+
+	static get arnPattern(): string {
+		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>"].join(":");
+	}
+
+	get arn(): string {
+		return [container.resolve("appPrefix"), this.region, this.orgId, this.id].join(":");
+	}
+}
+
+export default Account;

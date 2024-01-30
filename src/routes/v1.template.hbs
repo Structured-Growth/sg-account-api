@@ -22,3 +22,11 @@ router.{{method}}('{{fullPath}}', handleRequest(Controllers.{{../name}}, "{{name
   {{/each}}
 {{/each}}
 
+// map is required for correct resolving action by route
+export const actionToRouteMap = {
+{{#each controllers}}
+	{{#each actions}}
+	"{{../name}}.{{name}}": '{{method}} {{fullPath}}',
+	{{/each}}
+{{/each}}
+};

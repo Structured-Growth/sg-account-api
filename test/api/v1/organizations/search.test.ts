@@ -5,13 +5,13 @@ import { container, webServer } from "@structured-growth/microservice-sdk";
 import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 
-describe("GET /api/v1/examples", () => {
+describe("GET /api/v1/organizations", () => {
 	const server = agent(webServer(routes));
 
 	before(async () => container.resolve<App>("App").ready);
 
 	it("Should return validation error", async () => {
-		const { statusCode, body } = await server.get("/v1/examples").query({
+		const { statusCode, body } = await server.get("/v1/organizations").query({
 			orgId: 1,
 		});
 		assert.equal(statusCode, 422);

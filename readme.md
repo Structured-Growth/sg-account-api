@@ -1,48 +1,36 @@
-# API service Starter Kit
+# Structured Growth Account API
 
 ## Features
 
-- Automatic versioning with [semantic-release](https://semantic-release.gitbook.io/semantic-release/);
-- Automatic creating NPM package and Docker image;
-- Generate routes from controllers (using [tsoa](https://tsoa-community.github.io/docs/introduction.html));
-- Generate API docs (json, html) from controllers (
-  using [tsoa](https://tsoa-community.github.io/docs/introduction.html));
-- Different operating modes:
-    - Standalone web server powered by [express.js](https://expressjs.com/);
-    - Lambda handler for HTTP events;
-    - Lambda handler for EventBridge, SQS events;
-- Configured Sequelize for database connections;
-- GitHub workflows
-    - Lint commit messages with [Commitlint](https://commitlint.js.org/#/);
-    - Check code style with [Prettier](https://prettier.io/) on PR is opened/reopened;
-    - Create release, npm package and docker image on push to the `main` branch.
-    - Generating API docs and storing them as release assets.
+- Organizations management;
+- Accounts, users, emails, preferences management;
+- Groups & members management;
+
+This repository created from [API service Starter Kit](https://github.com/Structured-Growth/api-service-starter-kit). 
+Follow the link to read more about its features.
 
 ## Getting started
 
-1. Press **Use this template** button at the top right to create new repository using this template.
+1. Make sure you have access to
+   the [Microservice SDK repository](https://github.com/Structured-Growth/microservice-sdk-ts). It's the main
+   dependency.
 
-2. Clone created repository.
-
-3. Make sure you have access to the private Structured Growth NPM
-   registry. [Microservice SDK](https://github.com/Structured-Growth/microservice-sdk-ts) is the main dependency.
-
-4. Create a personal GitHub access token in order to be able to install dependencies from private npm registries. Go to
+2. Create a personal GitHub access token in order to be able to install dependencies from private npm registries. Go to
    the [Developer Settings](https://github.com/settings/tokens) and generate classic access token.
 
-5. Install dependencies:
+3. Install dependencies:
     ```shell
     GITHUB_TOKEN=<your-token-here> npm i
     ```
 
-6. A new `.env` file will be created under the project root. Fill it with correct values.
+4. A new `.env` file will be created under the project root. Fill it with correct values.
 
-7. Change package name to actual in these places:
-    - `package.json:name`
-    - `package.json:scripts.build-docker`
-    - `package.json:repository.url`
+6. In case you want to use local database in a docker container run this command:
+    ```shell
+     docker-compose up -d
+     ```
 
-8. Start the local web server
+7. Start the local web server
     ```shell
     npm run dev
     ```
@@ -58,11 +46,6 @@
 - `npm run docs` - generates API docs from controller definitions;
 - `npm start` - starts the web server from the `.dist` folder.
 
-## Configure your repository
-
-1. Make the `main` branch protected and deny direct push to it.
-2. Create `dev` branch.
-
 ## Build
 
 Docker image registry is the main distribution channel for our microservices. This repository provides GitHub workflows
@@ -70,13 +53,15 @@ for automated build and push an image to a private docker registry.
 
 ### Configure GitHub workflow
 
-Firstly create a docker repository with the same name as package. For example `<aws_account_id>.dkr.ecr.<region>.amazonaws.com/api-service-starter-kit` 
+Firstly create a docker repository with the same name as package. For
+example `<aws_account_id>.dkr.ecr.<region>.amazonaws.com/api-service-starter-kit`
 
 In order to create and push new image you have to set GitHub Actions Secrets that provides access to a private registry.
 
 1. Go to the Repository Settings > Secrets & Variables > Actions;
 2. Create these secrets:
-    - `REGISTRY_URI` - URI of a private Docker registry (like <aws_account_id>.dkr.ecr.<region>.amazonaws.com, without repository name);
+    - `REGISTRY_URI` - URI of a private Docker registry (like <aws_account_id>.dkr.ecr.<region>.amazonaws.com, without
+      repository name);
     - `AWS_ACCESS_KEY_ID` - IAM access token with write permissions on ECR;
     - `AWS_SECRET_ACCESS_KEY`
     - `AWS_DEFAULT_REGION`

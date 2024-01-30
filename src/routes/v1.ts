@@ -15,18 +15,100 @@ const handlerOpts = {
 
 export const router = Router();
 
+//UsersController
+router.get('/v1/users', handleRequest(Controllers.UsersController, "search", handlerOpts));
+router.post('/v1/users', handleRequest(Controllers.UsersController, "create", handlerOpts));
+router.get('/v1/users/:userId', handleRequest(Controllers.UsersController, "get", handlerOpts));
+router.put('/v1/users/:userId', handleRequest(Controllers.UsersController, "update", handlerOpts));
+router.delete('/v1/users/:userId', handleRequest(Controllers.UsersController, "delete", handlerOpts));
+
 //PingController
 router.get('/v1/ping/alive', handleRequest(Controllers.PingController, "pingGet", handlerOpts));
 
-//ExampleController
-router.get('/v1/examples', handleRequest(Controllers.ExampleController, "search", handlerOpts));
-router.post('/v1/examples', handleRequest(Controllers.ExampleController, "create", handlerOpts));
-router.get('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "get", handlerOpts));
-router.put('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "update", handlerOpts));
-router.delete('/v1/examples/:exampleId', handleRequest(Controllers.ExampleController, "delete", handlerOpts));
+//OrganizationsController
+router.get('/v1/organizations', handleRequest(Controllers.OrganizationsController, "search", handlerOpts));
+router.post('/v1/organizations', handleRequest(Controllers.OrganizationsController, "create", handlerOpts));
+router.get('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "get", handlerOpts));
+router.put('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "update", handlerOpts));
+router.delete('/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "delete", handlerOpts));
+
+//AccountsController
+router.get('/v1/accounts', handleRequest(Controllers.AccountsController, "search", handlerOpts));
+router.post('/v1/accounts', handleRequest(Controllers.AccountsController, "create", handlerOpts));
+router.get('/v1/accounts/:accountId', handleRequest(Controllers.AccountsController, "get", handlerOpts));
+router.put('/v1/accounts/:accountId', handleRequest(Controllers.AccountsController, "update", handlerOpts));
+router.delete('/v1/accounts/:accountId', handleRequest(Controllers.AccountsController, "delete", handlerOpts));
+
+//EmailsController
+router.get('/v1/emails', handleRequest(Controllers.EmailsController, "search", handlerOpts));
+router.post('/v1/emails', handleRequest(Controllers.EmailsController, "create", handlerOpts));
+router.get('/v1/emails/:emailId', handleRequest(Controllers.EmailsController, "get", handlerOpts));
+router.put('/v1/emails/:emailId', handleRequest(Controllers.EmailsController, "update", handlerOpts));
+router.post('/v1/emails/:emailId/send-code', handleRequest(Controllers.EmailsController, "sendCode", handlerOpts));
+router.post('/v1/emails/:emailId/verify', handleRequest(Controllers.EmailsController, "verify", handlerOpts));
+router.delete('/v1/emails/:emailId', handleRequest(Controllers.EmailsController, "delete", handlerOpts));
+
+//PreferencesController
+router.get('/v1/preferences', handleRequest(Controllers.PreferencesController, "read", handlerOpts));
+router.post('/v1/preferences', handleRequest(Controllers.PreferencesController, "update", handlerOpts));
+
+//GroupsController
+router.get('/v1/groups', handleRequest(Controllers.GroupsController, "search", handlerOpts));
+router.post('/v1/groups', handleRequest(Controllers.GroupsController, "create", handlerOpts));
+router.get('/v1/groups/:groupId', handleRequest(Controllers.GroupsController, "get", handlerOpts));
+router.put('/v1/groups/:groupId', handleRequest(Controllers.GroupsController, "update", handlerOpts));
+router.delete('/v1/groups/:groupId', handleRequest(Controllers.GroupsController, "delete", handlerOpts));
+
+//GroupMembersController
+router.get('/v1/group-members', handleRequest(Controllers.GroupMembersController, "search", handlerOpts));
+router.post('/v1/group-members', handleRequest(Controllers.GroupMembersController, "create", handlerOpts));
+router.get('/v1/group-members/:groupMemberId', handleRequest(Controllers.GroupMembersController, "get", handlerOpts));
+router.put('/v1/group-members/:groupMemberId', handleRequest(Controllers.GroupMembersController, "update", handlerOpts));
+router.delete('/v1/group-members/:groupMemberId', handleRequest(Controllers.GroupMembersController, "delete", handlerOpts));
 
 //ResolverController
 router.get('/v1/resolver/resolve', handleRequest(Controllers.ResolverController, "resolve", handlerOpts));
 router.get('/v1/resolver/actions', handleRequest(Controllers.ResolverController, "actions", handlerOpts));
 router.get('/v1/resolver/models', handleRequest(Controllers.ResolverController, "models", handlerOpts));
 
+// map is required for correct resolving action by route
+export const actionToRouteMap = {
+	"UsersController.search": 'get /v1/users',
+	"UsersController.create": 'post /v1/users',
+	"UsersController.get": 'get /v1/users/:userId',
+	"UsersController.update": 'put /v1/users/:userId',
+	"UsersController.delete": 'delete /v1/users/:userId',
+	"PingController.pingGet": 'get /v1/ping/alive',
+	"OrganizationsController.search": 'get /v1/organizations',
+	"OrganizationsController.create": 'post /v1/organizations',
+	"OrganizationsController.get": 'get /v1/organizations/:organizationId',
+	"OrganizationsController.update": 'put /v1/organizations/:organizationId',
+	"OrganizationsController.delete": 'delete /v1/organizations/:organizationId',
+	"AccountsController.search": 'get /v1/accounts',
+	"AccountsController.create": 'post /v1/accounts',
+	"AccountsController.get": 'get /v1/accounts/:accountId',
+	"AccountsController.update": 'put /v1/accounts/:accountId',
+	"AccountsController.delete": 'delete /v1/accounts/:accountId',
+	"EmailsController.search": 'get /v1/emails',
+	"EmailsController.create": 'post /v1/emails',
+	"EmailsController.get": 'get /v1/emails/:emailId',
+	"EmailsController.update": 'put /v1/emails/:emailId',
+	"EmailsController.sendCode": 'post /v1/emails/:emailId/send-code',
+	"EmailsController.verify": 'post /v1/emails/:emailId/verify',
+	"EmailsController.delete": 'delete /v1/emails/:emailId',
+	"PreferencesController.read": 'get /v1/preferences',
+	"PreferencesController.update": 'post /v1/preferences',
+	"GroupsController.search": 'get /v1/groups',
+	"GroupsController.create": 'post /v1/groups',
+	"GroupsController.get": 'get /v1/groups/:groupId',
+	"GroupsController.update": 'put /v1/groups/:groupId',
+	"GroupsController.delete": 'delete /v1/groups/:groupId',
+	"GroupMembersController.search": 'get /v1/group-members',
+	"GroupMembersController.create": 'post /v1/group-members',
+	"GroupMembersController.get": 'get /v1/group-members/:groupMemberId',
+	"GroupMembersController.update": 'put /v1/group-members/:groupMemberId',
+	"GroupMembersController.delete": 'delete /v1/group-members/:groupMemberId',
+	"ResolverController.resolve": 'get /v1/resolver/resolve',
+	"ResolverController.actions": 'get /v1/resolver/actions',
+	"ResolverController.models": 'get /v1/resolver/models',
+};
