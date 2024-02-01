@@ -87,12 +87,12 @@ export class OrganizationsController extends BaseController {
 	}
 
 	/**
-	 * Delete Organization
+	 * Archive Organization. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Delete")
+	@OperationId("Archive")
 	@Delete("/:organizationId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("organizations/delete")
+	@DescribeAction("organizations/archive")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
 	async delete(@Path() organizationId: number): Promise<void> {
 		return undefined;

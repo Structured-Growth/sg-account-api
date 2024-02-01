@@ -15,7 +15,7 @@ export interface OrganizationAttributes
 	title: string;
 	name: string;
 	imageUuid: string | null;
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface OrganizationCreationAttributes extends Optional<OrganizationAttributes, "id"> {}

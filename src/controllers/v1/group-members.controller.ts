@@ -13,7 +13,7 @@ import { GroupMemberUpdateBodyInterface } from "./interfaces/group-member-update
 
 type PublicGroupMemberAttributes = Pick<
 	GroupMemberAttributes,
-	"id" | "orgId" | "region" | "groupId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "status" | "arn"
+	"id" | "groupId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "status" | "arn"
 >;
 
 @Route("v1/group-members")

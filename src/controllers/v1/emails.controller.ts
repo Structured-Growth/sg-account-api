@@ -14,7 +14,7 @@ import { EmailVerifyBodyInterface } from "./interfaces/email-verify-body.interfa
 
 type PublicEmailAttributes = Pick<
 	EmailAttributes,
-	"id" | "orgId" | "region" | "accountId" | "createdAt" | "updatedAt" | "email" | "isPrimary" | "status" | "arn"
+	"id" | "orgId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "email" | "isPrimary" | "status" | "arn"
 >;
 
 @Route("v1/emails")
@@ -42,6 +42,7 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(201, "Returns created email")
 	@DescribeAction("emails/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("User", ({ body }) => Number(body.userId))
 	async create(@Queries() query: {}, @Body() body: EmailCreateBodyInterface): Promise<PublicEmailAttributes> {
 		return undefined;
 	}
@@ -103,12 +104,12 @@ export class EmailsController extends BaseController {
 	}
 
 	/**
-	 * Delete Email
+	 * Archive Email. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Delete")
+	@OperationId("Archive")
 	@Delete("/:emailId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("emails/delete")
+	@DescribeAction("emails/archive")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
 	async delete(@Path() emailId: number): Promise<void> {
 		return undefined;

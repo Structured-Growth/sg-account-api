@@ -5,9 +5,9 @@ import Organization from "./organization";
 import Account from "./account";
 import User from "./user";
 
-export interface EmailAttributes extends DefaultModelInterface {
+export interface PhoneAttributes extends DefaultModelInterface {
 	userId: number;
-	email: string;
+	phoneNumber: string;
 	isPrimary: boolean;
 	status: "verification" | "active" | "inactive" | "archived";
 	verificationCodeHash: string;
@@ -15,14 +15,14 @@ export interface EmailAttributes extends DefaultModelInterface {
 	verificationCodeExpires: Date;
 }
 
-export interface EmailCreationAttributes extends Optional<EmailAttributes, "id"> {}
+export interface PhoneCreationAttributes extends Optional<PhoneAttributes, "id"> {}
 
 @Table({
-	tableName: "emails",
+	tableName: "phones",
 	timestamps: true,
 	underscored: true,
 })
-export class Email extends Model<EmailAttributes, EmailCreationAttributes> implements EmailAttributes {
+export class Phone extends Model<PhoneAttributes, PhoneCreationAttributes> implements PhoneAttributes {
 	@Column
 	@ForeignKey(() => Organization)
 	orgId: number;
@@ -48,13 +48,13 @@ export class Email extends Model<EmailAttributes, EmailCreationAttributes> imple
 	user: User;
 
 	@Column
-	email: string;
+	phoneNumber: string;
 
 	@Column
 	isPrimary: boolean;
 
 	@Column(DataType.STRING)
-	status: EmailAttributes["status"];
+	status: PhoneAttributes["status"];
 
 	@Column
 	verificationCodeHash: string;
@@ -66,12 +66,12 @@ export class Email extends Model<EmailAttributes, EmailCreationAttributes> imple
 	verificationCodeExpires: Date;
 
 	static get arnPattern(): string {
-		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "emails/<emailId>"].join(":");
+		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "phones/<phoneId>"].join(":");
 	}
 
 	get arn(): string {
-		return [container.resolve("appPrefix"), this.region, this.orgId, this.accountId, `emails/${this.id}`].join(":");
+		return [container.resolve("appPrefix"), this.region, this.orgId, this.accountId, `phones/${this.id}`].join(":");
 	}
 }
 
-export default Email;
+export default Phone;

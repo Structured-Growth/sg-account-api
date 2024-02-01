@@ -9,7 +9,7 @@ import {
 import Organization from "./organization";
 
 export interface AccountAttributes extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface> {
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface AccountCreationAttributes extends Optional<AccountAttributes, "id"> {}

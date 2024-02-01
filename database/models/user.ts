@@ -11,7 +11,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	gender: "male" | "female";
 	imageUuid: string | null;
 	isPrimary: boolean;
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}

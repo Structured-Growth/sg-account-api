@@ -14,7 +14,7 @@ import { AccountUpdateBodyInterface } from "./interfaces/account-update-body.int
 
 type PublicAccountAttributes = Pick<
 	AccountAttributes,
-	"id" | "orgId" | "region" | "createdAt" | "updatedAt" | "status" | "arn"
+	"id" | "orgId" | "createdAt" | "updatedAt" | "status" | "arn"
 >;
 
 @Route("v1/accounts")
@@ -77,12 +77,12 @@ export class AccountsController extends BaseController {
 	}
 
 	/**
-	 * Delete Account
+	 * Archive Account. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Delete")
+	@OperationId("Archive")
 	@Delete("/:accountId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("accounts/delete")
+	@DescribeAction("accounts/archive")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	async delete(@Path() accountId: number): Promise<void> {
 		return undefined;

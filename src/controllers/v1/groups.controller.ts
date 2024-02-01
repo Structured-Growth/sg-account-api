@@ -13,7 +13,7 @@ import { GroupUpdateBodyInterface } from "./interfaces/group-update-body.interfa
 
 type PublicGroupAttributes = Pick<
 	GroupAttributes,
-	"id" | "orgId" | "region" | "accountId" | "createdAt" | "updatedAt" | "title" | "name" | "status" | "arn"
+	"id" | "orgId" | "accountId" | "createdAt" | "updatedAt" | "title" | "name" | "status" | "arn"
 > & { imageUrl: string };
 
 @Route("v1/groups")
@@ -74,12 +74,12 @@ export class GroupsController extends BaseController {
 	}
 
 	/**
-	 * Delete Group
+	 * Archive Group. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Delete")
+	@OperationId("Archive")
 	@Delete("/:groupId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("groups/delete")
+	@DescribeAction("groups/archive")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async delete(@Path() groupId: number): Promise<void> {
 		return undefined;

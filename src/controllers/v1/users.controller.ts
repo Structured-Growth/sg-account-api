@@ -15,7 +15,6 @@ type PublicUserAttributes = Pick<
 	UserAttributes,
 	| "id"
 	| "orgId"
-	| "region"
 	| "accountId"
 	| "createdAt"
 	| "updatedAt"
@@ -86,12 +85,12 @@ export class UsersController extends BaseController {
 	}
 
 	/**
-	 * Delete User
+	 * Archive User. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Delete")
+	@OperationId("Archive")
 	@Delete("/:userId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("users/delete")
+	@DescribeAction("users/archive")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
 	async delete(@Path() userId: number): Promise<void> {
 		return undefined;
