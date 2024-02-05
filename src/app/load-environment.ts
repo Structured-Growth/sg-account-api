@@ -40,5 +40,7 @@ export function loadEnvironment() {
 		DB_SCHEMA: joi.string().required(),
 		DB_MIGRATION_TABLE_SCHEMA: joi.string().required(),
 		DB_MIGRATION_TABLE_NAME: joi.string().required(),
+		S3_USER_DATA_BUCKET: joi.string().required(),
+		S3_USER_DATA_BUCKET_WEBSITE_URL: joi.string().uri().required(),
 	});
 }

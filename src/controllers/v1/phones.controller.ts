@@ -104,12 +104,12 @@ export class PhonesController extends BaseController {
 	}
 
 	/**
-	 * Archive Phone. Will be permanently deleted in 90 days.
+	 * Mark Phone as deleted. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Archive")
+	@OperationId("Delete")
 	@Delete("/:phoneId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("phones/archive")
+	@DescribeAction("phones/delete")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
 	async delete(@Path() phoneId: number): Promise<void> {
 		return undefined;

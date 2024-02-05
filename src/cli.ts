@@ -3,8 +3,6 @@ import "./app/providers";
 import { AppMock } from "./app/app.mock";
 import { container, generateApiDocs, Lifecycle } from "@structured-growth/microservice-sdk";
 import { program } from "commander";
-
-container.register("App", AppMock, { lifecycle: Lifecycle.Singleton });
 import { startWebServer } from "./api";
 
 program.option("-e, --env-file <envFile>", "path to .env file", ".env");
@@ -14,6 +12,7 @@ program
 	.command("docs")
 	.description("Generate API docs")
 	.action(async () => {
+		container.register("App", AppMock, { lifecycle: Lifecycle.Singleton });
 		const app = container.resolve<AppMock>("App");
 		await app.ready;
 		const specConfig = await require("../tsoa.v1.json");

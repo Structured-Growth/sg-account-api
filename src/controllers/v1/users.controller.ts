@@ -85,12 +85,12 @@ export class UsersController extends BaseController {
 	}
 
 	/**
-	 * Archive User. Will be permanently deleted in 90 days.
+	 * Mark User as deleted. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Archive")
+	@OperationId("Delete")
 	@Delete("/:userId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("users/archive")
+	@DescribeAction("users/delete")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
 	async delete(@Path() userId: number): Promise<void> {
 		return undefined;

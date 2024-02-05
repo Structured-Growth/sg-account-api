@@ -2,7 +2,6 @@ import { Get, Route, Tags, Queries, OperationId, SuccessResponse, Body, Post, Pa
 import {
 	autoInjectable,
 	BaseController,
-	container,
 	DescribeAction,
 	DescribeResource,
 	SearchResultInterface,
@@ -12,10 +11,7 @@ import { AccountSearchParamsInterface } from "./interfaces/account-search-params
 import { AccountCreateBodyInterface } from "./interfaces/account-create-body.interface";
 import { AccountUpdateBodyInterface } from "./interfaces/account-update-body.interface";
 
-type PublicAccountAttributes = Pick<
-	AccountAttributes,
-	"id" | "orgId" | "createdAt" | "updatedAt" | "status" | "arn"
->;
+type PublicAccountAttributes = Pick<AccountAttributes, "id" | "orgId" | "createdAt" | "updatedAt" | "status" | "arn">;
 
 @Route("v1/accounts")
 @Tags("Accounts")
@@ -77,12 +73,12 @@ export class AccountsController extends BaseController {
 	}
 
 	/**
-	 * Archive Account. Will be permanently deleted in 90 days.
+	 * Mark Account as deleted. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Archive")
+	@OperationId("Delete")
 	@Delete("/:accountId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("accounts/archive")
+	@DescribeAction("accounts/delete")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	async delete(@Path() accountId: number): Promise<void> {
 		return undefined;

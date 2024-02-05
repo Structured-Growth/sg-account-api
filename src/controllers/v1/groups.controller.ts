@@ -74,12 +74,12 @@ export class GroupsController extends BaseController {
 	}
 
 	/**
-	 * Archive Group. Will be permanently deleted in 90 days.
+	 * Mark Group as deleted. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Archive")
+	@OperationId("Delete")
 	@Delete("/:groupId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("groups/archive")
+	@DescribeAction("groups/delete")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async delete(@Path() groupId: number): Promise<void> {
 		return undefined;

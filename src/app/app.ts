@@ -39,7 +39,7 @@ export class App {
 	protected async connectToDatabase() {
 		const config = await dbConfig();
 		try {
-			this.sequelize = await connectDatabase(config, this.logDbRequests);
+			this.sequelize = await connectDatabase(Sequelize, config, this.logDbRequests);
 		} catch (e) {
 			this.sequelize = new Sequelize({
 				dialect: "postgres",

@@ -1,4 +1,6 @@
+import { PhoneAttributes } from "../../../../database/models/phone";
+
 export interface PhoneUpdateBodyInterface {
 	isPrimary?: boolean;
-	status?: "active" | "inactive";
+	status?: PhoneAttributes["status"];
 }

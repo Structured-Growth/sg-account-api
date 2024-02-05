@@ -104,12 +104,12 @@ export class EmailsController extends BaseController {
 	}
 
 	/**
-	 * Archive Email. Will be permanently deleted in 90 days.
+	 * Mark Email as deleted. Will be permanently deleted in 90 days.
 	 */
-	@OperationId("Archive")
+	@OperationId("Delete")
 	@Delete("/:emailId")
 	@SuccessResponse(204, "Returns nothing")
-	@DescribeAction("emails/archive")
+	@DescribeAction("emails/delete")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
 	async delete(@Path() emailId: number): Promise<void> {
 		return undefined;

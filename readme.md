@@ -115,6 +115,16 @@ docker run --rm -it \
   .dist/src/lambda-sqs.handler
 ```
 
+#### Running migrations
+
+```shell
+docker run --rm -it \
+  --env-file ./.env \
+  --entrypoint npx \
+  structured-growth/api-service-starter-kit \
+  sequelize db:migrate
+```
+
 ## Deploy
 
 There are a lot of options to deploy the docker image:
