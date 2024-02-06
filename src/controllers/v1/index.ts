@@ -7,3 +7,4 @@ export { UsersController } from "./users.controller";
 export { PreferencesController } from "./preferences.controller";
 export { GroupsController } from "./groups.controller";
 export { GroupMembersController } from "./group-members.controller";
+export { PhonesController } from "./phones.controller";

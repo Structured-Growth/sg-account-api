@@ -1,5 +1,7 @@
+import { OrganizationAttributes } from "../../../../database/models/organization";
+
 export interface OrganizationUpdateBodyInterface {
 	title?: string;
-	status?: "active" | "inactive";
+	status?: OrganizationAttributes["status"];
 	imageBase64?: string;
 }

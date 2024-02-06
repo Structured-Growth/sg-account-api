@@ -3,7 +3,7 @@
 /** @type {import("sequelize-cli").Migration} */
 module.exports = {
 	async up(queryInterface, Sequelize) {
-		await queryInterface.createTable("emails", {
+		await queryInterface.createTable("phones", {
 			id: {
 				type: Sequelize.INTEGER,
 				primaryKey: true,
@@ -37,8 +37,8 @@ module.exports = {
 				},
 				onDelete: "RESTRICT",
 			},
-			email: {
-				type: Sequelize.STRING(100),
+			phone_number: {
+				type: Sequelize.STRING(20),
 				allowNull: false,
 			},
 			is_primary: Sequelize.BOOLEAN,
@@ -56,6 +56,6 @@ module.exports = {
 	},
 
 	async down(queryInterface, Sequelize) {
-		await queryInterface.dropTable("emails");
+		await queryInterface.dropTable("phones");
 	},
 };

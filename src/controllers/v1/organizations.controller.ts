@@ -1,28 +1,44 @@
 import { Get, Route, Tags, Queries, OperationId, SuccessResponse, Body, Post, Path, Put, Delete } from "tsoa";
 import {
 	autoInjectable,
+	inject,
 	BaseController,
 	container,
 	DescribeAction,
 	DescribeResource,
 	SearchResultInterface,
 	ValidateFuncArgs,
+	RepositoryInterface,
 } from "@structured-growth/microservice-sdk";
-import { OrganizationAttributes } from "../../../database/models/organization";
+import { Organization, OrganizationAttributes } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "./interfaces/organization-search-params.interface";
 import { OrganizationCreateBodyInterface } from "./interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "./interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "./validators/organization-search-params.validator";
+import { pick } from "lodash";
 
-type PublicOrganizationAttributes = Pick<
-	OrganizationAttributes,
-	"id" | "parentOrgId" | "region" | "title" | "name" | "status" | "createdAt" | "updatedAt" | "arn"
-> & { imageUrl: string };
+const publicOrganizationAttributes = [
+	"id",
+	"parentOrgId",
+	"region",
+	"title",
+	"name",
+	"status",
+	"createdAt",
+	"updatedAt",
+	"arn",
+] as const;
+type OrganizationKeys = (typeof publicOrganizationAttributes)[number];
+type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKeys> & { imageUrl: string | null };
 
 @Route("v1/organizations")
 @Tags("Organizations")
 @autoInjectable()
 export class OrganizationsController extends BaseController {
+	constructor(@inject("OrganizationRepository") private repository: RepositoryInterface<Organization, any, any>) {
+		super();
+	}
+
 	/**
 	 * Search Organizations
 	 */
@@ -40,8 +56,17 @@ export class OrganizationsController extends BaseController {
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
 	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.repository.search(query);
+
+		return {
+			data: data.map((organization) => ({
+				...pick(organization.toJSON(), publicOrganizationAttributes),
+				imageUrl: organization.imageUrl,
+			})),
+			...result,
+		};
 	}
+
 
 	/**
 	 * Create Organization
@@ -87,7 +112,7 @@ export class OrganizationsController extends BaseController {
 	}
 
 	/**
-	 * Delete Organization
+	 * Mark Organization as deleted. Will be permanently deleted in 90 days.
 	 */
 	@OperationId("Delete")
 	@Delete("/:organizationId")

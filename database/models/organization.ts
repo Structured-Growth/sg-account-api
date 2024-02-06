@@ -7,6 +7,7 @@ import {
 	BelongsToOrgInterface,
 	BelongsToAccountInterface,
 } from "@structured-growth/microservice-sdk";
+import { random } from "lodash";
 
 export interface OrganizationAttributes
 	extends Omit<DefaultModelInterface, keyof BelongsToOrgInterface | keyof BelongsToAccountInterface> {
@@ -15,7 +16,7 @@ export interface OrganizationAttributes
 	title: string;
 	name: string;
 	imageUuid: string | null;
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface OrganizationCreationAttributes extends Optional<OrganizationAttributes, "id"> {}
@@ -57,6 +58,12 @@ export class Organization
 
 	get arn(): string {
 		return [container.resolve("appPrefix"), this.region, this.id].join(":");
+	}
+
+	get imageUrl(): string {
+		// todo: remove random
+		// return container.resolve("s3UserDataBucketWebSiteUrl") + `/pictures/${this.imageUuid}.jpg`;
+		return container.resolve("s3UserDataBucketWebSiteUrl") + `?random=${random(1, 100)}`;
 	}
 }
 

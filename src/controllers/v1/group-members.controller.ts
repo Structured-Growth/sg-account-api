@@ -13,10 +13,10 @@ import { GroupMemberUpdateBodyInterface } from "./interfaces/group-member-update
 
 type PublicGroupMemberAttributes = Pick<
 	GroupMemberAttributes,
-	"id" | "orgId" | "region" | "groupId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "status" | "arn"
+	"id" | "groupId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "status" | "arn"
 >;
 
-@Route("v1/group-members")
+@Route("v1/groups")
 @Tags("Group Members")
 @autoInjectable()
 export class GroupMembersController extends BaseController {
@@ -24,11 +24,12 @@ export class GroupMembersController extends BaseController {
 	 * Search group members
 	 */
 	@OperationId("Search")
-	@Get("/")
+	@Get("/:groupId/members")
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
-	@DescribeResource("Group", ({ query }) => Number(query.groupId))
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async search(
+		@Path() groupId: number,
 		@Queries() query: GroupMemberSearchParamsInterface
 	): Promise<SearchResultInterface<PublicGroupMemberAttributes>> {
 		return undefined;
@@ -38,11 +39,12 @@ export class GroupMembersController extends BaseController {
 	 * Add user to a group.
 	 */
 	@OperationId("Create")
-	@Post("/")
+	@Post("/:groupId/members")
 	@SuccessResponse(201, "Returns created group member")
 	@DescribeAction("group-members/create")
-	@DescribeResource("Group", ({ body }) => Number(body.groupId))
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async create(
+		@Path() groupId: number,
 		@Queries() query: {},
 		@Body() body: GroupMemberCreateBodyInterface
 	): Promise<PublicGroupMemberAttributes> {
@@ -53,11 +55,12 @@ export class GroupMembersController extends BaseController {
 	 * Get group member
 	 */
 	@OperationId("Read")
-	@Get("/:groupMemberId")
+	@Get("/:groupId/members/:groupMemberId")
 	@SuccessResponse(200, "Returns group member")
 	@DescribeAction("group-members/read")
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
-	async get(@Path() groupMemberId: number): Promise<PublicGroupMemberAttributes> {
+	async get(@Path() groupId: number, @Path() groupMemberId: number): Promise<PublicGroupMemberAttributes> {
 		return undefined;
 	}
 
@@ -65,11 +68,13 @@ export class GroupMembersController extends BaseController {
 	 * Update group member
 	 */
 	@OperationId("Update")
-	@Put("/:groupMemberId")
+	@Put("/:groupId/members/:groupMemberId")
 	@SuccessResponse(200, "Returns updated groupMember")
 	@DescribeAction("group-members/update")
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
 	async update(
+		@Path() groupId: number,
 		@Path() groupMemberId: number,
 		@Queries() query: {},
 		@Body() body: GroupMemberUpdateBodyInterface
@@ -81,11 +86,12 @@ export class GroupMembersController extends BaseController {
 	 * Remove user from a group
 	 */
 	@OperationId("Delete")
-	@Delete("/:groupMemberId")
+	@Delete("/:groupId/members/:groupMemberId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("group-members/delete")
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
-	async delete(@Path() groupMemberId: number): Promise<void> {
+	async delete(@Path() groupId: number, @Path() groupMemberId: number): Promise<void> {
 		return undefined;
 	}
 }

@@ -9,7 +9,7 @@ export interface GroupAttributes extends DefaultModelInterface {
 	title: string;
 	name: string;
 	imageUuid: string | null;
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface GroupCreationAttributes extends Optional<GroupAttributes, "id"> {}

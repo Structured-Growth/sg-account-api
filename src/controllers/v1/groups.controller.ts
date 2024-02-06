@@ -13,7 +13,7 @@ import { GroupUpdateBodyInterface } from "./interfaces/group-update-body.interfa
 
 type PublicGroupAttributes = Pick<
 	GroupAttributes,
-	"id" | "orgId" | "region" | "accountId" | "createdAt" | "updatedAt" | "title" | "name" | "status" | "arn"
+	"id" | "orgId" | "accountId" | "createdAt" | "updatedAt" | "title" | "name" | "status" | "arn"
 > & { imageUrl: string };
 
 @Route("v1/groups")
@@ -74,7 +74,7 @@ export class GroupsController extends BaseController {
 	}
 
 	/**
-	 * Delete Group
+	 * Mark Group as deleted. Will be permanently deleted in 90 days.
 	 */
 	@OperationId("Delete")
 	@Delete("/:groupId")

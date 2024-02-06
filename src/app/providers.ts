@@ -3,6 +3,8 @@ import "./load-environment";
 import { App } from "./app";
 import { container, Lifecycle, logWriters, Logger } from "@structured-growth/microservice-sdk";
 import { loadEnvironment } from "./load-environment";
+import { OrganizationRepository } from "../modules/organizations/organization.repository";
+import { OrganizationService } from "../modules/organizations/organization.service";
 
 // load and validate env variables
 loadEnvironment();
@@ -16,6 +18,8 @@ container.register("isTest", { useValue: process.env.STAGE === "test" });
 container.register("logDbRequests", { useValue: process.env.LOG_DB_REQUESTS === "true" });
 container.register("logRequestBody", { useValue: process.env.LOG_HTTP_REQUEST_BODY === "true" });
 container.register("logResponses", { useValue: process.env.LOG_HTTP_RESPONSES === "true" });
+container.register("s3UserDataBucket", { useValue: process.env.S3_USER_DATA_BUCKET });
+container.register("s3UserDataBucketWebSiteUrl", { useValue: process.env.S3_USER_DATA_BUCKET_WEBSITE_URL });
 
 // services
 container.register("LogWriter", logWriters[process.env.LOG_WRITER] || "ConsoleLogWriter", {
@@ -23,3 +27,7 @@ container.register("LogWriter", logWriters[process.env.LOG_WRITER] || "ConsoleLo
 });
 container.register("Logger", Logger);
 container.register("App", App, { lifecycle: Lifecycle.Singleton });
+container.register("OrganizationService", OrganizationService);
+
+// repositories
+container.register("OrganizationRepository", OrganizationRepository);

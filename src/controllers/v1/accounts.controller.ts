@@ -2,7 +2,6 @@ import { Get, Route, Tags, Queries, OperationId, SuccessResponse, Body, Post, Pa
 import {
 	autoInjectable,
 	BaseController,
-	container,
 	DescribeAction,
 	DescribeResource,
 	SearchResultInterface,
@@ -12,10 +11,7 @@ import { AccountSearchParamsInterface } from "./interfaces/account-search-params
 import { AccountCreateBodyInterface } from "./interfaces/account-create-body.interface";
 import { AccountUpdateBodyInterface } from "./interfaces/account-update-body.interface";
 
-type PublicAccountAttributes = Pick<
-	AccountAttributes,
-	"id" | "orgId" | "region" | "createdAt" | "updatedAt" | "status" | "arn"
->;
+type PublicAccountAttributes = Pick<AccountAttributes, "id" | "orgId" | "createdAt" | "updatedAt" | "status" | "arn">;
 
 @Route("v1/accounts")
 @Tags("Accounts")
@@ -77,7 +73,7 @@ export class AccountsController extends BaseController {
 	}
 
 	/**
-	 * Delete Account
+	 * Mark Account as deleted. Will be permanently deleted in 90 days.
 	 */
 	@OperationId("Delete")
 	@Delete("/:accountId")

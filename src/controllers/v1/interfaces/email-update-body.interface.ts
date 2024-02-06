@@ -1,4 +1,4 @@
 export interface EmailUpdateBodyInterface {
 	isPrimary?: boolean;
-	status?: "active" | "inactive";
+	status?: "active" | "inactive" | "archived";
 }

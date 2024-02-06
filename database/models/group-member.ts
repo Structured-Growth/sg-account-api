@@ -9,7 +9,7 @@ import User from "./user";
 export interface GroupMemberAttributes extends DefaultModelInterface {
 	groupId: number;
 	userId: number;
-	status: "active" | "inactive" | "deleted";
+	status: "active" | "inactive" | "archived";
 }
 
 export interface GroupMemberCreationAttributes extends Optional<GroupMemberAttributes, "id"> {}

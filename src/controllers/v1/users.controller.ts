@@ -15,7 +15,6 @@ type PublicUserAttributes = Pick<
 	UserAttributes,
 	| "id"
 	| "orgId"
-	| "region"
 	| "accountId"
 	| "createdAt"
 	| "updatedAt"
@@ -86,7 +85,7 @@ export class UsersController extends BaseController {
 	}
 
 	/**
-	 * Delete User
+	 * Mark User as deleted. Will be permanently deleted in 90 days.
 	 */
 	@OperationId("Delete")
 	@Delete("/:userId")
