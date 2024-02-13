@@ -14,11 +14,12 @@ const handlerOpts = {
 }
 
 export const router = Router();
+const pathPrefix = process.env.URI_PATH_PREFIX || '';
 {{#each controllers}}
 
 //{{name}}
   {{#each actions}}
-router.{{method}}('{{fullPath}}', handleRequest(Controllers.{{../name}}, "{{name}}", handlerOpts));
+router.{{method}}(pathPrefix + '{{fullPath}}', handleRequest(Controllers.{{../name}}, "{{name}}", handlerOpts));
   {{/each}}
 {{/each}}
 

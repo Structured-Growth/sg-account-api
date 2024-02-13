@@ -1,4 +1,4 @@
-import { GroupAttributes } from "../../../../database/models/group";
+import { GroupAttributes } from "../../database/models/group";
 
 export interface GroupUpdateBodyInterface {
 	parentGroupId?: number;

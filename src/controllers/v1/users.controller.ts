@@ -4,33 +4,45 @@ import {
 	BaseController,
 	DescribeAction,
 	DescribeResource,
+	inject,
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
-import { UserSearchParamsInterface } from "./interfaces/user-search-params.interface";
-import { UserCreateBodyInterface } from "./interfaces/user-create-body.interface";
-import { UserUpdateBodyInterface } from "./interfaces/user-update-body.interface";
+import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
+import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
+import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.interface";
+import { pick } from "lodash";
+import { UsersRepository } from "../../modules/users/users.repository";
+import { UsersService } from "../../modules/users/users.service";
 
-type PublicUserAttributes = Pick<
-	UserAttributes,
-	| "id"
-	| "orgId"
-	| "accountId"
-	| "createdAt"
-	| "updatedAt"
-	| "firstName"
-	| "lastName"
-	| "birthday"
-	| "gender"
-	| "isPrimary"
-	| "status"
-	| "arn"
-> & { imageUrl: string };
+const publicUserAttributes = [
+	"id",
+	"orgId",
+	"accountId",
+	"createdAt",
+	"updatedAt",
+	"firstName",
+	"lastName",
+	"birthday",
+	"gender",
+	"isPrimary",
+	"status",
+	"arn",
+] as const;
+type UserKeys = (typeof publicUserAttributes)[number];
+type PublicUserAttributes = Pick<UserAttributes, UserKeys> & { imageUrl: string | null };
 
 @Route("v1/users")
 @Tags("Users")
 @autoInjectable()
 export class UsersController extends BaseController {
+	constructor(
+		@inject("UsersRepository") private usersRepository: UsersRepository,
+		@inject("UsersService") private usersService: UsersService
+	) {
+		super();
+	}
+
 	/**
 	 * Search Users
 	 */
@@ -53,7 +65,13 @@ export class UsersController extends BaseController {
 	@DescribeAction("users/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	async create(@Queries() query: {}, @Body() body: UserCreateBodyInterface): Promise<PublicUserAttributes> {
-		return undefined;
+		const user = await this.usersService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+			arn: user.arn,
+		};
 	}
 
 	/**
@@ -93,6 +111,8 @@ export class UsersController extends BaseController {
 	@DescribeAction("users/delete")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
 	async delete(@Path() userId: number): Promise<void> {
-		return undefined;
+		this.response.status(204);
+
+		return this.usersRepository.delete(userId);
 	}
 }

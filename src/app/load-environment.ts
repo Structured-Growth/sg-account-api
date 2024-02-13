@@ -6,6 +6,7 @@ export function loadEnvironment() {
 		APP_PREFIX: joi.string().required().max(20).min(2),
 		HTTP_PORT: joi.number().positive().required(),
 		STAGE: joi.string().valid("dev", "qual", "prod").required(),
+		URI_PATH_PREFIX: joi.string(),
 		REGION: joi
 			.valid(
 				"us-east-1",

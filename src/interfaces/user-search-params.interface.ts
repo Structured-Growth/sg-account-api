@@ -1,5 +1,5 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
-import { UserAttributes } from "../../../../database/models/user";
+import { UserAttributes } from "../../database/models/user";
 
 export interface UserSearchParamsInterface extends DefaultSearchParamsInterface {
 	/**

@@ -1,4 +1,4 @@
-import { PhoneAttributes } from "../../../../database/models/phone";
+import { PhoneAttributes } from "../../database/models/phone";
 
 export interface PhoneUpdateBodyInterface {
 	isPrimary?: boolean;

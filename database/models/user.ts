@@ -14,7 +14,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	status: "active" | "inactive" | "archived";
 }
 
-export interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+export interface UserCreationAttributes extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "users",

@@ -43,7 +43,7 @@ module.exports = {
 			},
 			is_primary: Sequelize.BOOLEAN,
 			status: {
-				type: Sequelize.STRING(10),
+				type: Sequelize.STRING(15),
 				allowNull: false,
 			},
 			verification_code_hash: Sequelize.STRING(50),

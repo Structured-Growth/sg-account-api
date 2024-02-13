@@ -1,26 +1,48 @@
 import { Get, Route, Tags, Queries, OperationId, SuccessResponse, Body, Post, Path, Put, Delete } from "tsoa";
 import {
+	inject,
 	autoInjectable,
 	BaseController,
 	DescribeAction,
 	DescribeResource,
 	SearchResultInterface,
+	NotFoundError,
 } from "@structured-growth/microservice-sdk";
+import { pick } from "lodash";
 import { EmailAttributes } from "../../../database/models/email";
-import { EmailSearchParamsInterface } from "./interfaces/email-search-params.interface";
-import { EmailCreateBodyInterface } from "./interfaces/email-create-body.interface";
-import { EmailUpdateBodyInterface } from "./interfaces/email-update-body.interface";
-import { EmailVerifyBodyInterface } from "./interfaces/email-verify-body.interface";
+import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
+import { EmailCreateBodyInterface } from "../../interfaces/email-create-body.interface";
+import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.interface";
+import { EmailVerifyBodyInterface } from "../../interfaces/email-verify-body.interface";
+import { EmailsService } from "../../modules/emails/emails.service";
+import { EmailsRepository } from "../../modules/emails/emails.repository";
 
-type PublicEmailAttributes = Pick<
-	EmailAttributes,
-	"id" | "orgId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "email" | "isPrimary" | "status" | "arn"
->;
+const publicEmailAttributes = [
+	"id",
+	"orgId",
+	"accountId",
+	"userId",
+	"createdAt",
+	"updatedAt",
+	"email",
+	"isPrimary",
+	"status",
+	"arn",
+] as const;
+type EmailKeys = (typeof publicEmailAttributes)[number];
+type PublicEmailAttributes = Pick<EmailAttributes, EmailKeys>;
 
 @Route("v1/emails")
 @Tags("Emails")
 @autoInjectable()
 export class EmailsController extends BaseController {
+	constructor(
+		@inject("EmailsRepository") private emailRepository: EmailsRepository,
+		@inject("EmailsService") private emailService: EmailsService
+	) {
+		super();
+	}
+
 	/**
 	 * Search Emails
 	 */
@@ -31,7 +53,12 @@ export class EmailsController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
 	async search(@Queries() query: EmailSearchParamsInterface): Promise<SearchResultInterface<PublicEmailAttributes>> {
-		return undefined;
+		return {
+			data: [],
+			page: 1,
+			limit: 20,
+			total: 0
+		};
 	}
 
 	/**
@@ -44,7 +71,13 @@ export class EmailsController extends BaseController {
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("User", ({ body }) => Number(body.userId))
 	async create(@Queries() query: {}, @Body() body: EmailCreateBodyInterface): Promise<PublicEmailAttributes> {
-		return undefined;
+		const email = await this.emailService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+			arn: email.arn,
+		};
 	}
 
 	/**
@@ -56,7 +89,16 @@ export class EmailsController extends BaseController {
 	@DescribeAction("emails/read")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
 	async get(@Path() emailId: number): Promise<PublicEmailAttributes> {
-		return undefined;
+		const email = await this.emailRepository.read(emailId);
+
+		if (!email) {
+			throw new NotFoundError(`Email ${email} not found`);
+		}
+
+		return {
+			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+			arn: email.arn,
+		};
 	}
 
 	/**

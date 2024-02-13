@@ -7,10 +7,10 @@ import {
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { PhoneAttributes } from "../../../database/models/phone";
-import { PhoneSearchParamsInterface } from "./interfaces/phone-search-params.interface";
-import { PhoneCreateBodyInterface } from "./interfaces/phone-create-body.interface";
-import { PhoneUpdateBodyInterface } from "./interfaces/phone-update-body.interface";
-import { PhoneVerifyBodyInterface } from "./interfaces/phone-verify-body.interface";
+import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
+import { PhoneCreateBodyInterface } from "../../interfaces/phone-create-body.interface";
+import { PhoneUpdateBodyInterface } from "../../interfaces/phone-update-body.interface";
+import { PhoneVerifyBodyInterface } from "../../interfaces/phone-verify-body.interface";
 
 type PublicPhoneAttributes = Pick<
 	PhoneAttributes,

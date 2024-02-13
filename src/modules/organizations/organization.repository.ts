@@ -1,9 +1,6 @@
 import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Organization, {
-	OrganizationAttributes,
-	OrganizationCreationAttributes,
-} from "../../../database/models/organization";
-import { OrganizationSearchParamsInterface } from "../../controllers/v1/interfaces/organization-search-params.interface";
+import Organization, { OrganizationCreationAttributes } from "../../../database/models/organization";
+import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 
 @autoInjectable()
 export class OrganizationRepository
@@ -12,6 +9,7 @@ export class OrganizationRepository
 	public async search(params: OrganizationSearchParamsInterface): Promise<SearchResultInterface<Organization>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
+		const offset = (page - 1) * limit;
 		const where = {};
 
 		if (params.name) {
@@ -20,6 +18,7 @@ export class OrganizationRepository
 
 		const { rows, count } = await Organization.findAndCountAll({
 			where,
+			offset,
 			limit,
 		});
 
@@ -31,12 +30,20 @@ export class OrganizationRepository
 		};
 	}
 
-	public async create(params: any): Promise<Organization> {
+	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
 		return Promise.resolve(undefined);
 	}
 
-	public async read(id: number): Promise<Organization> {
-		return Promise.resolve(undefined);
+	public async read(
+		id: number,
+		params?: {
+			attributes?: string[];
+		}
+	): Promise<Organization | null> {
+		return Organization.findByPk(id, {
+			attributes: params?.attributes,
+			rejectOnEmpty: false,
+		});
 	}
 
 	public async update(id: number, params: Partial<any>): Promise<Organization> {

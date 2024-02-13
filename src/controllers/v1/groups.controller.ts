@@ -7,9 +7,9 @@ import {
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../../database/models/group";
-import { GroupSearchParamsInterface } from "./interfaces/group-search-params.interface";
-import { GroupCreateBodyInterface } from "./interfaces/group-create-body.interface";
-import { GroupUpdateBodyInterface } from "./interfaces/group-update-body.interface";
+import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
+import { GroupCreateBodyInterface } from "../../interfaces/group-create-body.interface";
+import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.interface";
 
 type PublicGroupAttributes = Pick<
 	GroupAttributes,
