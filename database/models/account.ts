@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import {
 	container,
 	RegionEnum,
@@ -12,7 +11,8 @@ export interface AccountAttributes extends Omit<DefaultModelInterface, keyof Bel
 	status: "active" | "inactive" | "archived";
 }
 
-export interface AccountCreationAttributes extends Optional<AccountAttributes, "id"> {}
+export interface AccountCreationAttributes
+	extends Omit<AccountAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "accounts",

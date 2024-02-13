@@ -5,6 +5,12 @@ import { container, Lifecycle, logWriters, Logger } from "@structured-growth/mic
 import { loadEnvironment } from "./load-environment";
 import { OrganizationRepository } from "../modules/organizations/organization.repository";
 import { OrganizationService } from "../modules/organizations/organization.service";
+import { AccountRepository } from "../modules/accounts/accounts.repository";
+import { AccountsService } from "../modules/accounts/accounts.service";
+import { UsersService } from "../modules/users/users.service";
+import { EmailsService } from "../modules/emails/emails.service";
+import { EmailsRepository } from "../modules/emails/emails.repository";
+import { UsersRepository } from "../modules/users/users.repository";
 
 // load and validate env variables
 loadEnvironment();
@@ -22,12 +28,18 @@ container.register("s3UserDataBucket", { useValue: process.env.S3_USER_DATA_BUCK
 container.register("s3UserDataBucketWebSiteUrl", { useValue: process.env.S3_USER_DATA_BUCKET_WEBSITE_URL });
 
 // services
-container.register("LogWriter", logWriters[process.env.LOG_WRITER] || "ConsoleLogWriter", {
+container.register("LogWriter", logWriters[process.env.LOG_WRITER || "ConsoleLogWriter"], {
 	lifecycle: Lifecycle.Singleton,
 });
 container.register("Logger", Logger);
 container.register("App", App, { lifecycle: Lifecycle.Singleton });
 container.register("OrganizationService", OrganizationService);
+container.register("AccountsService", AccountsService);
+container.register("UsersService", UsersService);
+container.register("EmailsService", EmailsService);
 
 // repositories
 container.register("OrganizationRepository", OrganizationRepository);
+container.register("AccountRepository", AccountRepository);
+container.register("UsersRepository", UsersRepository);
+container.register("EmailsRepository", EmailsRepository);

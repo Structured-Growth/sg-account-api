@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
 import Account from "./account";
@@ -15,7 +14,8 @@ export interface EmailAttributes extends DefaultModelInterface {
 	verificationCodeExpires: Date;
 }
 
-export interface EmailCreationAttributes extends Optional<EmailAttributes, "id"> {}
+export interface EmailCreationAttributes
+	extends Omit<EmailAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "emails",

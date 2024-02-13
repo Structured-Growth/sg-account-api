@@ -1,5 +1,5 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
-import { GroupAttributes } from "../../../../database/models/group";
+import { GroupAttributes } from "../../database/models/group";
 
 export interface GroupSearchParamsInterface extends DefaultSearchParamsInterface {
 	parentGroupId?: number;

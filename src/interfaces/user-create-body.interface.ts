@@ -3,7 +3,7 @@ export interface UserCreateBodyInterface {
 	firstName: string;
 	lastName: string;
 	birthday?: Date;
-	gender: "male" | "female";
-	status: "active" | "inactive";
+	gender?: "male" | "female";
+	status?: "active" | "inactive";
 	imageBase64?: string;
 }

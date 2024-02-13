@@ -1,5 +1,5 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
-import { PhoneAttributes } from "../../../../database/models/phone";
+import { PhoneAttributes } from "../../database/models/phone";
 
 export interface PhoneSearchParamsInterface extends DefaultSearchParamsInterface {
 	/**

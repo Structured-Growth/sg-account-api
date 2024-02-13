@@ -1,4 +1,4 @@
-import { OrganizationAttributes } from "../../../../database/models/organization";
+import { OrganizationAttributes } from "../../database/models/organization";
 
 export interface OrganizationUpdateBodyInterface {
 	title?: string;

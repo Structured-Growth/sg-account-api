@@ -4,19 +4,33 @@ import {
 	BaseController,
 	DescribeAction,
 	DescribeResource,
+	inject,
+	NotFoundError,
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
+import { pick } from "lodash";
 import { AccountAttributes } from "../../../database/models/account";
-import { AccountSearchParamsInterface } from "./interfaces/account-search-params.interface";
-import { AccountCreateBodyInterface } from "./interfaces/account-create-body.interface";
-import { AccountUpdateBodyInterface } from "./interfaces/account-update-body.interface";
+import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
+import { AccountCreateBodyInterface } from "../../interfaces/account-create-body.interface";
+import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body.interface";
+import { AccountRepository } from "../../modules/accounts/accounts.repository";
+import { AccountsService } from "../../modules/accounts/accounts.service";
 
-type PublicAccountAttributes = Pick<AccountAttributes, "id" | "orgId" | "createdAt" | "updatedAt" | "status" | "arn">;
+const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn"] as const;
+type AccountKeys = (typeof publicAccountAttributes)[number];
+type PublicAccountAttributes = Pick<AccountAttributes, AccountKeys>;
 
 @Route("v1/accounts")
 @Tags("Accounts")
 @autoInjectable()
 export class AccountsController extends BaseController {
+	constructor(
+		@inject("AccountRepository") private accountRepository: AccountRepository,
+		@inject("AccountsService") private accountService: AccountsService
+	) {
+		super();
+	}
+
 	/**
 	 * Search Accounts
 	 */
@@ -28,7 +42,15 @@ export class AccountsController extends BaseController {
 	async search(
 		@Queries() query: AccountSearchParamsInterface
 	): Promise<SearchResultInterface<PublicAccountAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.accountRepository.search(query);
+
+		return {
+			data: data.map((account) => ({
+				...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
+				arn: account.arn,
+			})),
+			...result,
+		};
 	}
 
 	/**
@@ -41,7 +63,13 @@ export class AccountsController extends BaseController {
 	@DescribeAction("accounts/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	async create(@Queries() query: {}, @Body() body: AccountCreateBodyInterface): Promise<PublicAccountAttributes> {
-		return undefined;
+		const account = await this.accountService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
+			arn: account.arn,
+		};
 	}
 
 	/**
@@ -53,7 +81,16 @@ export class AccountsController extends BaseController {
 	@DescribeAction("accounts/read")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	async get(@Path() accountId: number): Promise<PublicAccountAttributes> {
-		return undefined;
+		const account = await this.accountRepository.read(accountId);
+
+		if (!account) {
+			throw new NotFoundError(`Account ${accountId} not found`);
+		}
+
+		return {
+			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
+			arn: account.arn,
+		};
 	}
 
 	/**
@@ -81,6 +118,8 @@ export class AccountsController extends BaseController {
 	@DescribeAction("accounts/delete")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	async delete(@Path() accountId: number): Promise<void> {
-		return undefined;
+		this.response.status(204);
+
+		return this.accountRepository.delete(accountId);
 	}
 }

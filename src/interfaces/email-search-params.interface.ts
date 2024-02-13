@@ -1,5 +1,5 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
-import { EmailAttributes } from "../../../../database/models/email";
+import { EmailAttributes } from "../../database/models/email";
 
 export interface EmailSearchParamsInterface extends DefaultSearchParamsInterface {
 	/**

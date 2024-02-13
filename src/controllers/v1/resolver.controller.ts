@@ -8,10 +8,10 @@ import {
 } from "@structured-growth/microservice-sdk";
 import { App } from "../../app/app";
 import * as controllers from "./index";
-import { ResolveQueryParamsInterface } from "./interfaces/resolve-query-params.interface";
-import { ResolveResourceResponseInterface } from "./interfaces/resolve-resource-response.interface";
-import { ResolveActionsResponseInterface } from "./interfaces/resolve-actions-response.interface";
-import { ResolveModelsResponseInterface } from "./interfaces/resolve-models-response.interface";
+import { ResolveQueryParamsInterface } from "../../interfaces/resolve-query-params.interface";
+import { ResolveResourceResponseInterface } from "../../interfaces/resolve-resource-response.interface";
+import { ResolveActionsResponseInterface } from "../../interfaces/resolve-actions-response.interface";
+import { ResolveModelsResponseInterface } from "../../interfaces/resolve-models-response.interface";
 
 @Route("v1/resolver")
 @Tags("Resolver")

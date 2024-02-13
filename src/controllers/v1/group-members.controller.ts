@@ -7,9 +7,9 @@ import {
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { GroupMemberAttributes } from "../../../database/models/group-member";
-import { GroupMemberSearchParamsInterface } from "./interfaces/group-member-search-params.interface";
-import { GroupMemberCreateBodyInterface } from "./interfaces/group-member-create-body.interface";
-import { GroupMemberUpdateBodyInterface } from "./interfaces/group-member-update-body.interface";
+import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
+import { GroupMemberCreateBodyInterface } from "../../interfaces/group-member-create-body.interface";
+import { GroupMemberUpdateBodyInterface } from "../../interfaces/group-member-update-body.interface";
 
 type PublicGroupMemberAttributes = Pick<
 	GroupMemberAttributes,

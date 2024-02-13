@@ -8,14 +8,15 @@ import {
 	DescribeResource,
 	SearchResultInterface,
 	ValidateFuncArgs,
-	RepositoryInterface,
+	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import { Organization, OrganizationAttributes } from "../../../database/models/organization";
-import { OrganizationSearchParamsInterface } from "./interfaces/organization-search-params.interface";
-import { OrganizationCreateBodyInterface } from "./interfaces/organization-create-body.interface";
-import { OrganizationUpdateBodyInterface } from "./interfaces/organization-update-body.interface";
-import { OrganizationSearchParamsValidator } from "./validators/organization-search-params.validator";
 import { pick } from "lodash";
+import { Organization, OrganizationAttributes } from "../../../database/models/organization";
+import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
+import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
+import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
+import { OrganizationSearchParamsValidator } from "../../validators/organization-search-params.validator";
+import { OrganizationRepository } from "../../modules/organizations/organization.repository";
 
 const publicOrganizationAttributes = [
 	"id",
@@ -35,7 +36,7 @@ type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKey
 @Tags("Organizations")
 @autoInjectable()
 export class OrganizationsController extends BaseController {
-	constructor(@inject("OrganizationRepository") private repository: RepositoryInterface<Organization, any, any>) {
+	constructor(@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository) {
 		super();
 	}
 
@@ -56,17 +57,17 @@ export class OrganizationsController extends BaseController {
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
 	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
-		const { data, ...result } = await this.repository.search(query);
+		const { data, ...result } = await this.organizationsRepository.search(query);
 
 		return {
 			data: data.map((organization) => ({
-				...pick(organization.toJSON(), publicOrganizationAttributes),
+				...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
 				imageUrl: organization.imageUrl,
+				arn: organization.arn,
 			})),
 			...result,
 		};
 	}
-
 
 	/**
 	 * Create Organization
@@ -92,7 +93,17 @@ export class OrganizationsController extends BaseController {
 	@DescribeAction("organizations/read")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
 	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
-		return undefined;
+		const organization = await this.organizationsRepository.read(organizationId);
+
+		if (!organization) {
+			throw new NotFoundError(`Organization ${organizationId} not found`);
+		}
+
+		return {
+			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+			imageUrl: organization.imageUrl,
+			arn: organization.arn,
+		};
 	}
 
 	/**
