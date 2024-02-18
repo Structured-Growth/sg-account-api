@@ -11,5 +11,6 @@ const app = container.resolve<App>("App");
 
 export const handler: Handler = async (event: APIGatewayProxyEvent, context: Context) => {
 	await app.ready;
+	console.log(`Lambda HTTP event: `, event);
 	return _handler(event, context);
 };
