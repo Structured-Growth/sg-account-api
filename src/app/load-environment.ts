@@ -1,4 +1,4 @@
-import {joi, ConfigLoader } from "@structured-growth/microservice-sdk";
+import { joi, ConfigLoader } from "@structured-growth/microservice-sdk";
 
 export function loadEnvironment() {
 	const loader = new ConfigLoader();
@@ -6,7 +6,7 @@ export function loadEnvironment() {
 		APP_PREFIX: joi.string().required().max(20).min(2),
 		HTTP_PORT: joi.number().positive().required(),
 		STAGE: joi.string().valid("dev", "qual", "prod").required(),
-		URI_PATH_PREFIX: joi.string(),
+		URI_PATH_PREFIX: joi.string().allow(""),
 		REGION: joi
 			.valid(
 				"us-east-1",
