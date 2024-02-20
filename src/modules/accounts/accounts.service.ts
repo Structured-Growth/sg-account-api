@@ -21,7 +21,7 @@ export class AccountsService {
 		return this.accountRepository.create({
 			orgId: organization.id,
 			region: organization.region,
-			status: params.status || "active",
+			status: params.status || "inactive",
 		});
 	}
 }

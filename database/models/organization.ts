@@ -60,10 +60,10 @@ export class Organization
 		return [container.resolve("appPrefix"), this.region, this.id].join(":");
 	}
 
-	get imageUrl(): string {
-		// todo: remove random
+	get imageUrl(): string | null {
+		// todo
 		// return container.resolve("s3UserDataBucketWebSiteUrl") + `/pictures/${this.imageUuid}.jpg`;
-		return container.resolve("s3UserDataBucketWebSiteUrl") + `?random=${random(1, 100)}`;
+		return null;
 	}
 }
 

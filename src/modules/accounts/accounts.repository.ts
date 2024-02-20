@@ -1,6 +1,11 @@
 import { Op } from "sequelize";
-import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Account, { AccountCreationAttributes } from "../../../database/models/account";
+import {
+	autoInjectable,
+	RepositoryInterface,
+	SearchResultInterface,
+	NotFoundError,
+} from "@structured-growth/microservice-sdk";
+import Account, { AccountAttributes, AccountCreationAttributes } from "../../../database/models/account";
 import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
 
 @autoInjectable()
@@ -49,8 +54,17 @@ export class AccountRepository
 		});
 	}
 
-	public async update(id: number, params: Partial<any>): Promise<Account> {
-		return Promise.resolve(undefined);
+	public async update(id: number, params: Partial<AccountAttributes>): Promise<Account> {
+		const account = await this.read(id);
+
+		if (!account) {
+			throw new NotFoundError(`Account ${id} not found`);
+		}
+
+		account.setAttributes(params);
+		await account.save();
+
+		return account;
 	}
 
 	public async delete(id: number): Promise<void> {

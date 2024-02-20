@@ -99,7 +99,12 @@ export class UsersController extends BaseController {
 		@Queries() query: {},
 		@Body() body: UserUpdateBodyInterface
 	): Promise<PublicUserAttributes> {
-		return undefined;
+		const user = await this.usersRepository.update(userId, body);
+
+		return {
+			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+			arn: user.arn,
+		};
 	}
 
 	/**
