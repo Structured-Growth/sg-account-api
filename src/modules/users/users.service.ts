@@ -38,7 +38,7 @@ export class UsersService {
 			gender: params.gender,
 			imageUuid: null,
 			isPrimary: true,
-			status: params.status || "active",
+			status: params.status || "inactive",
 		});
 	}
 }

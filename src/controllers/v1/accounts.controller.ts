@@ -106,7 +106,12 @@ export class AccountsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: AccountUpdateBodyInterface
 	): Promise<PublicAccountAttributes> {
-		return undefined;
+		const account = await this.accountRepository.update(accountId, body);
+
+		return {
+			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
+			arn: account.arn,
+		};
 	}
 
 	/**

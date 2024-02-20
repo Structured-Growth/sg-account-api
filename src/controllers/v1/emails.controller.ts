@@ -57,7 +57,7 @@ export class EmailsController extends BaseController {
 			data: [],
 			page: 1,
 			limit: 20,
-			total: 0
+			total: 0,
 		};
 	}
 
@@ -114,7 +114,12 @@ export class EmailsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: EmailUpdateBodyInterface
 	): Promise<PublicEmailAttributes> {
-		return undefined;
+		const email = await this.emailRepository.update(emailId, body);
+
+		return {
+			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+			arn: email.arn,
+		};
 	}
 
 	/**
@@ -154,6 +159,8 @@ export class EmailsController extends BaseController {
 	@DescribeAction("emails/delete")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
 	async delete(@Path() emailId: number): Promise<void> {
-		return undefined;
+		this.response.status(204);
+
+		return this.emailRepository.delete(emailId);
 	}
 }

@@ -1,5 +1,10 @@
-import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Email, { EmailCreationAttributes } from "../../../database/models/email";
+import {
+	autoInjectable,
+	NotFoundError,
+	RepositoryInterface,
+	SearchResultInterface,
+} from "@structured-growth/microservice-sdk";
+import Email, { EmailAttributes, EmailCreationAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
 
 @autoInjectable()
@@ -26,11 +31,20 @@ export class EmailsRepository
 		});
 	}
 
-	public async update(id: number, params: Partial<any>): Promise<Email> {
-		return Promise.resolve(undefined);
+	public async update(id: number, params: Partial<EmailAttributes>): Promise<Email> {
+		const email = await this.read(id);
+
+		if (!email) {
+			throw new NotFoundError(`Email ${id} not found`);
+		}
+
+		email.setAttributes(params);
+		await email.save();
+
+		return email;
 	}
 
 	public async delete(id: number): Promise<void> {
-		return Promise.resolve(undefined);
+		await Email.destroy({ where: { id } });
 	}
 }
