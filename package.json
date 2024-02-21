@@ -86,10 +86,5 @@
     "useTabs": true,
     "trailingComma": "es5",
     "printWidth": 120
-  },
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ]
   }
 }
