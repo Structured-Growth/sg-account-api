@@ -45,7 +45,7 @@ export class OrganizationRepository
 			rejectOnEmpty: false,
 		});
 	}
-
+// pick some attributes
 	public async update(id: number, params: Partial<any>): Promise<Organization> {
 		return Promise.resolve(undefined);
 	}

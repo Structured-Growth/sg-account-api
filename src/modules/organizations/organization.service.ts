@@ -45,7 +45,7 @@ export class OrganizationService {
 
 	public async create(params: OrganizationCreateBodyInterface): Promise<Organization> {
 
-        if (params.image && !(await this.hasValidImageSignature(params.image))) {
+        if (!(await this.hasValidImageSignature(params.imageBase64))) {
             throw new ValidationError({
                 title: "Invalid image file",
             });
@@ -72,7 +72,6 @@ export class OrganizationService {
 
 		return this.organizationRepository.create({
 			parentOrgId: params.parentOrgId,
-           // OrganisationId = 
 			region: params.region,
 			title: params.title,
 			name: name,
@@ -82,7 +81,7 @@ export class OrganizationService {
 		});
 	}
 
-    public async update(params: OrganizationUpdateBodyInterface): Promise<Organization>{
+    public async update(organizationId, params: OrganizationUpdateBodyInterface): Promise<Organization>{
 
         if (params.image && !(await this.hasValidImageSignature(params.image))) {
             throw new ValidationError({
@@ -99,15 +98,11 @@ export class OrganizationService {
             throw new NotFoundError(`Organization ${params.title} not found`);
         }
 
-		return this.organizationRepository.update({
-			//parentOrgId: params.parentOrgId,
-			//region: params.region,
-            id: params.organizationId,
+		return this.organizationRepository.update(organizationId, {
 			title: params.title,
 			name: name,
 			imageUuid: "",
 			status: params.status,
-            arn: "", // To do
 		});
     }
 }

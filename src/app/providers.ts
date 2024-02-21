@@ -8,9 +8,11 @@ import { OrganizationService } from "../modules/organizations/organization.servi
 import { AccountRepository } from "../modules/accounts/accounts.repository";
 import { AccountsService } from "../modules/accounts/accounts.service";
 import { UsersService } from "../modules/users/users.service";
+import { UsersRepository } from "../modules/users/users.repository";
 import { EmailsService } from "../modules/emails/emails.service";
 import { EmailsRepository } from "../modules/emails/emails.repository";
-import { UsersRepository } from "../modules/users/users.repository";
+import { PhonesRepository } from "../modules/phones/phones.repository";
+import { GroupsRepository } from "../modules/groups/groups.repository";
 
 // load and validate env variables
 loadEnvironment();
@@ -43,3 +45,5 @@ container.register("OrganizationRepository", OrganizationRepository);
 container.register("AccountRepository", AccountRepository);
 container.register("UsersRepository", UsersRepository);
 container.register("EmailsRepository", EmailsRepository);
+container.register("PhonesRepository", PhonesRepository);
+container.register("GroupsRepository", GroupsRepository);
