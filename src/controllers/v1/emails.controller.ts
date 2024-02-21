@@ -7,8 +7,11 @@ import {
 	DescribeResource,
 	SearchResultInterface,
 	NotFoundError,
+	ValidateFuncArgs,
+	joi,
+	ValidationError,
 } from "@structured-growth/microservice-sdk";
-import { pick } from "lodash";
+import { isString, pick, size } from "lodash";
 import { EmailAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
 import { EmailCreateBodyInterface } from "../../interfaces/email-create-body.interface";
@@ -16,6 +19,7 @@ import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.int
 import { EmailVerifyBodyInterface } from "../../interfaces/email-verify-body.interface";
 import { EmailsService } from "../../modules/emails/emails.service";
 import { EmailsRepository } from "../../modules/emails/emails.repository";
+import { CreateEmailParamsValidator } from "../../validators/create-email-params.validator";
 
 const publicEmailAttributes = [
 	"id",
@@ -70,6 +74,7 @@ export class EmailsController extends BaseController {
 	@DescribeAction("emails/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@ValidateFuncArgs(CreateEmailParamsValidator)
 	async create(@Queries() query: {}, @Body() body: EmailCreateBodyInterface): Promise<PublicEmailAttributes> {
 		const email = await this.emailService.create(body);
 		this.response.status(201);
