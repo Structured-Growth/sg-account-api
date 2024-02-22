@@ -16,6 +16,8 @@ import { OrganizationSearchParamsInterface } from "../../interfaces/organization
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "../../validators/organization-search-params.validator";
+import { OrganizationCreateParamsValidator } from "../../validators/organization-create-params.validator";
+import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
 import { OrganizationService } from "../../modules/organizations/organization.service";
 import { OrganizationRepository } from "../../modules/organizations/organization.repository";
 import slug from 'slug';
@@ -82,6 +84,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(201, "Returns created organization")
 	@DescribeAction("organizations/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.parentOrgId))
+	@ValidateFuncArgs(OrganizationCreateParamsValidator)
 	async create(
 		@Queries() query: {},
 		@Body() body: OrganizationCreateBodyInterface
@@ -126,11 +129,19 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns updated organization")
 	@DescribeAction("organizations/update")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationUpdateParamsValidator)
 	async update(
 		@Path() organizationId: number,
 		@Queries() query: {},
 		@Body() body: OrganizationUpdateBodyInterface
 	): Promise<PublicOrganizationAttributes> {
+
+		const checkorganization = await this.organizationsRepository.read(organizationId);
+
+		if (!checkorganization) {
+			throw new NotFoundError(`Organization ${checkorganization} not found`);
+		}
+
 		const organization = await this.organizationService.update(organizationId, body);
 		this.response.status(201);
 

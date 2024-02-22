@@ -1,4 +1,4 @@
-import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
+import { autoInjectable, RepositoryInterface, SearchResultInterface, NotFoundError } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationCreationAttributes } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 
@@ -31,7 +31,7 @@ export class OrganizationRepository
 	}
 
 	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
-		return Promise.resolve(undefined);
+		return Organization.create(params);
 	}
 
 	public async read(
@@ -47,7 +47,16 @@ export class OrganizationRepository
 	}
 // pick some attributes
 	public async update(id: number, params: Partial<any>): Promise<Organization> {
-		return Promise.resolve(undefined);
+		const Organization = await this.read(id);
+
+		if (!Organization) {
+			throw new NotFoundError(`Organization ${id} not found`);
+		}
+
+		Organization.setAttributes(params);
+		await Organization.save();
+
+		return Organization;
 	}
 
 	public async delete(id: number): Promise<void> {

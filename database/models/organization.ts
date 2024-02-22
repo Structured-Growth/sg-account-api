@@ -10,7 +10,7 @@ import {
 import { random } from "lodash";
 
 export interface OrganizationAttributes
-	extends Omit<DefaultModelInterface, keyof BelongsToOrgInterface | keyof BelongsToAccountInterface> {
+	extends Omit<DefaultModelInterface, | keyof BelongsToOrgInterface | keyof BelongsToAccountInterface > {
 	region: RegionEnum;
 	parentOrgId: number | null;
 	title: string;
@@ -19,7 +19,8 @@ export interface OrganizationAttributes
 	status: "active" | "inactive" | "archived";
 }
 
-export interface OrganizationCreationAttributes extends Optional<OrganizationAttributes, "id"> {}
+export interface OrganizationCreationAttributes
+  extends Optional<Omit<OrganizationAttributes, 'arn'>,"id"> {}
 
 @Table({
 	tableName: "organizations",

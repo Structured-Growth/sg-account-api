@@ -1,10 +1,10 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
-export const OrganizationSearchParamsValidator = joi.object({
+export const OrganizationCreateParamsValidator = joi.object({
 	query: joi.object({
 		parentOrgId: joi.number().positive().min(1).required().label("Parent organization Id"),
-		OrganizationId: joi.number().positive().min(1).required().label("Organization Id"),
 		name: joi.string().min(3).max(30).required(),
+		region: joi.string().min(5).max(15).required(),
 		status: joi.string().valid("active", "inactive").label("Status"),
 	}),
 });
