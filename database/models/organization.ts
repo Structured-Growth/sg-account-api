@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import {
 	container,
 	RegionEnum,
@@ -7,10 +6,9 @@ import {
 	BelongsToOrgInterface,
 	BelongsToAccountInterface,
 } from "@structured-growth/microservice-sdk";
-import { random } from "lodash";
 
 export interface OrganizationAttributes
-	extends Omit<DefaultModelInterface, | keyof BelongsToOrgInterface | keyof BelongsToAccountInterface > {
+	extends Omit<DefaultModelInterface, keyof BelongsToOrgInterface | keyof BelongsToAccountInterface> {
 	region: RegionEnum;
 	parentOrgId: number | null;
 	title: string;
@@ -20,7 +18,10 @@ export interface OrganizationAttributes
 }
 
 export interface OrganizationCreationAttributes
-  extends Optional<Omit<OrganizationAttributes, 'arn'>,"id"> {}
+	extends Omit<OrganizationAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+
+export interface OrganizationUpdateAttributes
+	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status"> {}
 
 @Table({
 	tableName: "organizations",

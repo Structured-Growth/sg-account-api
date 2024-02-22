@@ -20,7 +20,6 @@ import { OrganizationCreateParamsValidator } from "../../validators/organization
 import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
 import { OrganizationService } from "../../modules/organizations/organization.service";
 import { OrganizationRepository } from "../../modules/organizations/organization.repository";
-import slug from 'slug';
 
 const publicOrganizationAttributes = [
 	"id",
@@ -41,8 +40,8 @@ type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKey
 @autoInjectable()
 export class OrganizationsController extends BaseController {
 	constructor(
-			@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository,
-			@inject("OrganizationService") private organizationService: OrganizationService
+		@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository,
+		@inject("OrganizationService") private organizationService: OrganizationService
 	) {
 		super();
 	}
@@ -91,7 +90,7 @@ export class OrganizationsController extends BaseController {
 	): Promise<PublicOrganizationAttributes> {
 		const organization = await this.organizationService.create(body);
 		this.response.status(201);
-		
+
 		return {
 			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
 			imageUrl: organization.imageUrl,
@@ -135,13 +134,6 @@ export class OrganizationsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: OrganizationUpdateBodyInterface
 	): Promise<PublicOrganizationAttributes> {
-
-		const checkorganization = await this.organizationsRepository.read(organizationId);
-
-		if (!checkorganization) {
-			throw new NotFoundError(`Organization ${checkorganization} not found`);
-		}
-
 		const organization = await this.organizationService.update(organizationId, body);
 		this.response.status(201);
 

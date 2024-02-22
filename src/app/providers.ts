@@ -13,6 +13,7 @@ import { EmailsService } from "../modules/emails/emails.service";
 import { EmailsRepository } from "../modules/emails/emails.repository";
 import { PhonesRepository } from "../modules/phones/phones.repository";
 import { GroupsRepository } from "../modules/groups/groups.repository";
+import { ImageValidator } from "../validators/image.validator";
 
 // load and validate env variables
 loadEnvironment();
@@ -39,6 +40,7 @@ container.register("OrganizationService", OrganizationService);
 container.register("AccountsService", AccountsService);
 container.register("UsersService", UsersService);
 container.register("EmailsService", EmailsService);
+container.register("ImageValidator", ImageValidator);
 
 // repositories
 container.register("OrganizationRepository", OrganizationRepository);

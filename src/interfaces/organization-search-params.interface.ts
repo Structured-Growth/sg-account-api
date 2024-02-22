@@ -9,11 +9,11 @@ export interface OrganizationSearchParamsInterface extends Omit<DefaultSearchPar
 	 *
 	 * `title: ["Starts*", "-*ends"]`
 	 */
-	title?: string;
+	title?: string[];
 	/**
 	 * Wildcards and exclusions are allowed:
 	 *
 	 * `name: ["Starts*", "-*ends"]`
 	 */
-	name?: string;
+	name?: string[];
 }

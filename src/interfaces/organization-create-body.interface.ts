@@ -4,6 +4,6 @@ export interface OrganizationCreateBodyInterface {
 	parentOrgId: number;
 	region: RegionEnum;
 	title: string;
-	status: "active" | "inactive";
+	status?: "active" | "inactive";
 	imageBase64?: string;
 }
