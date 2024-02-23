@@ -6,7 +6,7 @@ import { GroupSearchParamsInterface } from "../../interfaces/group-search-params
 export class GroupsRepository
 	implements RepositoryInterface<Group, GroupSearchParamsInterface, GroupCreationAttributes>
 {
-	public async search(params: OrganizationSearchParamsInterface): Promise<SearchResultInterface<Organization>> {
+	public async search(params: GroupSearchParamsInterface): Promise<SearchResultInterface<Group>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
@@ -16,7 +16,7 @@ export class GroupsRepository
 			where["name"] = params.name;
 		}
 
-		const { rows, count } = await Organization.findAndCountAll({
+		const { rows, count } = await Group.findAndCountAll({
 			where,
 			offset,
 			limit,
@@ -30,8 +30,8 @@ export class GroupsRepository
 		};
 	}
 
-	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
-		return Promise.resolve(undefined);
+	public async create(params: GroupCreationAttributes): Promise<Group> {
+		return Group.create(params);
 	}
 
 	public async read(
@@ -39,14 +39,14 @@ export class GroupsRepository
 		params?: {
 			attributes?: string[];
 		}
-	): Promise<Organization | null> {
-		return Organization.findByPk(id, {
+	): Promise<Group | null> {
+		return Group.findByPk(id, {
 			attributes: params?.attributes,
 			rejectOnEmpty: false,
 		});
 	}
 // pick some attributes
-	public async update(id: number, params: Partial<any>): Promise<Organization> {
+	public async update(id: number, params: Partial<any>): Promise<Group> {
 		return Promise.resolve(undefined);
 	}
 

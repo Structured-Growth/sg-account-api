@@ -16,6 +16,10 @@ export interface UserAttributes extends DefaultModelInterface {
 
 export interface UserCreationAttributes extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
+
+export interface UserUpdateAttributes extends Pick<UserCreationAttributes, "firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status"> {}
+
+
 @Table({
 	tableName: "users",
 	timestamps: true,
@@ -66,6 +70,12 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 
 	get arn(): string {
 		return [container.resolve("appPrefix"), this.region, this.orgId, this.accountId, `users/${this.id}`].join(":");
+	}
+
+	get imageUrl(): string | null {
+		// TODO
+		// return container.resolve("s3UserDataBucketWebSiteUrl") + `/pictures/${this.imageUuid}.jpg`;
+		return null;
 	}
 }
 

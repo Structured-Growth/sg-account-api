@@ -1,13 +1,11 @@
 import { joi } from "@structured-growth/microservice-sdk";
 import { CommonSearchParamsValidator } from "./common-search-params.validator";
 
-export const OrganizationSearchParamsValidator = joi.object({
+export const AccountSearchParamsValidator = joi.object({
 	query: joi
 		.object({
-			parentOrgId: joi.number().positive().required().label("Parent organization Id"),
 			status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required().label("Status")),
-			title: joi.array().valid(joi.string().max(50).required()),
-			name: joi.array().valid(joi.string().max(50).required()),
+            orgId: joi.number().positive().required().label("Organization Id"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

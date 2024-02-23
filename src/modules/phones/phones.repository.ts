@@ -1,12 +1,12 @@
 import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Organization, { PhoneCreationAttributes } from "../../../database/models/phone";
+import Phone, { PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
 
 @autoInjectable()
 export class PhonesRepository
-	implements RepositoryInterface<Organization, PhoneSearchParamsInterface, PhoneCreationAttributes>
+	implements RepositoryInterface<Phone, PhoneSearchParamsInterface, PhoneCreationAttributes>
 {
-	public async search(params: OrganizationSearchParamsInterface): Promise<SearchResultInterface<Organization>> {
+	public async search(params: PhoneSearchParamsInterface): Promise<SearchResultInterface<Phone>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
@@ -16,7 +16,7 @@ export class PhonesRepository
 			where["name"] = params.name;
 		}
 
-		const { rows, count } = await Organization.findAndCountAll({
+		const { rows, count } = await Phone.findAndCountAll({
 			where,
 			offset,
 			limit,
@@ -30,8 +30,8 @@ export class PhonesRepository
 		};
 	}
 
-	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
-		return Promise.resolve(undefined);
+	public async create(params: PhoneCreationAttributes): Promise<Phone> {
+		return Phone.create(params);
 	}
 
 	public async read(
@@ -39,14 +39,14 @@ export class PhonesRepository
 		params?: {
 			attributes?: string[];
 		}
-	): Promise<Organization | null> {
-		return Organization.findByPk(id, {
+	): Promise<Phone | null> {
+		return Phone.findByPk(id, {
 			attributes: params?.attributes,
 			rejectOnEmpty: false,
 		});
 	}
 // pick some attributes
-	public async update(id: number, params: Partial<any>): Promise<Organization> {
+	public async update(id: number, params: Partial<any>): Promise<Phone> {
 		return Promise.resolve(undefined);
 	}
 

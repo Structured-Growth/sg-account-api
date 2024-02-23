@@ -17,17 +17,18 @@ export class AccountRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
+		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-		if (params.status) {
-			where["status"] = {
-				[Op.in]: params.status,
-			};
-		}
+
+		params.orgId && (where["orgId"] = params.orgId);
+		params.status && (where["status"] = { [Op.in]: params.status });
+		params.id && (where["id"] = { [Op.in]: params.id });
 
 		const { rows, count } = await Account.findAndCountAll({
 			where,
 			offset,
 			limit,
+			order,
 		});
 
 		return {
@@ -37,6 +38,7 @@ export class AccountRepository
 			page,
 		};
 	}
+	// TODO search by arn with wildcards
 
 	public async create(params: AccountCreationAttributes): Promise<Account> {
 		return Account.create(params);
@@ -56,10 +58,6 @@ export class AccountRepository
 
 	public async update(id: number, params: Partial<AccountAttributes>): Promise<Account> {
 		const account = await this.read(id);
-
-		if (!account) {
-			throw new NotFoundError(`Account ${id} not found`);
-		}
 
 		account.setAttributes(params);
 		await account.save();

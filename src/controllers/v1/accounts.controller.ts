@@ -6,6 +6,7 @@ import {
 	DescribeResource,
 	inject,
 	NotFoundError,
+	ValidateFuncArgs,
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { pick } from "lodash";
@@ -15,6 +16,9 @@ import { AccountCreateBodyInterface } from "../../interfaces/account-create-body
 import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body.interface";
 import { AccountRepository } from "../../modules/accounts/accounts.repository";
 import { AccountsService } from "../../modules/accounts/accounts.service";
+import { AccountSearchParamsValidator } from "../../validators/account-search-params.validator";
+import { AccountCreateParamsValidator } from "../../validators/account-create-params.validator";
+import { AccountUpdateParamsValidator } from "../../validators/account-update-params.validator";
 
 const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
@@ -39,6 +43,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@ValidateFuncArgs(AccountSearchParamsValidator)
 	async search(
 		@Queries() query: AccountSearchParamsInterface
 	): Promise<SearchResultInterface<PublicAccountAttributes>> {
@@ -62,6 +67,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(201, "Returns created account")
 	@DescribeAction("accounts/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(AccountCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: AccountCreateBodyInterface): Promise<PublicAccountAttributes> {
 		const account = await this.accountService.create(body);
 		this.response.status(201);
@@ -101,6 +107,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns updated account")
 	@DescribeAction("accounts/update")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountUpdateParamsValidator)
 	async update(
 		@Path() accountId: number,
 		@Queries() query: {},

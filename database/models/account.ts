@@ -6,6 +6,7 @@ import {
 	BelongsToAccountInterface,
 } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
+import User from "./user";
 
 export interface AccountAttributes extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface> {
 	status: "active" | "inactive" | "archived";
@@ -20,6 +21,7 @@ export interface AccountCreationAttributes
 	underscored: true,
 })
 export class Account extends Model<AccountAttributes, AccountCreationAttributes> implements AccountAttributes {
+	
 	@Column
 	@ForeignKey(() => Organization)
 	orgId: number;
@@ -40,6 +42,10 @@ export class Account extends Model<AccountAttributes, AccountCreationAttributes>
 	get arn(): string {
 		return [container.resolve("appPrefix"), this.region, this.orgId, this.id].join(":");
 	}
+
+	static async getUsers(accountId: number) {
+        return User.findAll({ where: { accountId } });
+    }
 }
 
 export default Account;

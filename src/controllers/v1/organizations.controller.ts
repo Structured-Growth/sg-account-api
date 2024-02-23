@@ -153,6 +153,11 @@ export class OrganizationsController extends BaseController {
 	@DescribeAction("organizations/delete")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
 	async delete(@Path() organizationId: number): Promise<void> {
+		const organization = await this.organizationsRepository.read(organizationId);
+
+		if (!organization) {
+			throw new NotFoundError(`Organization ${organizationId} not found`);
+		}
 		this.response.status(204);
 
 		return this.organizationsRepository.delete(organizationId);

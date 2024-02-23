@@ -19,7 +19,7 @@ import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.int
 import { EmailVerifyBodyInterface } from "../../interfaces/email-verify-body.interface";
 import { EmailsService } from "../../modules/emails/emails.service";
 import { EmailsRepository } from "../../modules/emails/emails.repository";
-import { CreateEmailParamsValidator } from "../../validators/create-email-params.validator";
+import { CreateEmailParamsValidator } from "../../validators/email-create-params.validator";
 
 const publicEmailAttributes = [
 	"id",

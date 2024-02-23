@@ -1,12 +1,12 @@
+import { Op } from "sequelize";
 import {
 	autoInjectable,
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import Organization, { OrganizationCreationAttributes } from "../../../database/models/organization";
+import Organization, { OrganizationCreationAttributes, OrganizationUpdateAttributes } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
-import { Op } from "sequelize";
 
 @autoInjectable()
 export class OrganizationRepository
@@ -17,7 +17,7 @@ export class OrganizationRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
-		const order = params.sort ? params.sort.map((item) => item.split(":")) : [["createdAt", "desc"]];
+		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.parentOrgId && (where["parentOrgId"] = params.parentOrgId);
 		params.status && (where["status"] = { [Op.in]: params.status });
@@ -69,19 +69,14 @@ export class OrganizationRepository
 	}
 
 	// pick some attributes
-	public async update(id: number, params: Partial<any>): Promise<Organization> {
+	public async update(id: number, params: OrganizationUpdateAttributes): Promise<Organization> {
 		const organization = await this.read(id);
-
-		if (!organization) {
-			throw new NotFoundError(`Organization ${id} not found`);
-		}
-
 		organization.setAttributes(params);
 
 		return organization.save();
 	}
 
 	public async delete(id: number): Promise<void> {
-		return Promise.resolve(undefined);
+		await Organization.destroy({ where: { id } });
 	}
 }
