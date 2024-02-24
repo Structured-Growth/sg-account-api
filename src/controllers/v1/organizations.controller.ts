@@ -158,8 +158,7 @@ export class OrganizationsController extends BaseController {
 		if (!organization) {
 			throw new NotFoundError(`Organization ${organizationId} not found`);
 		}
+		await this.organizationsRepository.delete(organizationId);
 		this.response.status(204);
-
-		return this.organizationsRepository.delete(organizationId);
 	}
 }

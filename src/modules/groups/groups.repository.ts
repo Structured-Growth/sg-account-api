@@ -45,7 +45,8 @@ export class GroupsRepository
 			rejectOnEmpty: false,
 		});
 	}
-// pick some attributes
+
+	// pick some attributes
 	public async update(id: number, params: Partial<any>): Promise<Group> {
 		return Promise.resolve(undefined);
 	}

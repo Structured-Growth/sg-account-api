@@ -2,12 +2,12 @@ import slug from "slug";
 import { Buffer } from "buffer";
 import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
-import Organization from "../../../database/models/organization";
+import Organization, { OrganizationUpdateAttributes } from "../../../database/models/organization";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
 import { OrganizationRepository } from "./organization.repository";
 import { ImageValidator } from "../../validators/image.validator";
-
+import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class OrganizationService {
@@ -61,28 +61,21 @@ export class OrganizationService {
 			throw new NotFoundError(`Organization ${organizationId} not found`);
 		}
 
-		if (params.imageBase64) {
-			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
-				throw new ValidationError({
-					title: "Invalid image file",
-				});
-			}
-			// imageUuid = v4();
-			// todo store image to S3 bucket
-		}
-
-		const name = slug(params.title);
-		const count = await Organization.count({
-			where: { name },
-		});
-
-		if (count > 0) {
-			throw new ValidationError({
-				title: "Organization with the same name is already exist",
+		let name;
+		if (params.title) {
+			name = slug(params.title);
+			const count = await Organization.count({
+				where: { name },
 			});
-		}
-		let imageUuid = null;
 
+			if (count > 0) {
+				throw new ValidationError({
+					title: "Organization with the same name is already exist",
+				});
+			}
+		}
+
+		let imageUuid;
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
@@ -90,14 +83,21 @@ export class OrganizationService {
 				});
 			}
 			// imageUuid = v4();
+			// todo remove old image from S3 bucket
 			// todo store image to S3 bucket
 		}
 
-		return this.organizationRepository.update(organizationId, {
-			title: name,
-            name: name,
-			imageUuid: imageUuid || null,
-			status: params.status || "inactive",
-		});
+		return this.organizationRepository.update(
+			organizationId,
+			omitBy(
+				{
+					title: params.title,
+					name,
+					imageUuid,
+					status: params.status,
+				},
+				isUndefined
+			) as OrganizationUpdateAttributes
+		);
 	}
 }

@@ -7,7 +7,7 @@ import Account from "./account";
 export interface UserAttributes extends DefaultModelInterface {
 	firstName: string;
 	lastName: string;
-	birthday: Date | null;
+	birthday: string | null;
 	gender: "male" | "female";
 	imageUuid: string | null;
 	isPrimary: boolean;
@@ -50,7 +50,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 	lastName: string;
 
 	@Column
-	birthday: Date;
+	birthday: string;
 
 	@Column(DataType.STRING)
 	gender: UserAttributes["gender"];

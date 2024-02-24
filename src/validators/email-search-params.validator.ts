@@ -6,7 +6,7 @@ export const SearchEmailParamsValidator = joi.object({
 	body: joi.object({
 		email: EmailValidator.required().label("Email"),
 		userId: joi.number().positive().required().label("User ID"),
-        status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required()),
-        isPrimary: joi.boolean().label("is Primary"),
+		status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required()),
+		isPrimary: joi.boolean().label("is Primary"),
 	}),
 });

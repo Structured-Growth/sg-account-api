@@ -5,7 +5,10 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import Organization, { OrganizationCreationAttributes, OrganizationUpdateAttributes } from "../../../database/models/organization";
+import Organization, {
+	OrganizationCreationAttributes,
+	OrganizationUpdateAttributes,
+} from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 
 @autoInjectable()
@@ -77,6 +80,10 @@ export class OrganizationRepository
 	}
 
 	public async delete(id: number): Promise<void> {
-		await Organization.destroy({ where: { id } });
+		const n = await Organization.destroy({ where: { id } });
+
+		if (n === 0) {
+			throw new NotFoundError(`Organization ${id} not found`);
+		}
 	}
 }

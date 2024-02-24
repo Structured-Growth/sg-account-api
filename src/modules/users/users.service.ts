@@ -2,16 +2,14 @@ import slug from "slug";
 import { Buffer } from "buffer";
 import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
-import User from "../../../database/models/user";
+import User, { UserUpdateAttributes } from "../../../database/models/user";
 import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
 import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.interface";
 import { UsersRepository } from "./users.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
-
-declare class Account {
-	static getUsers(accountId: number): Promise<User[]>;
-  }
+import Account from "../../../database/models/account";
+import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class UsersService {
@@ -35,7 +33,6 @@ export class UsersService {
 		});
 
 		let imageUuid = null;
-
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
@@ -45,9 +42,17 @@ export class UsersService {
 			// imageUuid = v4();
 			// todo store image to S3 bucket
 		}
-		// todo: check if account doesn't have users yet set isPrimary true, otherwise - false
-		const users = await Account.getUsers(params.accountId);
-		const isPrimary = users.length === 0;
+
+		const { total } = await this.userRepository.search(
+			{
+				orgId: organization.id,
+				accountId: params.accountId,
+			},
+			{
+				onlyTotal: true,
+			}
+		);
+		const isPrimary = total === 0;
 
 		return this.userRepository.create({
 			orgId: organization.id,
@@ -57,21 +62,19 @@ export class UsersService {
 			lastName: params.lastName,
 			birthday: params.birthday,
 			gender: params.gender,
-			imageUuid: imageUuid || null,
-			isPrimary: true,
 			status: params.status || "inactive",
+			imageUuid: imageUuid || null,
+			isPrimary,
 		});
 	}
 
 	public async update(userId, params: UserUpdateBodyInterface): Promise<User> {
-
-		const checkOrg = await this.userRepository.read(userId);
-		if (!checkOrg) {
-			throw new NotFoundError(`Organization ${userId} not found`);
+		const checkUser = await this.userRepository.read(userId, { attributes: ["id"] });
+		if (!checkUser) {
+			throw new NotFoundError(`User ${userId} not found`);
 		}
 
 		let imageUuid = null;
-
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
@@ -82,15 +85,26 @@ export class UsersService {
 			// todo store image to S3 bucket
 		}
 
-		return this.userRepository.update(userId, {
-			firstName: params.firstName,
-			lastName: params.lastName,
-			birthday: params.birthday,
-			gender: params.gender,
-			imageUuid: imageUuid || null,
-			isPrimary: params.isPrimary,
-			status: params.status || "inactive",
-		});
+		/**
+		 * TODO:
+		 * If isPrimary is false check if account has at least one primary user
+		 * If isPrimary is true set other users' isPrimary to false
+		 */
 
+		return this.userRepository.update(
+			userId,
+			omitBy(
+				{
+					firstName: params.firstName,
+					lastName: params.lastName,
+					birthday: params.birthday,
+					gender: params.gender,
+					imageUuid: imageUuid || null,
+					isPrimary: params.isPrimary,
+					status: params.status || "inactive",
+				},
+				isUndefined
+			) as UserUpdateAttributes
+		);
 	}
 }

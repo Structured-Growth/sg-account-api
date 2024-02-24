@@ -8,8 +8,6 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	ValidateFuncArgs,
-	joi,
-	ValidationError,
 } from "@structured-growth/microservice-sdk";
 import { isString, pick, size } from "lodash";
 import { EmailAttributes } from "../../../database/models/email";
@@ -120,7 +118,7 @@ export class EmailsController extends BaseController {
 		@Body() body: EmailUpdateBodyInterface
 	): Promise<PublicEmailAttributes> {
 		const email = await this.emailRepository.update(emailId, body);
-		
+
 		return {
 			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
 			arn: email.arn,

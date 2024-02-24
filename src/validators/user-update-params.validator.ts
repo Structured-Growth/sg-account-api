@@ -1,13 +1,14 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const UserUpdateParamsValidator = joi.object({
-	query: joi.object({
-		firstName: joi.string().min(3).max(50).label("First name"),
-        lastName: joi.string().min(3).max(50).label("Last name"),
-        accountId: joi.number().positive().required().label("Account Id"),
-		status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required().label("Status")),
-        isPrimary: joi.boolean().label("Is primary"),
-        birthday: joi.date().required().label("Birthday"),
-        gender: joi.string().required().valid("male", "female"),
+	userId: joi.number().positive().required().label("User Id"),
+	body: joi.object({
+		firstName: joi.string().min(2).max(50).label("First name"),
+		lastName: joi.string().min(2).max(50).label("Last name"),
+		birthday: joi.date().iso().label("Birthday"),
+		gender: joi.string().valid("male", "female"),
+		status: joi.string().valid("active", "inactive", "archived").label("Status"),
+		isPrimary: joi.boolean().label("Is primary"),
+		imageBase64: joi.string().label("Image"),
 	}),
 });

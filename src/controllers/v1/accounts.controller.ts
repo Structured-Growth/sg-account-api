@@ -114,11 +114,7 @@ export class AccountsController extends BaseController {
 		@Body() body: AccountUpdateBodyInterface
 	): Promise<PublicAccountAttributes> {
 		const account = await this.accountRepository.update(accountId, body);
-		
-		if (!account) {
-			throw new NotFoundError(`Account ${accountId} not found`);
-		}
-		
+
 		return {
 			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
 			arn: account.arn,

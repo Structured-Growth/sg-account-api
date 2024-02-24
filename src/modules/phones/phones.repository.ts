@@ -45,7 +45,8 @@ export class PhonesRepository
 			rejectOnEmpty: false,
 		});
 	}
-// pick some attributes
+
+	// pick some attributes
 	public async update(id: number, params: Partial<any>): Promise<Phone> {
 		return Promise.resolve(undefined);
 	}

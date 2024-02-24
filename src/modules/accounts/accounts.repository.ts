@@ -7,6 +7,7 @@ import {
 } from "@structured-growth/microservice-sdk";
 import Account, { AccountAttributes, AccountCreationAttributes } from "../../../database/models/account";
 import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
+import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body.interface";
 
 @autoInjectable()
 export class AccountRepository
@@ -19,10 +20,11 @@ export class AccountRepository
 		const where = {};
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-
 		params.orgId && (where["orgId"] = params.orgId);
 		params.status && (where["status"] = { [Op.in]: params.status });
 		params.id && (where["id"] = { [Op.in]: params.id });
+
+		// TODO search by arn with wildcards
 
 		const { rows, count } = await Account.findAndCountAll({
 			where,
@@ -38,7 +40,6 @@ export class AccountRepository
 			page,
 		};
 	}
-	// TODO search by arn with wildcards
 
 	public async create(params: AccountCreationAttributes): Promise<Account> {
 		return Account.create(params);
@@ -56,16 +57,22 @@ export class AccountRepository
 		});
 	}
 
-	public async update(id: number, params: Partial<AccountAttributes>): Promise<Account> {
+	public async update(id: number, params: AccountUpdateBodyInterface): Promise<Account> {
 		const account = await this.read(id);
 
+		if (!account) {
+			throw new NotFoundError(`Account ${id} not found`);
+		}
 		account.setAttributes(params);
-		await account.save();
 
-		return account;
+		return account.save();
 	}
 
 	public async delete(id: number): Promise<void> {
-		await Account.destroy({ where: { id } });
+		const n = await Account.destroy({ where: { id } });
+
+		if (n === 0) {
+			throw new NotFoundError(`Account ${id} not found`);
+		}
 	}
 }
