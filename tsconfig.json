@@ -13,6 +13,10 @@
     "allowJs": true,
     "lib": [
       "ES2021"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "node_modules/@structured-growth/microservice-sdk"
     ]
   },
   "include": [
