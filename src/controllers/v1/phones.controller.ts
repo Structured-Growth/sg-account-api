@@ -11,6 +11,9 @@ import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params
 import { PhoneCreateBodyInterface } from "../../interfaces/phone-create-body.interface";
 import { PhoneUpdateBodyInterface } from "../../interfaces/phone-update-body.interface";
 import { PhoneVerifyBodyInterface } from "../../interfaces/phone-verify-body.interface";
+import { PhoneSearchParamsValidator } from "../../validators/phone-search-params.validator";
+import { PhoneCreateParamsValidator } from "../../validators/phone-create-params.validator";
+import { PhoneUpdateParamsValidator } from "../../validators/phone-update-params.validator";
 
 type PublicPhoneAttributes = Pick<
 	PhoneAttributes,

@@ -1,7 +1,7 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
 import { Optional } from "sequelize";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
-import Organization from "./organization";
+import Organization, { OrganizationAttributes } from "./organization";
 import Account from "./account";
 
 export interface GroupAttributes extends DefaultModelInterface {
@@ -13,6 +13,10 @@ export interface GroupAttributes extends DefaultModelInterface {
 }
 
 export interface GroupCreationAttributes extends Optional<GroupAttributes, "id"> {}
+
+export interface GroupUpdateAttributes
+	extends Pick<GroupCreationAttributes, "parentGroupId" | "title" | "status" | "imageBase64"> {}
+
 
 @Table({
 	tableName: "groups",

@@ -3,23 +3,48 @@ import {
 	autoInjectable,
 	BaseController,
 	DescribeAction,
-	DescribeResource,
-	SearchResultInterface,
+	DescribeResource, inject,
+	SearchResultInterface, ValidateFuncArgs,
 } from "@structured-growth/microservice-sdk";
 import { GroupMemberAttributes } from "../../../database/models/group-member";
+import { GroupMemberRepository } from "../../modules/groupmember/groupmember.repository"
+import { GroupMemberService } from "../../modules/groupmember/groupmember.service"
 import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
 import { GroupMemberCreateBodyInterface } from "../../interfaces/group-member-create-body.interface";
 import { GroupMemberUpdateBodyInterface } from "../../interfaces/group-member-update-body.interface";
+import { GroupMemberSearchParamsValidator } from "../../validators/group-member-search-params.validator";
+import { GroupMemberCreateParamsValidator } from "../../validators/group-member-create-params.validator";
+import { GroupMemberUpdateParamsValidator } from "../../validators/group-member-update-params.validator";
+import { pick } from "lodash";
+import group, { GroupAttributes } from "../../../database/models/group";
+import { pick, result } from "lodash";
 
-type PublicGroupMemberAttributes = Pick<
-	GroupMemberAttributes,
-	"id" | "groupId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "status" | "arn"
->;
+const publicGroupMemberAttributes = [
+		"id",
+		"groupId",
+		"accountId",
+		"userId",
+		"createdAt",
+		"updatedAt",
+		"status",
+		"arn",
+] as const;
+type GroupKeys = (typeof publicGroupMemberAttributes)[number]
+type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupKeys>;
+
 
 @Route("v1/groups")
 @Tags("Group Members")
 @autoInjectable()
 export class GroupMembersController extends BaseController {
+	constructor(
+		@inject("GroupMemberRepository") private groupmemberRepository: GroupMemberRepository,
+		@inject("GroupMemberService") private groupmemberService: GroupMemberService,
+){
+		super();
+
+	}
+
 	/**
 	 * Search group members
 	 */
@@ -28,11 +53,21 @@ export class GroupMembersController extends BaseController {
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@ValidateFuncArgs(GroupMemberSearchParamsValidator)
 	async search(
 		@Path() groupId: number,
 		@Queries() query: GroupMemberSearchParamsInterface
 	): Promise<SearchResultInterface<PublicGroupMemberAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.groupmemberRepository.search(query);
+
+		return {
+			data: data.map((groupmember) => ({
+				...(pick(groupmember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
+				arn: groupmember.arn,
+			})),
+			...result,
+			}
+		};
 	}
 
 	/**

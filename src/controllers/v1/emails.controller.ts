@@ -18,6 +18,8 @@ import { EmailVerifyBodyInterface } from "../../interfaces/email-verify-body.int
 import { EmailsService } from "../../modules/emails/emails.service";
 import { EmailsRepository } from "../../modules/emails/emails.repository";
 import { CreateEmailParamsValidator } from "../../validators/email-create-params.validator";
+import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
+import { UpdateEmailParamsValidator } from "../../validators/email-update-params.validator";
 
 const publicEmailAttributes = [
 	"id",

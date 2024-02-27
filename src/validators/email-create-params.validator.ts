@@ -1,11 +1,11 @@
 import { joi } from "@structured-growth/microservice-sdk";
-import { EmailValidator } from "./fields/email.validator";
 
 export const CreateEmailParamsValidator = joi.object({
-	query: joi.object().empty(),
-	body: joi.object({
-		email: EmailValidator.required().label("Email"),
-		userId: joi.number().positive().required().label("User ID"),
-		accountId: joi.number().positive().required().label("Account ID"),
+	query: joi.object({
+		parentOrgId: joi.number().positive().required().label("Parent organization Id"),
+		title: joi.string().min(3).max(50).required().label("Organization title"),
+		name: joi.string().min(3).max(50).label("Organization name"),
+		region: joi.string().min(2).required().label("Organization region"),
+		status: joi.string().valid("active", "inactive").label("Status"),
 	}),
 });
