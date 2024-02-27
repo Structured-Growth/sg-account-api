@@ -66,7 +66,6 @@ export class GroupMembersController extends BaseController {
 				arn: groupmember.arn,
 			})),
 			...result,
-			}
 		};
 	}
 

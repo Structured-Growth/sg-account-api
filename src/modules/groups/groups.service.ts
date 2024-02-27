@@ -18,15 +18,20 @@ export class GroupService {
 		@inject("ImageValidator") private imageValidator: ImageValidator
 	) {}
 
-	public async create (params: GroupCreateBodyInterface): Promise<Group> {
-		const Account = await this.accountRepository.read(params.accountId);
-		if (!Account) {
+	public async create(params: GroupCreateBodyInterface): Promise<Group> {
+		const account = await this.accountRepository.read(params.accountId);
+		if (!account) {
 			throw new NotFoundError(`Account ${params.accountId} not found`);
 		}
-		const ParentGroup = await this.groupRepository.read(params.parentGroupId);
-		if (!ParentGroup) {
-			throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
+
+		let parentGroup: Group | undefined;
+		if (params.parentGroupId) {
+			parentGroup = await this.groupRepository.read(params.parentGroupId);
+			if (!parentGroup) {
+				throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
+			}
 		}
+
 		const name = slug(params.title);
 		const count = await Group.count({
 			where: { name },
@@ -51,16 +56,20 @@ export class GroupService {
 		}
 
 		return this.groupRepository.create({
+			orgId: account.orgId,
+			region: account.orgId,
 			accountId: params.accountId,
-			parentGroupId: params.parentGroupId,
+			parentGroupId: parentGroup?.id,
 			title: params.title,
+			name,
 			status: params.status || "inactive",
 			imageUuid: imageUuid || null,
 		});
 	}
+
 	public async update(id, params: GroupUpdateBodyInterface): Promise<Group> {
-			const checkGroup = await this.groupRepository.read(id);
-			if (!checkGroup) {
+		const checkGroup = await this.groupRepository.read(id);
+		if (!checkGroup) {
 			throw new NotFoundError(`Group ${id} not found`);
 		}
 
@@ -75,6 +84,14 @@ export class GroupService {
 				throw new ValidationError({
 					title: "Group with the same name is already exist",
 				});
+			}
+		}
+
+		let parentGroup: Group | undefined;
+		if (params.parentGroupId) {
+			parentGroup = await this.groupRepository.read(params.parentGroupId);
+			if (!parentGroup) {
+				throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
 			}
 		}
 
@@ -94,7 +111,7 @@ export class GroupService {
 			id,
 			omitBy(
 				{
-					parentGroupId: params.parentGroupId,
+					parentGroupId: parentGroup?.id,
 					title: params.title,
 					name,
 					status: params.status,

@@ -23,11 +23,11 @@ const publicGroupAttributes = [
 	"id",
 	"orgId",
 	"accountId",
-	"createdAt",
-	"updatedAt",
 	"title",
 	"name",
 	"status",
+	"createdAt",
+	"updatedAt",
 	"arn",
 ] as const;
 type GroupKeys = (typeof publicGroupAttributes)[number]
@@ -57,9 +57,10 @@ export class GroupsController extends BaseController {
 		const { data, ...result } = await this.groupsRepository.search(query);
 
 		return {
-			data: data.map((account) => ({
-				...(pick(account.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
-				arn: account.arn,
+			data: data.map((group) => ({
+				...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+				imageUrl: group.imageUrl,
+				arn: group.arn,
 			})),
 			...result,
 		};
@@ -83,6 +84,7 @@ export class GroupsController extends BaseController {
 
 		return {
 			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
 			arn: group.arn,
 		};
 	}
@@ -99,11 +101,12 @@ export class GroupsController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Account ${groupId} not found`);
+			throw new NotFoundError(`Group ${groupId} not found`);
 		}
 
 		return {
 			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
 			arn: group.arn,
 		};
 	}

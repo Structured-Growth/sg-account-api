@@ -1,10 +1,12 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const GroupUpdateParamsValidator = joi.object({
-	query: joi.object({
-		title: joi.string().min(3).max(50).required().label("Organization title"),
-		name: joi.string().min(3).max(50).label("Organization name"),
-        organizationId: joi.number().positive().required().label("Organization Id"),
-		status: joi.string().valid("active", "inactive").label("Status"),
+	groupId: joi.number().required().label("Group id"),
+	query: joi.string(),
+	body: joi.object({
+		parentGroupId: joi.number().positive().label("Parent group Id"),
+		title: joi.string().min(3).max(50).label("Group title"),
+		status: joi.string().valid("active", "inactive", "archived").label("Status"),
+		imageBase64: joi.string().label("Image"),
 	}),
 });

@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationAttributes } from "./organization";
 import Account from "./account";
@@ -12,11 +11,11 @@ export interface GroupAttributes extends DefaultModelInterface {
 	status: "active" | "inactive" | "archived";
 }
 
-export interface GroupCreationAttributes extends Optional<GroupAttributes, "id"> {}
+export interface GroupCreationAttributes
+	extends Omit<GroupAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface GroupUpdateAttributes
-	extends Pick<GroupCreationAttributes, "parentGroupId" | "title" | "status" | "imageBase64"> {}
-
+	extends Partial<Pick<GroupCreationAttributes, "parentGroupId" | "title" | "status" | "imageUuid">> {}
 
 @Table({
 	tableName: "groups",
@@ -66,6 +65,11 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> imple
 
 	get arn(): string {
 		return [container.resolve("appPrefix"), this.region, this.orgId, this.accountId, `groups/${this.id}`].join(":");
+	}
+
+	get imageUrl(): string {
+		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		return this.imageUuid ? `${bucketUrl}/group-pictures/${this.imageUuid}.png` : null;
 	}
 }
 

@@ -7,6 +7,7 @@ import {
 } from "@structured-growth/microservice-sdk";
 import Group, { GroupCreationAttributes, GroupUpdateAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
+import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class GroupsRepository
@@ -43,6 +44,7 @@ export class GroupsRepository
 			where,
 			offset,
 			limit,
+			order,
 		});
 
 		return {
@@ -72,9 +74,12 @@ export class GroupsRepository
 	// pick some attributes
 	public async update(id: number, params: GroupUpdateAttributes): Promise<Group> {
 		const group = await this.read(id);
-		group.setAttributes(params);
+		if (!group) {
+			throw new NotFoundError(`Group ${id} not found`);
+		}
+		group.setAttributes(omitBy(params, isUndefined));
 
-		return group;
+		return group.save();
 	}
 
 	public async delete(id: number): Promise<void> {

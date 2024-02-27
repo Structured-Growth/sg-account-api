@@ -63,9 +63,8 @@ export class Organization
 	}
 
 	get imageUrl(): string | null {
-		// TODO
-		// return container.resolve("s3UserDataBucketWebSiteUrl") + `/pictures/${this.imageUuid}.jpg`;
-		return null;
+		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		return this.imageUuid ? `${bucketUrl}/organization-pictures/${this.imageUuid}.png` : null;
 	}
 }
 

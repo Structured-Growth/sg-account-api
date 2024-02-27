@@ -6,10 +6,10 @@ export const GroupSearchParamsValidator = joi.object({
 		.object({
 			orgId: joi.number().positive().required().label("Organization Id"),
 			accountId: joi.number().positive().required().label("Account Id"),
-			parentGroupId: joi.number().positive().required().label("Parent Group Id"),
-			status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required().label("Status")),
-			title: joi.array().valid(joi.string().max(50).required()),
-			name: joi.array().valid(joi.string().max(50).required()),
+			parentGroupId: joi.number().positive().label("Parent Group Id"),
+			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required().label("Status")),
+			title: joi.array().items(joi.string().max(50).required()),
+			name: joi.array().items(joi.string().max(50).required()),
 		})
 		.concat(CommonSearchParamsValidator),
 });
