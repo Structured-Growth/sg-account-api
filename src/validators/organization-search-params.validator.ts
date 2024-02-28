@@ -5,9 +5,9 @@ export const OrganizationSearchParamsValidator = joi.object({
 	query: joi
 		.object({
 			parentOrgId: joi.number().positive().required().label("Parent organization Id"),
-			status: joi.array().valid(joi.string().valid("active", "inactive", "archived").required().label("Status")),
-			title: joi.array().valid(joi.string().max(50).required()),
-			name: joi.array().valid(joi.string().max(50).required()),
+			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required().label("Status")),
+			title: joi.array().items(joi.string().max(50).required()),
+			name: joi.array().items(joi.string().max(50).required()),
 		})
 		.concat(CommonSearchParamsValidator),
 });

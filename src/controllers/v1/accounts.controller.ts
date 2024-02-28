@@ -130,8 +130,8 @@ export class AccountsController extends BaseController {
 	@DescribeAction("accounts/delete")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	async delete(@Path() accountId: number): Promise<void> {
-		this.response.status(204);
 
-		return this.accountRepository.delete(accountId);
+		await this.accountRepository.delete(accountId);
+		this.response.status(204);
 	}
 }

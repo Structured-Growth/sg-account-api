@@ -6,15 +6,16 @@ import {
 	DescribeResource,
 	SearchResultInterface,
 	ValidateFuncArgs,
-	NotFoundError, inject,
+	NotFoundError,
+	inject,
 } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
 import { GroupCreateBodyInterface } from "../../interfaces/group-create-body.interface";
 import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.interface";
-import { GroupSearchParamsValidator } from "../../validators/group-search-params.validator";
 import { GroupsRepository } from "../../modules/groups/groups.repository"
 import { GroupService } from "../../modules/groups/groups.service"
+import { GroupSearchParamsValidator } from "../../validators/group-search-params.validator";
 import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
 import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
 import { pick, result } from "lodash";
@@ -125,7 +126,13 @@ export class GroupsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: GroupUpdateBodyInterface
 	): Promise<PublicGroupAttributes> {
-		return undefined;
+		const group = await this.groupsService.update(groupId, body);
+
+		return {
+			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
+			arn: group.arn,
+		};
 	}
 
 	/**
@@ -137,6 +144,7 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/delete")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async delete(@Path() groupId: number): Promise<void> {
-		return undefined;
+		await this.groupsRepository.delete(groupId);
+		this.response.status(204);
 	}
 }
