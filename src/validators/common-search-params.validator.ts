@@ -1,9 +1,9 @@
-import { joi } from "@structured-growth/microservice-sdk/.dist";
+import { joi } from "@structured-growth/microservice-sdk";
 
 export const CommonSearchParamsValidator = joi.object({
-	id: joi.array().valid(joi.number().positive().required()).label("Entity IDs"),
-	arn: joi.array().valid(joi.string().required()).label("Entity ARNs"),
+	id: joi.array().items(joi.number().positive().required()).label("Entity IDs"),
+	arn: joi.array().items(joi.string().required()).label("Entity ARNs"),
 	page: joi.number().positive().label("Page"),
 	limit: joi.number().positive().label("Limit"),
-	sort: joi.array().valid(joi.string().required()).label("Sort"),
+	sort: joi.array().items(joi.string().required()).label("Sort"),
 });

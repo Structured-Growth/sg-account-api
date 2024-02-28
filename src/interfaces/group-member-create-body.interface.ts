@@ -1,5 +1,5 @@
 export interface GroupMemberCreateBodyInterface {
-	accountId: number;
+	groupId: number;
 	userId: number;
 	status: "active" | "inactive";
 }

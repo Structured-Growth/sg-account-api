@@ -57,7 +57,7 @@ export class GroupService {
 
 		return this.groupRepository.create({
 			orgId: account.orgId,
-			region: account.orgId,
+			region: account.region,
 			accountId: params.accountId,
 			parentGroupId: parentGroup?.id,
 			title: params.title,

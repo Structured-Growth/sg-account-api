@@ -1,6 +1,7 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const UserCreateParamsValidator = joi.object({
+	query: joi.object(),
 	body: joi.object({
 		accountId: joi.number().positive().required().label("Account Id"),
 		firstName: joi.string().required().min(2).max(50).label("First name"),
