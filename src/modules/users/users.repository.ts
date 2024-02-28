@@ -52,11 +52,12 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		// TODO search by arn with wildcards
 
 		if (options?.onlyTotal) {
-			const { count } = await User.count({
+			const countResult = await User.count({
 				where,
 				group: ["id"],
 			});
-
+			// todo
+			const count = 0;
 			return {
 				data: [],
 				total: count,
