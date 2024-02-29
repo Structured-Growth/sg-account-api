@@ -1,4 +1,4 @@
-import slug from "slug";
+import * as slug from "slug";
 import { Buffer } from "buffer";
 import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
@@ -21,7 +21,7 @@ export class OrganizationService {
 		if (!parentOrg) {
 			throw new NotFoundError(`Parent organization ${params.parentOrgId} not found`);
 		}
-
+		console.log(typeof slug);
 		const name = slug(params.title);
 		const count = await Organization.count({
 			where: { name },

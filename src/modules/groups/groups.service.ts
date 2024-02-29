@@ -1,4 +1,4 @@
-import slug from "slug";
+import * as slug from "slug";
 import { Buffer } from "buffer";
 import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";

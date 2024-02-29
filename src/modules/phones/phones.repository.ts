@@ -2,7 +2,7 @@ import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@str
 import Phone, { PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
 import { Op } from "sequelize";
-import { NotFoundError } from "@structured-growth/microservice-sdk/.dist";
+import { NotFoundError } from "@structured-growth/microservice-sdk";
 
 @autoInjectable()
 export class PhonesRepository
