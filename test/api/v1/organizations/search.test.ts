@@ -10,7 +10,7 @@ describe("GET /api/v1/organizations", () => {
 
 	before(async () => container.resolve<App>("App").ready);
 
-	it("Should create credentials", async () => {
+	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			parentOrgId: 2,
 			region: "us",
