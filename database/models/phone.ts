@@ -15,7 +15,7 @@ export interface PhoneAttributes extends DefaultModelInterface {
 	verificationCodeExpires: Date;
 }
 
-export interface PhoneCreationAttributes extends Optional<PhoneAttributes, "id"> {}
+export interface PhoneCreationAttributes extends Omit<PhoneAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "phones",

@@ -1,11 +1,10 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const PhoneCreateParamsValidator = joi.object({
-	query: joi.object({
-		parentOrgId: joi.number().positive().required().label("Parent organization Id"),
-		title: joi.string().min(3).max(50).required().label("Organization title"),
-		name: joi.string().min(3).max(50).label("Organization name"),
-		region: joi.string().min(2).required().label("Organization region"),
-		status: joi.string().valid("active", "inactive").label("Status"),
+	query: joi.object(),
+	body: joi.object({
+		accountId: joi.number().positive().required().label("Account Id"),
+		userId: joi.number().min(3).max(50).required().label("User title"),
+		phoneNumber: joi.string().min(5).max(20).required().label("Phone number"),
 	}),
 });

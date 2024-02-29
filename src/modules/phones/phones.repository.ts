@@ -1,6 +1,8 @@
 import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
 import Phone, { PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
+import { Op } from "sequelize";
+import { NotFoundError } from "@structured-growth/microservice-sdk/.dist";
 
 @autoInjectable()
 export class PhonesRepository
@@ -11,15 +13,28 @@ export class PhonesRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
+		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-		if (params.name) {
-			where["name"] = params.name;
+		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
+		params.status && (where["status"] = { [Op.in]: params.status });
+
+		if (params.phoneNumber?.length > 0) {
+			where["phoneNumber"] = {
+				[Op.or]: [params.phoneNumber.map((str) => ({ [Op.iLike]: str }))],
+			};
+		}
+
+		if (params.userId?.length > 0) {
+			where["userId"] = {
+				[Op.or]: [params.userId.map((str) => ({ [Op.iLike]: str }))],
+			};
 		}
 
 		const { rows, count } = await Phone.findAndCountAll({
 			where,
 			offset,
 			limit,
+			order,
 		});
 
 		return {
@@ -48,10 +63,17 @@ export class PhonesRepository
 
 	// pick some attributes
 	public async update(id: number, params: Partial<any>): Promise<Phone> {
-		return Promise.resolve(undefined);
+		const phone = await this.read(id);
+		phone.setAttributes(params);
+
+		return phone.save();
 	}
 
 	public async delete(id: number): Promise<void> {
-		return Promise.resolve(undefined);
+		const n = await Phone.destroy({ where: { id } });
+
+		if (n === 0) {
+			throw new NotFoundError(`Phone ${id} not found`);
+		}
 	}
 }

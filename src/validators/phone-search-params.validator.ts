@@ -4,10 +4,10 @@ import { CommonSearchParamsValidator } from "./common-search-params.validator";
 export const PhoneSearchParamsValidator = joi.object({
 	query: joi
 		.object({
-			parentOrgId: joi.number().positive().required().label("Parent organization Id"),
-			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required().label("Status")),
-			title: joi.array().items(joi.string().max(50).required()),
-			name: joi.array().items(joi.string().max(50).required()),
+			phoneNumber: joi.string().min(5).label("Phone number"),
+			userId: joi.array().items(joi.number().positive()).required().label("User Id"),
+			isPrimary: joi.boolean().label("Is primary"),
+			status: joi.array().items(joi.string().valid("active", "inactive", "archived").label("Status")),
 		})
 		.concat(CommonSearchParamsValidator),
 });

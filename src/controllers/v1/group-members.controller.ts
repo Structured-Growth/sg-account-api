@@ -32,8 +32,8 @@ const publicGroupMemberAttributes = [
 		"status",
 		"arn",
 ] as const;
-type GroupKeys = (typeof publicGroupMemberAttributes)[number]
-type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupKeys>;
+type GroupMemberKeys = (typeof publicGroupMemberAttributes)[number]
+type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupMemberKeys>;
 
 
 @Route("v1/groups")
