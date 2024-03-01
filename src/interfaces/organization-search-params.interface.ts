@@ -2,7 +2,7 @@ import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sd
 import { OrganizationAttributes } from "../../database/models/organization";
 
 export interface OrganizationSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "orgId" | "accountId"> {
-	parentOrgId: number;
+	parentOrgId?: number;
 	status?: OrganizationAttributes["status"][];
 	/**
 	 * Wildcards and exclusions are allowed:

@@ -17,10 +17,14 @@ export class OrganizationService {
 	) {}
 
 	public async create(params: OrganizationCreateBodyInterface): Promise<Organization> {
-		const parentOrg = await this.organizationRepository.read(params.parentOrgId);
-		if (!parentOrg) {
-			throw new NotFoundError(`Parent organization ${params.parentOrgId} not found`);
+
+		if (params.parentOrgId) {
+			const parentOrg = await this.organizationRepository.read(params.parentOrgId);
+			if (!parentOrg) {
+				throw new NotFoundError(`Parent organization ${params.parentOrgId} not found`);
+			}
 		}
+
 		console.log(typeof slug);
 		const name = slug(params.title);
 		const count = await Organization.count({
@@ -46,7 +50,7 @@ export class OrganizationService {
 		}
 
 		return this.organizationRepository.create({
-			parentOrgId: params.parentOrgId,
+			parentOrgId: params.parentOrgId || null,
 			region: params.region,
 			title: params.title,
 			name: name,

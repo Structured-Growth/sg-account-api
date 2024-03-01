@@ -4,26 +4,37 @@ import { App } from "../../../../src/app/app";
 import { container, webServer } from "@structured-growth/microservice-sdk";
 import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
+import Organization from "../../../../database/models/organization";
 
 describe("GET /api/v1/organizations", () => {
 	const server = agent(webServer(routes));
+	const params: Record<any, any> = {};
 
-	before(async () => container.resolve<App>("App").ready);
+	before(async () => {
+		await container.resolve<App>("App").ready;
+	});
 
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
-			orgId: 2,
 			region: "us",
-			title: "test2"
+			title: "Test",
 		});
 		assert.equal(statusCode, 201);
-		assert.equal(body.id, 1);
-		assert.equal(body.title, "test");
-		assert.equal(body.accountId, 2);
+		assert.isNumber(body.id);
+		params['createdOrgId'] = body.id;
 	});
 
 	it("Should return validation error", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
+			id: "a",
+			arn: 1,
+			page: "b",
+			limit: false,
+			sort: "createdAt:asc",
+			parentOrgId: -1,
+			'status[0]': "activated",
+			'title[0]': 1,
+			name: false,
 			orgId: 6,
 		});
 		assert.equal(statusCode, 422);
@@ -33,34 +44,32 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should return organizations", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: 1,
+			'id[0]': params['createdOrgId'],
 		});
 		assert.equal(statusCode, 200);
-		assert.equal(body.data[0].id, 5);
-		assert.equal(body.data[0].title, "test");
-		assert.equal(body.data[0].name, "test");
+		assert.equal(body.data[0].id, params['createdOrgId']);
+		assert.isString(body.data[0].createdAt);
+		assert.isString(body.data[0].updatedAt);
 		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region,);
-		assert.isNotEmpty(body.data[0].createdAt,);
-		assert.isNotEmpty(body.data[0].updatedAt,);
-		assert.equal(body.data[0].imageUrl, null);
-		assert.isNotEmpty(body.data[0].arn);
+		assert.isString(body.data[0].arn);
+		assert.isNull(body.data[0].parentOrgId);
+		assert.equal(body.data[0].region, "us");
+		assert.equal(body.data[0].title, "Test");
+		assert.equal(body.data[0].name, "test");
+		assert.isNull(body.data[0].imageUrl);
+		assert.equal(body.page, 1);
+		assert.equal(body.limit, 20);
+		assert.equal(body.total, 1);
 	});
-	it("Should return error", async () => {
+
+	it("Should search by title", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: 1,
-			'title[0]': "main*"
+			'id[0]': params['createdOrgId'],
+			"title[0]": "Te*",
 		});
-		assert.equal(statusCode, 422);
-		assert.equal(body.data[0].id, 1);
-		assert.equal(body.data[0].title, "test");
-		assert.equal(body.data[0].name, "test");
-		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region,);
-		assert.isNotEmpty(body.data[0].createdAt,);
-		assert.isNotEmpty(body.data[0].updatedAt,);
-		assert.equal(body.data[0].imageUrl, null);
-		assert.isNotEmpty(body.data[0].arn);
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, params['createdOrgId']);
 	});
 
 	it("Should return error", async () => {
@@ -72,9 +81,9 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(body.data[0].title, "test");
 		assert.equal(body.data[0].name, "test");
 		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region,);
-		assert.isNotEmpty(body.data[0].createdAt,);
-		assert.isNotEmpty(body.data[0].updatedAt,);
+		assert.isNotEmpty(body.data[0].region);
+		assert.isNotEmpty(body.data[0].createdAt);
+		assert.isNotEmpty(body.data[0].updatedAt);
 		assert.equal(body.data[0].imageUrl, null);
 		assert.isNotEmpty(body.data[0].arn);
 	});
@@ -88,33 +97,24 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(body.data[0].title, "test");
 		assert.equal(body.data[0].name, "test");
 		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region,);
-		assert.isNotEmpty(body.data[0].createdAt,);
-		assert.isNotEmpty(body.data[0].updatedAt,);
+		assert.isNotEmpty(body.data[0].region);
+		assert.isNotEmpty(body.data[0].createdAt);
+		assert.isNotEmpty(body.data[0].updatedAt);
 		assert.equal(body.data[0].imageUrl, null);
 		assert.isNotEmpty(body.data[0].arn);
 	});
 
-	it("Should return error", async () => {
+	it("Should return error if parentOrgIs is invalid", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "64*",
 		});
 		assert.equal(statusCode, 422);
-		assert.equal(body.data[0].id, 5);
-		assert.equal(body.data[0].title, "test");
-		assert.equal(body.data[0].name, "test");
-		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region,);
-		assert.isNotEmpty(body.data[0].createdAt,);
-		assert.isNotEmpty(body.data[0].updatedAt,);
-		assert.equal(body.data[0].imageUrl, null);
-		assert.isNotEmpty(body.data[0].arn);
 	});
 
 	it("Should return error", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "18",
-			'status[0]': "deleted"
+			"status[0]": "deleted",
 		});
 		assert.equal(statusCode, 422);
 	});
@@ -122,8 +122,8 @@ describe("GET /api/v1/organizations", () => {
 	it("Should return error", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "16",
-			'status[0]': "deleted",
-			'status[1]': "active"
+			"status[0]": "deleted",
+			"status[1]": "active",
 		});
 		assert.equal(statusCode, 422);
 	});
@@ -131,8 +131,8 @@ describe("GET /api/v1/organizations", () => {
 	it("Should return organisation", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "17",
-			'status[0]': "inactive",
-			'status[1]': "active"
+			"status[0]": "inactive",
+			"status[1]": "active",
 		});
 		assert.equal(statusCode, 200);
 	});

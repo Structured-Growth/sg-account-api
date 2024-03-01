@@ -1,7 +1,7 @@
 import { RegionEnum } from "@structured-growth/microservice-sdk";
 
 export interface OrganizationCreateBodyInterface {
-	parentOrgId: number;
+	parentOrgId?: number;
 	region: RegionEnum;
 	title: string;
 	status?: "active" | "inactive";
