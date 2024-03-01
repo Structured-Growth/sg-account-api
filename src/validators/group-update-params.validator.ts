@@ -1,7 +1,6 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const GroupUpdateParamsValidator = joi.object({
-
 	query: joi.string(),
 	body: joi.object({
 		parentGroupId: joi.number().positive().label("Parent group Id"),

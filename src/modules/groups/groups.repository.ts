@@ -28,15 +28,15 @@ export class GroupsRepository
 
 		// TODO search by arn with wildcards
 
-		if (params.title?.length > 0) {
-			where["firstName"] = {
-				[Op.or]: [params.title.map((str) => ({ [Op.iLike]: str }))],
+		if (params.name?.length > 0) {
+			where["name"] = {
+				[Op.or]: params.name.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 
-		if (params.name?.length > 0) {
-			where["lastName"] = {
-				[Op.or]: [params.name.map((str) => ({ [Op.iLike]: str }))],
+		if (params.title?.length > 0) {
+			where["title"] = {
+				[Op.or]: params.title.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 

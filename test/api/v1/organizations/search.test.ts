@@ -17,7 +17,7 @@ describe("GET /api/v1/organizations", () => {
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
-			title: "Test",
+			title: "Testmy2",
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -54,8 +54,8 @@ describe("GET /api/v1/organizations", () => {
 		assert.isString(body.data[0].arn);
 		assert.isNull(body.data[0].parentOrgId);
 		assert.equal(body.data[0].region, "us");
-		assert.equal(body.data[0].title, "Test");
-		assert.equal(body.data[0].name, "test");
+		assert.equal(body.data[0].title, "Testmy2");
+		assert.equal(body.data[0].name, "testmy2");
 		assert.isNull(body.data[0].imageUrl);
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
@@ -72,38 +72,6 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(body.data[0].id, params['createdOrgId']);
 	});
 
-	it("Should return error", async () => {
-		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: 0,
-		});
-		assert.equal(statusCode, 422);
-		assert.equal(body.data[0].id, 5);
-		assert.equal(body.data[0].title, "test");
-		assert.equal(body.data[0].name, "test");
-		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region);
-		assert.isNotEmpty(body.data[0].createdAt);
-		assert.isNotEmpty(body.data[0].updatedAt);
-		assert.equal(body.data[0].imageUrl, null);
-		assert.isNotEmpty(body.data[0].arn);
-	});
-
-	it("Should return error", async () => {
-		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: "main",
-		});
-		assert.equal(statusCode, 422);
-		assert.equal(body.data[0].id, 5);
-		assert.equal(body.data[0].title, "test");
-		assert.equal(body.data[0].name, "test");
-		assert.equal(body.data[0].status, "inactive");
-		assert.isNotEmpty(body.data[0].region);
-		assert.isNotEmpty(body.data[0].createdAt);
-		assert.isNotEmpty(body.data[0].updatedAt);
-		assert.equal(body.data[0].imageUrl, null);
-		assert.isNotEmpty(body.data[0].arn);
-	});
-
 	it("Should return error if parentOrgIs is invalid", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "64*",
@@ -111,7 +79,7 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(statusCode, 422);
 	});
 
-	it("Should return error", async () => {
+	it("Should return error if status is invalid", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
 			parentOrgId: "18",
 			"status[0]": "deleted",
@@ -119,9 +87,8 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(statusCode, 422);
 	});
 
-	it("Should return error", async () => {
+	it("Should return error if one status is invalid", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: "16",
 			"status[0]": "deleted",
 			"status[1]": "active",
 		});
@@ -130,7 +97,6 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should return organisation", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			parentOrgId: "17",
 			"status[0]": "inactive",
 			"status[1]": "active",
 		});

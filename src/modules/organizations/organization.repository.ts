@@ -28,13 +28,13 @@ export class OrganizationRepository
 
 		if (params.name?.length > 0) {
 			where["name"] = {
-				[Op.or]: [params.name.map((str) => ({ [Op.iLike]: str }))],
+				[Op.or]: params.name.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 
 		if (params.title?.length > 0) {
 			where["title"] = {
-				[Op.or]: [params.title.map((str) => ({ [Op.iLike]: str }))],
+				[Op.or]: params.title.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 
