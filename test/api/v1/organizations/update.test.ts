@@ -11,10 +11,9 @@ describe("GET /api/v1/organizations", () => {
 	before(async () => container.resolve<App>("App").ready);
 
 	it("Should update organisation", async () => {
-		const { statusCode, body } = await server.post("/v1/organizations").send({
-			organizationId: 1,
-			region: "us",
-			title: "test"
+		const { statusCode, body } = await server.put("/v1/organizations").send({
+			title: "test",
+			status: "active"
 		});
 		assert.equal(statusCode, 201);
 		assert.equal(body.data[0].id, 1);
@@ -29,10 +28,9 @@ describe("GET /api/v1/organizations", () => {
 	});
 
 	it("Should return error", async () => {
-		const { statusCode, body } = await server.post("/v1/organizations").send({
-			organizationId: 0,
-			region: "APAC",
-			title: "test3"
+		const { statusCode, body } = await server.put("/v1/organizations").send({
+			title: "test3",
+			status: "deleted"
 		});
 		assert.equal(statusCode, 201);
 		assert.equal(body.data[0].id, 1);
