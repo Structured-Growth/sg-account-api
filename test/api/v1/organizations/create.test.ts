@@ -34,7 +34,7 @@ describe("GET /api/v1/organizations", () => {
 			region: "APAC",
 			title: "test3"
 		});
-		assert.equal(statusCode, 201);
+		assert.equal(statusCode, 422);
 		assert.equal(body.data[0].id, 1);
 		assert.equal(body.data[0].title, "test3");
 		assert.equal(body.data[0].name, "test3");

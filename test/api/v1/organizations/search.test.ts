@@ -12,7 +12,7 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
-			parentOrgId: 2,
+			orgId: 2,
 			region: "us",
 			title: "test2"
 		});

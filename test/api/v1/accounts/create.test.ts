@@ -19,6 +19,21 @@ describe("GET /api/v1/accounts", () => {
 		assert.isNumber(body.orgId);
 		assert.isNotNaN(new Date(body.createdAt).getTime());
 		assert.isNotNaN(new Date(body.updatedAt).getTime());
+		assert.equal(body.status, "inactive");
+		assert.isString(body.arn);
+		assert.isUndefined(body.password)
+	});
+
+	it("Should return error", async () => {
+		const { statusCode, body } = await server.post("/v1/accounts").send({
+			id: "1",
+			orgId: 1
+		});
+		assert.equal(statusCode, 422);
+		assert.isNumber(body.id);
+		assert.isNumber(body.orgId);
+		assert.isNotNaN(new Date(body.createdAt).getTime());
+		assert.isNotNaN(new Date(body.updatedAt).getTime());
 		assert.equal(body.status, "active");
 		assert.isString(body.arn);
 		assert.isUndefined(body.password)
