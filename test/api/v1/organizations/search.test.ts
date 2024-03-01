@@ -46,6 +46,22 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(body.data[0].imageUrl, null);
 		assert.isNotEmpty(body.data[0].arn);
 	});
+	it("Should return error", async () => {
+		const { statusCode, body } = await server.get("/v1/organizations").query({
+			parentOrgId: 1,
+			'title[0]': "main*"
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.data[0].id, 1);
+		assert.equal(body.data[0].title, "test");
+		assert.equal(body.data[0].name, "test");
+		assert.equal(body.data[0].status, "inactive");
+		assert.isNotEmpty(body.data[0].region,);
+		assert.isNotEmpty(body.data[0].createdAt,);
+		assert.isNotEmpty(body.data[0].updatedAt,);
+		assert.equal(body.data[0].imageUrl, null);
+		assert.isNotEmpty(body.data[0].arn);
+	});
 
 	it("Should return error", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
