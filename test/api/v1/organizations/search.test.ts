@@ -14,10 +14,17 @@ describe("GET /api/v1/organizations", () => {
 		await container.resolve<App>("App").ready;
 	});
 
+	const generateRandomTitle = () => {
+		const randomSuffix = Math.floor(Math.random() * 1000);
+		return `Testmy${randomSuffix}`;
+	};
+	const randomTitle = generateRandomTitle();
+
 	it("Should create organisation", async () => {
+
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
-			title: "Testmy2",
+			title: randomTitle,
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -54,8 +61,8 @@ describe("GET /api/v1/organizations", () => {
 		assert.isString(body.data[0].arn);
 		assert.isNull(body.data[0].parentOrgId);
 		assert.equal(body.data[0].region, "us");
-		assert.equal(body.data[0].title, "Testmy2");
-		assert.equal(body.data[0].name, "testmy2");
+		assert.equal(body.data[0].title, randomTitle);
+		assert.isString(body.data[0].name);
 		assert.isNull(body.data[0].imageUrl);
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);

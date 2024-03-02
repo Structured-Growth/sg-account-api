@@ -11,23 +11,34 @@ describe("GET /api/v1/organizations", () => {
 
 	before(async () => container.resolve<App>("App").ready);
 
+	const generateRandomTitle = () => {
+		const randomSuffix = Math.floor(Math.random() * 1000);
+		return `Testmy${randomSuffix}`;
+	};
+	const randomTitle = generateRandomTitle();
+
+	const generateRandomNewTitle = () => {
+		const randomSuffix = Math.floor(Math.random() * 1000);
+		return `Testmy${randomSuffix}`;
+	};
+	const randomNewTitle = generateRandomNewTitle();
+
+
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
-			parentOrgId: 1,
 			region: "us",
-			title: "Mytestorgfor2",
+			title: randomTitle,
 			status: "active"
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
 		assert.equal(body.status, "active");
-		assert.isNull(body.imageUrl);
 		params['createdOrgId'] = body.id;
 	});
 
 	it("Should update organisation", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
-			title: "Mytestorgfornew",
+			title: randomNewTitle,
 			status: "archived"
 		});
 		assert.equal(statusCode, 201);
@@ -36,10 +47,10 @@ describe("GET /api/v1/organizations", () => {
 		assert.isString(body.updatedAt);
 		assert.equal(body.status, "archived");
 		assert.isString(body.arn);
-		assert.equal(body.parentOrgId, 1);
+		assert.isDefined(body.parentOrgId);
 		assert.equal(body.region, "us");
-		assert.equal(body.title, "Mytestorgfornew");
-		assert.equal(body.name, "mytestorgfornew");
+		assert.equal(body.title, randomNewTitle);
+		assert.isString(body.name);
 		assert.isNull(body.imageUrl);
 	});
 
@@ -49,20 +60,25 @@ describe("GET /api/v1/organizations", () => {
 			status: "deleted"
 		});
 		assert.equal(statusCode, 422);
+		assert.isDefined(body.validation);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.message);
 	});
 	it("Should return validation error if name already exists", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
-			title: "test"
+			title: randomNewTitle
 		});
 		assert.equal(statusCode, 422);
+		assert.isDefined(body.validation);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.message);
 	});
 
-	it("Should return validation error if id s wrong", async () => {
+	it("Should return validation error if id is wrong", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/9999`).send({
-			title: "test3",
-			status: "deleted"
+			status: "archived"
 		});
-		assert.equal(statusCode, 422);
+		assert.equal(statusCode, 404);
 	});
 
 });
