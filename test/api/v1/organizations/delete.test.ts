@@ -6,7 +6,7 @@ import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 import Organization from "../../../../database/models/organization";
 
-describe("POST /api/v1/organizations", () => {
+describe("DELETE /api/v1/organizations", () => {
 	const server = agent(webServer(routes));
 	const params: Record<any, any> = {};
 
@@ -19,13 +19,13 @@ describe("POST /api/v1/organizations", () => {
 
 	const generateRandomTitle = () => {
 		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmycreate${randomSuffix}`;
+		return `Testmy${randomSuffix}`;
 	};
 	const randomTitle = generateRandomTitle();
 
 	const generateRandomParentTitle = () => {
 		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmycreate${randomSuffix}`;
+		return `Testmy${randomSuffix}`;
 	};
 	const randomParentTitle = generateRandomParentTitle();
 
@@ -49,44 +49,31 @@ describe("POST /api/v1/organizations", () => {
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
-		assert.isString(body.createdAt);
-		assert.isString(body.updatedAt);
-		assert.equal(body.status, "active");
-		assert.isString(body.arn);
-		assert.equal(body.parentOrgId, params.createdOrgId);
-		assert.equal(body.region, "us");
-		assert.equal(body.title, randomTitle);
-		assert.isString(body.name);
-		assert.isNull(body.imageUrl);
+		params['createdChildOrgId'] = body.id;
 	});
 
-	it("Should return validation error organisation", async () => {
-		const { statusCode, body } = await server.post("/v1/organizations").send({
-			parentOrgId: "main",
-			region: "APAC",
-			title: 321,
-			status: "enabled"
+	it("Should delete organisation", async () => {
+		const { statusCode, body } = await server.delete(`/v1/organizations/${params.createdChildOrgId}`).send({
 		});
-		assert.equal(statusCode, 422);
-		assert.isDefined(body.validation);
-		assert.equal(body.name, "ValidationError");
-		assert.isString(body.message);
-		assert.isString(body.validation.body.parentOrgId[0]);
-		assert.isString(body.validation.body.status[0]);
-		assert.isString(body.validation.body.title[0]);
+		assert.equal(statusCode, 204);
 	});
 
-	it("Should return error if name already exists", async () => {
-		const { statusCode, body } = await server.post("/v1/organizations").send({
-			region: "us",
-			title: randomParentTitle
+	it("Should return error if organisation does not exist and delete was successful", async () => {
+		const { statusCode, body } = await server.delete(`/v1/organizations/${params.createdChildOrgId}`).send({
 		});
-		assert.equal(statusCode, 422);
-		assert.equal(body.name, "ValidationError");
+		assert.equal(statusCode, 404);
+		assert.equal(body.name, "NotFound");
 		assert.isString(body.message);
-		assert.isString(body.validation.title[0]);
-
-
 	});
+
+	it("Should return validation error if id is wrong", async () => {
+		const { statusCode, body } = await server.delete("/v1/organizations/main").send({
+			organizationId: "main"
+		});
+		assert.equal(statusCode, 500);
+		assert.isString(body.message);
+	});
+
+
 
 });

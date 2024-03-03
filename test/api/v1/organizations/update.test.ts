@@ -5,7 +5,7 @@ import { container, webServer } from "@structured-growth/microservice-sdk";
 import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 
-describe("GET /api/v1/organizations", () => {
+describe("PUT /api/v1/organizations", () => {
 	const server = agent(webServer(routes));
 	const params: Record<any, any> = {};
 
@@ -63,6 +63,9 @@ describe("GET /api/v1/organizations", () => {
 		assert.isDefined(body.validation);
 		assert.equal(body.name, "ValidationError");
 		assert.isString(body.message);
+		assert.isString(body.validation.body.status[0]);
+
+
 	});
 	it("Should return validation error if name already exists", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
@@ -72,6 +75,7 @@ describe("GET /api/v1/organizations", () => {
 		assert.isDefined(body.validation);
 		assert.equal(body.name, "ValidationError");
 		assert.isString(body.message);
+		assert.isString(body.validation.title[0]);
 	});
 
 	it("Should return validation error if id is wrong", async () => {
@@ -79,6 +83,8 @@ describe("GET /api/v1/organizations", () => {
 			status: "archived"
 		});
 		assert.equal(statusCode, 404);
+		assert.equal(body.name, "NotFound");
+		assert.isString(body.message);
 	});
 
 });

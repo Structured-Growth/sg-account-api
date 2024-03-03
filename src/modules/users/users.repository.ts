@@ -30,13 +30,13 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
 
 		if (params.firstName?.length > 0) {
-			where["name"] = {
+			where["firstName"] = {
 				[Op.or]: params.firstName.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 
 		if (params.lastName?.length > 0) {
-			where["title"] = {
+			where["lastName"] = {
 				[Op.or]: params.lastName.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
@@ -101,7 +101,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const user = await this.read(id);
 		user.setAttributes(params);
 
-		return user;
+		return user.save();
 	}
 
 	public async delete(id: number): Promise<void> {

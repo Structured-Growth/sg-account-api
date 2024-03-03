@@ -5,7 +5,7 @@ import { container, webServer } from "@structured-growth/microservice-sdk";
 import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 
-describe("POST /api/v1/accounts", () => {
+describe("GET /api/v1/accounts", () => {
 	const server = agent(webServer(routes));
 	const params: Record<any, any> = {};
 
@@ -31,29 +31,43 @@ describe("POST /api/v1/accounts", () => {
 	it("Should create account", async () => {
 		const { statusCode, body } = await server.post("/v1/accounts").send({
 			orgId: params.createdOrgId,
-			status: "active"
+			status: "inactive"
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
 		assert.equal(body.orgId, params['createdOrgId']);
-		assert.isNotNaN(new Date(body.createdAt).getTime());
-		assert.isNotNaN(new Date(body.updatedAt).getTime());
-		assert.equal(body.status, "active");
+		assert.equal(body.status, "inactive");
+		params['accountId'] = body.id;
+	});
+
+
+	it("Should read organisation", async () => {
+		const { statusCode, body } = await server.get(`/v1/accounts/${params.accountId}`).send({
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.id, params['accountId']);
+		assert.equal(body.orgId, params['createdOrgId']);
+		assert.isString(body.createdAt);
+		assert.isString(body.updatedAt);
+		assert.equal(body.status, "inactive");
 		assert.isString(body.arn);
 	});
 
-	it("Should return validation error", async () => {
-		const { statusCode, body } = await server.post("/v1/accounts").send({
-			orgId: -1,
-			status: "super"
+	it("Should return is account does not exist", async () => {
+		const { statusCode, body } = await server.get(`/v1/accounts/999999`).send({
 		});
-		assert.equal(statusCode, 422);
-		assert.isDefined(body.validation);
-		assert.equal(body.name, "ValidationError");
+		assert.equal(statusCode, 404);
+		assert.equal(body.name, "NotFound");
 		assert.isString(body.message);
-		assert.isString(body.validation.body.status[0]);
-		assert.isString(body.validation.body.orgId[0]);
 
 	});
+
+	it("Should return validation error if id is wrong", async () => {
+		const { statusCode, body } = await server.get(`/v1/accounts/mainaccount`).send({
+		});
+		assert.equal(statusCode, 500);
+		assert.isString(body.message);
+	});
+
 
 });

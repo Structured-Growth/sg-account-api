@@ -16,7 +16,7 @@ describe("GET /api/v1/organizations", () => {
 
 	const generateRandomTitle = () => {
 		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
+		return `Testmyo${randomSuffix}`;
 	};
 	const randomTitle = generateRandomTitle();
 
@@ -46,6 +46,11 @@ describe("GET /api/v1/organizations", () => {
 		});
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.id[0]);
+		assert.isString(body.validation.query.arn[0]);
+		assert.isString(body.validation.query.parentOrgId[0]);
+		assert.isString(body.validation.query.status[0][0]);
+		assert.isString(body.validation.query.name[0]);
 		assert.isString(body.validation.query.orgId[0]);
 	});
 
@@ -84,6 +89,8 @@ describe("GET /api/v1/organizations", () => {
 			parentOrgId: "64*",
 		});
 		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.parentOrgId[0]);
 	});
 
 	it("Should return error if status is invalid", async () => {
@@ -92,6 +99,8 @@ describe("GET /api/v1/organizations", () => {
 			"status[0]": "deleted",
 		});
 		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isNotEmpty(body.validation.query.status[0]);
 	});
 
 	it("Should return error if one status is invalid", async () => {
@@ -100,6 +109,7 @@ describe("GET /api/v1/organizations", () => {
 			"status[1]": "active",
 		});
 		assert.equal(statusCode, 422);
+		assert.isNotEmpty(body.validation.query.status[0]);
 	});
 
 	it("Should return organisation", async () => {
