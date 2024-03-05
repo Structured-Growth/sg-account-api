@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "./.dist/",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "module": "commonjs",
     "target": "es6",
     "experimentalDecorators": true,
@@ -17,7 +17,7 @@
     "typeRoots": [
       "node_modules/@types",
       "node_modules/@structured-growth/microservice-sdk"
-    ]
+    ],
   },
   "include": [
     "database",

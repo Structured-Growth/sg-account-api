@@ -7,6 +7,7 @@ export function loadEnvironment() {
 		HTTP_PORT: joi.number().positive().required(),
 		STAGE: joi.string().valid("dev", "qual", "prod").required(),
 		URI_PATH_PREFIX: joi.string().allow(""),
+		ENCRYPTION_KEY: joi.string().required(),
 		REGION: joi
 			.valid(
 				"us-east-1",
@@ -45,5 +46,7 @@ export function loadEnvironment() {
 		S3_USER_DATA_BUCKET_WEBSITE_URL: joi.string().uri(),
 		// S3_USER_DATA_BUCKET: joi.string().required(),
 		// S3_USER_DATA_BUCKET_WEBSITE_URL: joi.string().uri().required(),
+		EMAIL_VERIFICATION_CODE_LIFETIME_HOURS: joi.number().required(),
+		EMAIL_VERIFICATION_TEST_CODE: joi.string(),
 	});
 }

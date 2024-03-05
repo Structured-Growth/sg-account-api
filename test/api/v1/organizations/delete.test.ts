@@ -1,34 +1,11 @@
 import "../../../../src/app/providers";
 import { assert } from "chai";
-import { App } from "../../../../src/app/app";
-import { container, webServer } from "@structured-growth/microservice-sdk";
-import { agent } from "supertest";
-import { routes } from "../../../../src/routes";
-import Organization from "../../../../database/models/organization";
+import { initTest } from "../../../common/init-test";
 
-describe("DELETE /api/v1/organizations", () => {
-	const server = agent(webServer(routes));
-	const params: Record<any, any> = {};
-
-	before(async () => {
-
-
-		await container.resolve<App>("App").ready;
-		//await Organization.truncate();
-	});
-
-	const generateRandomTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
-	};
-	const randomTitle = generateRandomTitle();
-
-	const generateRandomParentTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
-	};
-	const randomParentTitle = generateRandomParentTitle();
-
+describe("DELETE /api/v1/organizations/:organizationId", () => {
+	const { server, context } = initTest();
+	const randomTitle = `TestParentOrgName-${Date.now()}`;
+	const randomParentTitle = `TestOrgName-${Date.now()}`;
 
 	it("Should create parent organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
@@ -37,43 +14,36 @@ describe("DELETE /api/v1/organizations", () => {
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
-		params['createdOrgId'] = body.id;
+		context.createdOrgId = body.id;
 	});
 
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
-			parentOrgId: params.createdOrgId,
+			parentOrgId: context.createdOrgId,
 			region: "us",
 			title: randomTitle,
-			status: "active"
+			status: "active",
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
-		params['createdChildOrgId'] = body.id;
+		context["createdChildOrgId"] = body.id;
 	});
 
 	it("Should delete organisation", async () => {
-		const { statusCode, body } = await server.delete(`/v1/organizations/${params.createdChildOrgId}`).send({
-		});
+		const { statusCode, body } = await server.delete(`/v1/organizations/${context.createdChildOrgId}`);
 		assert.equal(statusCode, 204);
 	});
 
 	it("Should return error if organisation does not exist and delete was successful", async () => {
-		const { statusCode, body } = await server.delete(`/v1/organizations/${params.createdChildOrgId}`).send({
-		});
+		const { statusCode, body } = await server.delete(`/v1/organizations/${context.createdChildOrgId}`);
 		assert.equal(statusCode, 404);
 		assert.equal(body.name, "NotFound");
 		assert.isString(body.message);
 	});
 
 	it("Should return validation error if id is wrong", async () => {
-		const { statusCode, body } = await server.delete("/v1/organizations/main").send({
-			organizationId: "main"
-		});
-		assert.equal(statusCode, 500);
+		const { statusCode, body } = await server.delete("/v1/organizations/main");
+		assert.equal(statusCode, 422);
 		assert.isString(body.message);
 	});
-
-
-
 });

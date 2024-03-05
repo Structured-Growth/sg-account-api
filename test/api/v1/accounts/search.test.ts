@@ -1,41 +1,23 @@
 import "../../../../src/app/providers";
 import { assert } from "chai";
-import { App } from "../../../../src/app/app";
-import { container, webServer } from "@structured-growth/microservice-sdk";
-import { agent } from "supertest";
-import { routes } from "../../../../src/routes";
+import { initTest } from "../../../common/init-test";
+import { createOrganization } from "../../../common/create-organization";
 
 describe("GET /api/v1/accounts", () => {
-	const server = agent(webServer(routes));
-	const params: Record<any, any> = {};
+	const { server, context } = initTest();
 
-	before(async () => container.resolve<App>("App").ready);
-
-	const generateRandomTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
-	};
-	const randomTitle = generateRandomTitle();
-
-	it("Should create organisation", async () => {
-
-		const { statusCode, body } = await server.post("/v1/organizations").send({
-			region: "us",
-			title: randomTitle,
-		});
-		assert.equal(statusCode, 201);
-		assert.isNumber(body.id);
-		params['createdOrgId'] = body.id;
+	createOrganization(server, context, {
+		contextPath: "organization",
 	});
 
 	it("Should create account", async () => {
 		const { statusCode, body } = await server.post("/v1/accounts").send({
-			orgId: params.createdOrgId
+			orgId: context.organization.id,
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
 		assert.isNumber(body.orgId);
-		params['accountId'] = body.id;
+		context["accountId"] = body.id;
 	});
 
 	it("Should return 0 account", async () => {
@@ -47,12 +29,12 @@ describe("GET /api/v1/accounts", () => {
 
 	it("Should return account", async () => {
 		const { statusCode, body } = await server.get("/v1/accounts").query({
-			'id[0]': params.accountId,
-			orgId: params.createdOrgId,
+			"id[0]": context.accountId,
+			orgId: context.organization.id,
 		});
 		assert.equal(statusCode, 200);
-		assert.equal(body.data[0].id, params['accountId']);
-		assert.equal(body.data[0].orgId, params['createdOrgId']);
+		assert.equal(body.data[0].id, context.accountId);
+		assert.equal(body.data[0].orgId, context.organization.id);
 		assert.isNotNaN(new Date(body.data[0].createdAt).getTime());
 		assert.isNotNaN(new Date(body.data[0].updatedAt).getTime());
 		assert.isString(body.data[0].status);
@@ -69,7 +51,7 @@ describe("GET /api/v1/accounts", () => {
 			page: 0,
 			limit: false,
 			sort: "createdAt:asc",
-			'status[0]': "deleted"
+			"status[0]": "deleted",
 		});
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");
@@ -78,6 +60,4 @@ describe("GET /api/v1/accounts", () => {
 		assert.isString(body.validation.query.orgId[0]);
 		assert.isString(body.validation.query.status[0][0]);
 	});
-
-
 });

@@ -19,6 +19,8 @@ import { AccountsService } from "../../modules/accounts/accounts.service";
 import { AccountSearchParamsValidator } from "../../validators/account-search-params.validator";
 import { AccountCreateParamsValidator } from "../../validators/account-create-params.validator";
 import { AccountUpdateParamsValidator } from "../../validators/account-update-params.validator";
+import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
+import { AccountDeleteParamsValidator } from "../../validators/account-delete-params.validator";
 
 const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
@@ -86,6 +88,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns account")
 	@DescribeAction("accounts/read")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountReadParamsValidator)
 	async get(@Path() accountId: number): Promise<PublicAccountAttributes> {
 		const account = await this.accountRepository.read(accountId);
 
@@ -129,8 +132,8 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("accounts/delete")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountDeleteParamsValidator)
 	async delete(@Path() accountId: number): Promise<void> {
-
 		await this.accountRepository.delete(accountId);
 		this.response.status(204);
 	}

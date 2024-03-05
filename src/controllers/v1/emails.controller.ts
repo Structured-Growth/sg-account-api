@@ -9,7 +9,7 @@ import {
 	NotFoundError,
 	ValidateFuncArgs,
 } from "@structured-growth/microservice-sdk";
-import { isString, pick, size } from "lodash";
+import { pick } from "lodash";
 import { EmailAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
 import { EmailCreateBodyInterface } from "../../interfaces/email-create-body.interface";
@@ -18,8 +18,12 @@ import { EmailVerifyBodyInterface } from "../../interfaces/email-verify-body.int
 import { EmailsService } from "../../modules/emails/emails.service";
 import { EmailsRepository } from "../../modules/emails/emails.repository";
 import { CreateEmailParamsValidator } from "../../validators/email-create-params.validator";
-import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
+import { EmailReadParamsValidator } from "../../validators/email-read-params.validator";
+import { EmailDeleteParamsValidator } from "../../validators/email-delete-params.validator";
 import { UpdateEmailParamsValidator } from "../../validators/email-update-params.validator";
+import { EmailSendCodeParamsValidator } from "../../validators/email-send-code-params.validator";
+import { EmailVerifyParamsValidator } from "../../validators/email-verify-params.validator";
+import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
 
 const publicEmailAttributes = [
 	"id",
@@ -56,12 +60,16 @@ export class EmailsController extends BaseController {
 	@DescribeAction("emails/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@ValidateFuncArgs(SearchEmailParamsValidator)
 	async search(@Queries() query: EmailSearchParamsInterface): Promise<SearchResultInterface<PublicEmailAttributes>> {
+		const { data, ...result } = await this.emailRepository.search(query);
+
 		return {
-			data: [],
-			page: 1,
-			limit: 20,
-			total: 0,
+			data: data.map((email) => ({
+				...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+				arn: email.arn,
+			})),
+			...result,
 		};
 	}
 
@@ -93,6 +101,7 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns email")
 	@DescribeAction("emails/read")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@ValidateFuncArgs(EmailReadParamsValidator)
 	async get(@Path() emailId: number): Promise<PublicEmailAttributes> {
 		const email = await this.emailRepository.read(emailId);
 
@@ -114,12 +123,13 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns updated email")
 	@DescribeAction("emails/update")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@ValidateFuncArgs(UpdateEmailParamsValidator)
 	async update(
 		@Path() emailId: number,
 		@Queries() query: {},
 		@Body() body: EmailUpdateBodyInterface
 	): Promise<PublicEmailAttributes> {
-		const email = await this.emailRepository.update(emailId, body);
+		const email = await this.emailService.update(Number(emailId), body);
 
 		return {
 			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
@@ -135,8 +145,10 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("emails/send-code")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@ValidateFuncArgs(EmailSendCodeParamsValidator)
 	async sendCode(@Path() emailId: number): Promise<void> {
-		return undefined;
+		await this.emailService.sendVerificationEmail(emailId);
+		this.response.status(204);
 	}
 
 	/**
@@ -147,12 +159,18 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns verified email")
 	@DescribeAction("emails/verify")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@ValidateFuncArgs(EmailVerifyParamsValidator)
 	async verify(
 		@Path() emailId: number,
 		@Queries() query: {},
 		@Body() body: EmailVerifyBodyInterface
 	): Promise<PublicEmailAttributes> {
-		return undefined;
+		const email = await this.emailService.verifyEmail(emailId, body.verificationCode);
+
+		return {
+			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+			arn: email.arn,
+		};
 	}
 
 	/**
@@ -163,9 +181,9 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("emails/delete")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@ValidateFuncArgs(EmailDeleteParamsValidator)
 	async delete(@Path() emailId: number): Promise<void> {
+		await this.emailRepository.delete(emailId);
 		this.response.status(204);
-
-		return this.emailRepository.delete(emailId);
 	}
 }

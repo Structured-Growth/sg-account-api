@@ -19,6 +19,7 @@ import { UsersService } from "../../modules/users/users.service";
 import { UserSearchParamsValidator } from "../../validators/user-search-params.validator";
 import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
 import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
+import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";
 
 const publicUserAttributes = [
 	"id",
@@ -144,6 +145,7 @@ export class UsersController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("users/delete")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@ValidateFuncArgs(UserDeleteParamsValidator)
 	async delete(@Path() userId: number): Promise<void> {
 		await this.usersRepository.delete(userId);
 		this.response.status(204);

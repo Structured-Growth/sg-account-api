@@ -1,45 +1,28 @@
 import "../../../../src/app/providers";
 import { assert } from "chai";
-import { App } from "../../../../src/app/app";
-import { container, webServer } from "@structured-growth/microservice-sdk";
-import { agent } from "supertest";
-import { routes } from "../../../../src/routes";
+import { initTest } from "../../../common/init-test";
 
-describe("PUT /api/v1/organizations", () => {
-	const server = agent(webServer(routes));
-	const params: Record<any, any> = {};
-
-	before(async () => container.resolve<App>("App").ready);
-
-	const generateRandomTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
-	};
-	const randomTitle = generateRandomTitle();
-
-	const generateRandomNewTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmy${randomSuffix}`;
-	};
-	const randomNewTitle = generateRandomNewTitle();
-
+describe("PUT /api/v1/organizations/:organizationId", () => {
+	const { server, context } = initTest();
+	const randomTitle = `TestParentOrgName-${Date.now()}`;
+	const randomNewTitle = `TestOrgName-${Date.now()}`;
 
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomTitle,
-			status: "active"
+			status: "active",
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
 		assert.equal(body.status, "active");
-		params['createdOrgId'] = body.id;
+		context.createdOrgId = body.id;
 	});
 
 	it("Should update organisation", async () => {
-		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
+		const { statusCode, body } = await server.put(`/v1/organizations/${context.createdOrgId}`).send({
 			title: randomNewTitle,
-			status: "archived"
+			status: "archived",
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -55,21 +38,20 @@ describe("PUT /api/v1/organizations", () => {
 	});
 
 	it("Should return validation error", async () => {
-		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
+		const { statusCode, body } = await server.put(`/v1/organizations/${context.createdOrgId}`).send({
 			title: "test3",
-			status: "deleted"
+			status: "deleted",
 		});
 		assert.equal(statusCode, 422);
 		assert.isDefined(body.validation);
 		assert.equal(body.name, "ValidationError");
 		assert.isString(body.message);
 		assert.isString(body.validation.body.status[0]);
-
-
 	});
+
 	it("Should return validation error if name already exists", async () => {
-		const { statusCode, body } = await server.put(`/v1/organizations/${params.createdOrgId}`).send({
-			title: randomNewTitle
+		const { statusCode, body } = await server.put(`/v1/organizations/${context.createdOrgId}`).send({
+			title: randomNewTitle,
 		});
 		assert.equal(statusCode, 422);
 		assert.isDefined(body.validation);
@@ -80,11 +62,10 @@ describe("PUT /api/v1/organizations", () => {
 
 	it("Should return validation error if id is wrong", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/9999`).send({
-			status: "archived"
+			status: "archived",
 		});
 		assert.equal(statusCode, 404);
 		assert.equal(body.name, "NotFound");
 		assert.isString(body.message);
 	});
-
 });

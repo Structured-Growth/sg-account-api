@@ -20,6 +20,8 @@ import { OrganizationCreateParamsValidator } from "../../validators/organization
 import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
 import { OrganizationService } from "../../modules/organizations/organization.service";
 import { OrganizationRepository } from "../../modules/organizations/organization.repository";
+import { OrganizationDeleteParamsValidator } from "../../validators/organization-delete-params.validator";
+import { OrganizationReadParamsValidator } from "../../validators/organization-read-params.validator";
 
 const publicOrganizationAttributes = [
 	"id",
@@ -106,6 +108,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns organization")
 	@DescribeAction("organizations/read")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
 		const organization = await this.organizationsRepository.read(organizationId);
 
@@ -152,6 +155,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("organizations/delete")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationDeleteParamsValidator)
 	async delete(@Path() organizationId: number): Promise<void> {
 		const organization = await this.organizationsRepository.read(organizationId);
 

@@ -5,7 +5,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import User, { UserAttributes, UserCreationAttributes, UserUpdateAttributes } from "../../../database/models/user";
+import User, { UserCreationAttributes, UserUpdateAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
 
 @autoInjectable()
@@ -54,10 +54,9 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		if (options?.onlyTotal) {
 			const countResult = await User.count({
 				where,
-				group: ["id"],
+				group: ["accountId"],
 			});
-			// todo
-			const count = 0;
+			const count = countResult[0]?.count || 0;
 			return {
 				data: [],
 				total: count,
@@ -99,6 +98,9 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 
 	public async update(id: number, params: UserUpdateAttributes): Promise<User> {
 		const user = await this.read(id);
+		if (!user) {
+			throw new NotFoundError(`User ${id} not found`);
+		}
 		user.setAttributes(params);
 
 		return user.save();

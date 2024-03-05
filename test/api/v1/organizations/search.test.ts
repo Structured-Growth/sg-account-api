@@ -5,30 +5,20 @@ import { container, webServer } from "@structured-growth/microservice-sdk";
 import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 import Organization from "../../../../database/models/organization";
+import { initTest } from "../../../common/init-test";
 
 describe("GET /api/v1/organizations", () => {
-	const server = agent(webServer(routes));
-	const params: Record<any, any> = {};
-
-	before(async () => {
-		await container.resolve<App>("App").ready;
-	});
-
-	const generateRandomTitle = () => {
-		const randomSuffix = Math.floor(Math.random() * 1000);
-		return `Testmyo${randomSuffix}`;
-	};
-	const randomTitle = generateRandomTitle();
+	const { server, context } = initTest();
+	const randomTitle = `TestParentOrgName-${Date.now()}`;
 
 	it("Should create organisation", async () => {
-
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomTitle,
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
-		params['createdOrgId'] = body.id;
+		context["createdOrgId"] = body.id;
 	});
 
 	it("Should return validation error", async () => {
@@ -39,8 +29,8 @@ describe("GET /api/v1/organizations", () => {
 			limit: false,
 			sort: "createdAt:asc",
 			parentOrgId: -1,
-			'status[0]': "activated",
-			'title[0]': 1,
+			"status[0]": "activated",
+			"title[0]": 1,
 			name: false,
 			orgId: 6,
 		});
@@ -56,10 +46,10 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should return organizations", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			'id[0]': params['createdOrgId'],
+			"id[0]": context["createdOrgId"],
 		});
 		assert.equal(statusCode, 200);
-		assert.equal(body.data[0].id, params['createdOrgId']);
+		assert.equal(body.data[0].id, context["createdOrgId"]);
 		assert.isString(body.data[0].createdAt);
 		assert.isString(body.data[0].updatedAt);
 		assert.equal(body.data[0].status, "inactive");
@@ -76,12 +66,12 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should search by title", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			'id[0]': params['createdOrgId'],
+			"id[0]": context["createdOrgId"],
 			"title[0]": "Te*",
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.total, 1);
-		assert.equal(body.data[0].id, params['createdOrgId']);
+		assert.equal(body.data[0].id, context["createdOrgId"]);
 	});
 
 	it("Should return error if parentOrgIs is invalid", async () => {
