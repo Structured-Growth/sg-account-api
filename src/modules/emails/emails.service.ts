@@ -1,13 +1,13 @@
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
 import { genSaltSync, hashSync, compareSync } from "bcrypt";
-import { Mailer } from "@structured-growth/microservice-sdk/mailer";
+import { Mailer } from "@structured-growth/microservice-sdk";
 import Email from "../../../database/models/email";
 import { EmailCreateBodyInterface } from "../../interfaces/email-create-body.interface";
 import { EmailsRepository } from "./emails.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { UsersRepository } from "../users/users.repository";
 import { find, isUndefined, random } from "lodash";
-import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk/key-value";
+import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk";
 import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.interface";
 
 @autoInjectable()

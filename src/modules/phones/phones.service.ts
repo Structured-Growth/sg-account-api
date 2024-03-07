@@ -1,7 +1,7 @@
 import { compareSync, genSaltSync, hashSync } from "bcrypt";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
-import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk/key-value";
-import { SmsService } from "@structured-growth/microservice-sdk/sms";
+import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk";
+import { SmsService } from "@structured-growth/microservice-sdk";
 import Phone, { PhoneAttributes } from "../../../database/models/phone";
 import { PhoneCreateBodyInterface } from "../../interfaces/phone-create-body.interface";
 import { PhoneUpdateBodyInterface } from "../../interfaces/phone-update-body.interface";
