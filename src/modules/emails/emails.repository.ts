@@ -26,7 +26,9 @@ export class EmailsRepository
 
 		params.orgId && (where["orgId"] = params.orgId);
 		params.accountId && (where["accountId"] = params.accountId);
+		params.userId && (where["userId"] = params.userId);
 		params.status && (where["status"] = { [Op.in]: params.status });
+		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
 		params.id && (where["id"] = { [Op.in]: params.id });
 
 		if (params.email?.length > 0) {
@@ -84,15 +86,12 @@ export class EmailsRepository
 
 	public async update(id: number, params: Partial<EmailAttributes>): Promise<Email> {
 		const email = await this.read(id);
-
 		if (!email) {
 			throw new NotFoundError(`Email ${id} not found`);
 		}
-
 		email.setAttributes(params);
-		await email.save();
 
-		return email;
+		return email.save();
 	}
 
 	public async delete(id: number): Promise<void> {

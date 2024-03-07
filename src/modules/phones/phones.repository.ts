@@ -1,5 +1,5 @@
 import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Phone, { PhoneCreationAttributes } from "../../../database/models/phone";
+import Phone, { PhoneAttributes, PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
 import { Op } from "sequelize";
 import { NotFoundError } from "@structured-growth/microservice-sdk";
@@ -8,41 +8,58 @@ import { NotFoundError } from "@structured-growth/microservice-sdk";
 export class PhonesRepository
 	implements RepositoryInterface<Phone, PhoneSearchParamsInterface, PhoneCreationAttributes>
 {
-	public async search(params: PhoneSearchParamsInterface): Promise<SearchResultInterface<Phone>> {
+	public async search(
+		params: PhoneSearchParamsInterface,
+		options?: {
+			onlyTotal: boolean;
+		}
+	): Promise<SearchResultInterface<Phone>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
+		params.orgId && (where["orgId"] = params.orgId);
+		params.accountId && (where["accountId"] = params.accountId);
+		params.userId && (where["userId"] = params.userId);
 		params.status && (where["status"] = { [Op.in]: params.status });
+		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
+		params.id && (where["id"] = { [Op.in]: params.id });
 
 		if (params.phoneNumber?.length > 0) {
 			where["phoneNumber"] = {
-				[Op.or]: [params.phoneNumber.map((str) => ({ [Op.iLike]: str }))],
+				[Op.or]: params.phoneNumber.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
 		}
 
-		if (params.userId?.length > 0) {
-			where["userId"] = {
-				[Op.or]: [params.userId.map((str) => ({ [Op.iLike]: str }))],
+		if (options?.onlyTotal) {
+			const countResult = await Phone.count({
+				where,
+				group: ["orgId"],
+			});
+			const count = countResult[0]?.count || 0;
+			return {
+				data: [],
+				total: count,
+				limit,
+				page,
+			};
+		} else {
+			const { rows, count } = await Phone.findAndCountAll({
+				where,
+				offset,
+				limit,
+				order,
+			});
+
+			return {
+				data: rows,
+				total: count,
+				limit,
+				page,
 			};
 		}
-
-		const { rows, count } = await Phone.findAndCountAll({
-			where,
-			offset,
-			limit,
-			order,
-		});
-
-		return {
-			data: rows,
-			total: count,
-			limit,
-			page,
-		};
 	}
 
 	public async create(params: PhoneCreationAttributes): Promise<Phone> {
@@ -61,9 +78,11 @@ export class PhonesRepository
 		});
 	}
 
-	// pick some attributes
-	public async update(id: number, params: Partial<any>): Promise<Phone> {
+	public async update(id: number, params: Partial<PhoneAttributes>): Promise<Phone> {
 		const phone = await this.read(id);
+		if (!phone) {
+			throw new NotFoundError(`Phone ${id} not found`);
+		}
 		phone.setAttributes(params);
 
 		return phone.save();

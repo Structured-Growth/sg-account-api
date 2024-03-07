@@ -47,6 +47,8 @@ export function loadEnvironment() {
 		// S3_USER_DATA_BUCKET: joi.string().required(),
 		// S3_USER_DATA_BUCKET_WEBSITE_URL: joi.string().uri().required(),
 		EMAIL_VERIFICATION_CODE_LIFETIME_HOURS: joi.number().required(),
-		EMAIL_VERIFICATION_TEST_CODE: joi.string(),
+		EMAIL_VERIFICATION_TEST_CODE: joi.string().allow(""),
+		PHONE_VERIFICATION_CODE_LIFETIME_HOURS: joi.number().required(),
+		PHONE_VERIFICATION_TEST_CODE: joi.string().allow(""),
 	});
 }

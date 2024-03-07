@@ -20,6 +20,7 @@ import { UsersService } from "../modules/users/users.service";
 import { UsersRepository } from "../modules/users/users.repository";
 import { ImageValidator } from "../validators/image.validator";
 import { emailTransports, Mailer } from "@structured-growth/microservice-sdk/mailer";
+import { smsProviders, SmsService } from "@structured-growth/microservice-sdk/sms";
 
 // load and validate env variables
 loadEnvironment();
@@ -37,10 +38,16 @@ container.register("s3UserDataBucket", { useValue: process.env.S3_USER_DATA_BUCK
 container.register("s3UserDataBucketWebSiteUrl", { useValue: process.env.S3_USER_DATA_BUCKET_WEBSITE_URL });
 container.register("encryptionKey", { useValue: process.env.ENCRYPTION_KEY });
 container.register("emailVerificationCodeLifeTimeHours", {
-	useValue: Number(process.env.EMAIL_VERIFICATION_CODE_LIFETIME_HOURS || 24),
+	useValue: Number(process.env.EMAIL_VERIFICATION_CODE_LIFETIME_HOURS || 1),
 });
 container.register("emailVerificationTestCode", {
 	useValue: process.env.EMAIL_VERIFICATION_TEST_CODE,
+});
+container.register("phoneVerificationCodeLifeTimeHours", {
+	useValue: Number(process.env.PHONE_VERIFICATION_CODE_LIFETIME_HOURS || 1),
+});
+container.register("phoneVerificationTestCode", {
+	useValue: process.env.PHONE_VERIFICATION_TEST_CODE,
 });
 
 // services
@@ -56,8 +63,11 @@ container.register(
 );
 container.register("KeyValueStorage", KeyValueStorage);
 
-container.register("EmailTransport", emailTransports[process.env.EMAIL_TRANSPORT || "SesEmailTransport"]);
+container.register("EmailTransport", emailTransports[process.env.EMAIL_TRANSPORT || "TestEmailTransport"]);
 container.register("Mailer", Mailer);
+
+container.register("SmsProvider", smsProviders[process.env.SMS_PROVIDER || "TestSmsProvider"]);
+container.register("SmsService", SmsService);
 
 container.register("AccountsService", AccountsService);
 container.register("EmailsService", EmailsService);

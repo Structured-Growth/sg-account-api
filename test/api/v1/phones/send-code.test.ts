@@ -5,7 +5,7 @@ import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
 import { createUser } from "../../../common/create-user";
 
-describe("POST /api/v1/emails/:emailId/send-code", () => {
+describe("POST /api/v1/phones/:phoneId/send-code", () => {
 	const { server, context } = initTest();
 
 	createOrganization(server, context, {
@@ -22,18 +22,18 @@ describe("POST /api/v1/emails/:emailId/send-code", () => {
 		contextPath: "user",
 	});
 
-	it("Should create primary email", async () => {
-		const { statusCode, body } = await server.post("/v1/emails").send({
+	it("Should create primary phone", async () => {
+		const { statusCode, body } = await server.post("/v1/phones").send({
 			accountId: context.account.id,
 			userId: context.user.id,
-			email: "test@example.com",
+			phoneNumber: "+15551112233",
 		});
 		assert.equal(statusCode, 201);
-		context.emailId = body.id;
+		context.phoneId = body.id;
 	});
 
 	it("Should generate and send verification code", async () => {
-		const { statusCode, body } = await server.post(`/v1/emails/${context.emailId}/send-code`);
+		const { statusCode, body } = await server.post(`/v1/phones/${context.phoneId}/send-code`);
 		assert.equal(statusCode, 204);
 	});
 });
