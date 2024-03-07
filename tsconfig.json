@@ -2,7 +2,7 @@
   "compilerOptions": {
     "outDir": "./.dist/",
     "moduleResolution": "bundler",
-    "module": "commonjs",
+    "module": "ES2022",
     "target": "es6",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -11,13 +11,14 @@
     "declaration": false,
     "resolveJsonModule": true,
     "allowJs": true,
+    "strictNullChecks": false,
     "lib": [
       "ES2021"
     ],
     "typeRoots": [
       "node_modules/@types",
       "node_modules/@structured-growth/microservice-sdk"
-    ],
+    ]
   },
   "include": [
     "database",
