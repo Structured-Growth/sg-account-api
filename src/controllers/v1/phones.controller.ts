@@ -4,23 +4,52 @@ import {
 	BaseController,
 	DescribeAction,
 	DescribeResource,
+	inject,
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
-import { PhoneAttributes } from "../../../database/models/phone";
+import { Phone, PhoneAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
+import { PhonesRepository } from "../../modules/phones/phones.repository";
+import { PhonesService } from "../../modules/phones/phones.service";
 import { PhoneCreateBodyInterface } from "../../interfaces/phone-create-body.interface";
 import { PhoneUpdateBodyInterface } from "../../interfaces/phone-update-body.interface";
 import { PhoneVerifyBodyInterface } from "../../interfaces/phone-verify-body.interface";
+import { PhoneSearchParamsValidator } from "../../validators/phone-search-params.validator";
+import { PhoneCreateParamsValidator } from "../../validators/phone-create-params.validator";
+import { PhoneUpdateParamsValidator } from "../../validators/phone-update-params.validator";
+import { NotFoundError, ValidateFuncArgs } from "@structured-growth/microservice-sdk";
+import { pick } from "lodash";
+import { PhoneReadParamsValidator } from "../../validators/phone-read-params.validator";
+import { PhoneSendCodeParamsValidator } from "../../validators/phone-send-code-params.validator";
+import { PhoneVerifyParamsValidator } from "../../validators/phone-verify-params.validator";
+import { PhoneDeleteParamsValidator } from "../../validators/phone-delete-params.validator";
 
-type PublicPhoneAttributes = Pick<
-	PhoneAttributes,
-	"id" | "orgId" | "accountId" | "userId" | "createdAt" | "updatedAt" | "phoneNumber" | "isPrimary" | "status" | "arn"
->;
+const publicPhoneAttributes = [
+	"id",
+	"orgId",
+	"accountId",
+	"userId",
+	"createdAt",
+	"updatedAt",
+	"phoneNumber",
+	"isPrimary",
+	"status",
+	"arn",
+] as const;
+type PhoneKeys = (typeof publicPhoneAttributes)[number];
+type PublicPhoneAttributes = Pick<PhoneAttributes, PhoneKeys>;
 
 @Route("v1/phones")
 @Tags("Phones")
 @autoInjectable()
 export class PhonesController extends BaseController {
+	constructor(
+		@inject("PhonesRepository") private phonesRepository: PhonesRepository,
+		@inject("PhonesService") private phonesService: PhonesService
+	) {
+		super();
+	}
+
 	/**
 	 * Search Phones
 	 */
@@ -30,8 +59,16 @@ export class PhonesController extends BaseController {
 	@DescribeAction("phones/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@ValidateFuncArgs(PhoneSearchParamsValidator)
 	async search(@Queries() query: PhoneSearchParamsInterface): Promise<SearchResultInterface<PublicPhoneAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.phonesRepository.search(query);
+		return {
+			data: data.map((phone) => ({
+				...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+				arn: phone.arn,
+			})),
+			...result,
+		};
 	}
 
 	/**
@@ -43,8 +80,15 @@ export class PhonesController extends BaseController {
 	@DescribeAction("phones/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@ValidateFuncArgs(PhoneCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: PhoneCreateBodyInterface): Promise<PublicPhoneAttributes> {
-		return undefined;
+		const organization = await this.phonesService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(organization.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+			arn: organization.arn,
+		};
 	}
 
 	/**
@@ -55,8 +99,18 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns phone")
 	@DescribeAction("phones/read")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@ValidateFuncArgs(PhoneReadParamsValidator)
 	async get(@Path() phoneId: number): Promise<PublicPhoneAttributes> {
-		return undefined;
+		const phone = await this.phonesRepository.read(phoneId);
+
+		if (!phoneId) {
+			throw new NotFoundError(`Phone ${phoneId} not found`);
+		}
+		return {
+			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+
+			arn: phone.arn,
+		};
 	}
 
 	/**
@@ -67,12 +121,18 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns updated phone")
 	@DescribeAction("phones/update")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@ValidateFuncArgs(PhoneUpdateParamsValidator)
 	async update(
 		@Path() phoneId: number,
 		@Queries() query: {},
 		@Body() body: PhoneUpdateBodyInterface
 	): Promise<PublicPhoneAttributes> {
-		return undefined;
+		const phone = await this.phonesService.update(Number(phoneId), body);
+
+		return {
+			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+			arn: phone.arn,
+		};
 	}
 
 	/**
@@ -83,8 +143,10 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("phones/send-code")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@ValidateFuncArgs(PhoneSendCodeParamsValidator)
 	async sendCode(@Path() phoneId: number): Promise<void> {
-		return undefined;
+		await this.phonesService.sendVerificationCode(phoneId);
+		this.response.status(204);
 	}
 
 	/**
@@ -95,12 +157,18 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns verified phone")
 	@DescribeAction("phones/verify")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@ValidateFuncArgs(PhoneVerifyParamsValidator)
 	async verify(
 		@Path() phoneId: number,
 		@Queries() query: {},
 		@Body() body: PhoneVerifyBodyInterface
 	): Promise<PublicPhoneAttributes> {
-		return undefined;
+		const phone = await this.phonesService.verifyPhone(phoneId, body.verificationCode);
+
+		return {
+			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+			arn: phone.arn,
+		};
 	}
 
 	/**
@@ -111,7 +179,9 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("phones/delete")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@ValidateFuncArgs(PhoneDeleteParamsValidator)
 	async delete(@Path() phoneId: number): Promise<void> {
-		return undefined;
+		await this.phonesRepository.delete(phoneId);
+		this.response.status(204);
 	}
 }

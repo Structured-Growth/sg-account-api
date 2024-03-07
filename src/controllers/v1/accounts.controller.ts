@@ -6,6 +6,7 @@ import {
 	DescribeResource,
 	inject,
 	NotFoundError,
+	ValidateFuncArgs,
 	SearchResultInterface,
 } from "@structured-growth/microservice-sdk";
 import { pick } from "lodash";
@@ -15,6 +16,11 @@ import { AccountCreateBodyInterface } from "../../interfaces/account-create-body
 import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body.interface";
 import { AccountRepository } from "../../modules/accounts/accounts.repository";
 import { AccountsService } from "../../modules/accounts/accounts.service";
+import { AccountSearchParamsValidator } from "../../validators/account-search-params.validator";
+import { AccountCreateParamsValidator } from "../../validators/account-create-params.validator";
+import { AccountUpdateParamsValidator } from "../../validators/account-update-params.validator";
+import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
+import { AccountDeleteParamsValidator } from "../../validators/account-delete-params.validator";
 
 const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
@@ -39,6 +45,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@ValidateFuncArgs(AccountSearchParamsValidator)
 	async search(
 		@Queries() query: AccountSearchParamsInterface
 	): Promise<SearchResultInterface<PublicAccountAttributes>> {
@@ -62,6 +69,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(201, "Returns created account")
 	@DescribeAction("accounts/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(AccountCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: AccountCreateBodyInterface): Promise<PublicAccountAttributes> {
 		const account = await this.accountService.create(body);
 		this.response.status(201);
@@ -80,6 +88,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns account")
 	@DescribeAction("accounts/read")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountReadParamsValidator)
 	async get(@Path() accountId: number): Promise<PublicAccountAttributes> {
 		const account = await this.accountRepository.read(accountId);
 
@@ -101,6 +110,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns updated account")
 	@DescribeAction("accounts/update")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountUpdateParamsValidator)
 	async update(
 		@Path() accountId: number,
 		@Queries() query: {},
@@ -122,9 +132,9 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("accounts/delete")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@ValidateFuncArgs(AccountDeleteParamsValidator)
 	async delete(@Path() accountId: number): Promise<void> {
+		await this.accountRepository.delete(accountId);
 		this.response.status(204);
-
-		return this.accountRepository.delete(accountId);
 	}
 }

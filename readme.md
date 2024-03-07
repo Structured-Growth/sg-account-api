@@ -30,7 +30,13 @@ Follow the link to read more about its features.
      docker-compose up -d
      ```
 
-7. Start the local web server
+7. Apply migrations & seeders
+    ```shell
+    npx sequelize db:migrate
+    npx sequelize db:seed:all
+    ```
+
+8. Start the local web server
     ```shell
     npm run dev
     ```

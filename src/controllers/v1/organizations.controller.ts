@@ -16,7 +16,12 @@ import { OrganizationSearchParamsInterface } from "../../interfaces/organization
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "../../validators/organization-search-params.validator";
+import { OrganizationCreateParamsValidator } from "../../validators/organization-create-params.validator";
+import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
+import { OrganizationService } from "../../modules/organizations/organization.service";
 import { OrganizationRepository } from "../../modules/organizations/organization.repository";
+import { OrganizationDeleteParamsValidator } from "../../validators/organization-delete-params.validator";
+import { OrganizationReadParamsValidator } from "../../validators/organization-read-params.validator";
 
 const publicOrganizationAttributes = [
 	"id",
@@ -36,7 +41,10 @@ type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKey
 @Tags("Organizations")
 @autoInjectable()
 export class OrganizationsController extends BaseController {
-	constructor(@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository) {
+	constructor(
+		@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository,
+		@inject("OrganizationService") private organizationService: OrganizationService
+	) {
 		super();
 	}
 
@@ -77,11 +85,19 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(201, "Returns created organization")
 	@DescribeAction("organizations/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.parentOrgId))
+	@ValidateFuncArgs(OrganizationCreateParamsValidator)
 	async create(
 		@Queries() query: {},
 		@Body() body: OrganizationCreateBodyInterface
 	): Promise<PublicOrganizationAttributes> {
-		return undefined;
+		const organization = await this.organizationService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+			imageUrl: organization.imageUrl,
+			arn: organization.arn,
+		};
 	}
 
 	/**
@@ -92,6 +108,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns organization")
 	@DescribeAction("organizations/read")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
 		const organization = await this.organizationsRepository.read(organizationId);
 
@@ -114,12 +131,20 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns updated organization")
 	@DescribeAction("organizations/update")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationUpdateParamsValidator)
 	async update(
 		@Path() organizationId: number,
 		@Queries() query: {},
 		@Body() body: OrganizationUpdateBodyInterface
 	): Promise<PublicOrganizationAttributes> {
-		return undefined;
+		const organization = await this.organizationService.update(organizationId, body);
+		this.response.status(201);
+
+		return {
+			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+			imageUrl: organization.imageUrl,
+			arn: organization.arn,
+		};
 	}
 
 	/**
@@ -130,7 +155,14 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("organizations/delete")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationDeleteParamsValidator)
 	async delete(@Path() organizationId: number): Promise<void> {
-		return undefined;
+		const organization = await this.organizationsRepository.read(organizationId);
+
+		if (!organization) {
+			throw new NotFoundError(`Organization ${organizationId} not found`);
+		}
+		await this.organizationsRepository.delete(organizationId);
+		this.response.status(204);
 	}
 }
