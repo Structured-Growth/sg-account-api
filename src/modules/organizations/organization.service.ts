@@ -1,6 +1,4 @@
 import * as slug from "slug";
-import { Buffer } from "buffer";
-import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationUpdateAttributes } from "../../../database/models/organization";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
