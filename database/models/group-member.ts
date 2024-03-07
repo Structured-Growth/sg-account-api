@@ -12,9 +12,10 @@ export interface GroupMemberAttributes extends DefaultModelInterface {
 	status: "active" | "inactive" | "archived";
 }
 
-export interface GroupMemberCreationAttributes extends Optional<GroupMemberAttributes, "id"> {}
+export interface GroupMemberCreationAttributes extends Omit<GroupMemberAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
-@Table({
+export interface GroupMemberUpdateAttributes extends GroupMemberAttributes {}
+	@Table({
 	tableName: "group_members",
 	timestamps: true,
 	underscored: true,

@@ -8,3 +8,4 @@ export { PreferencesController } from "./preferences.controller";
 export { GroupsController } from "./groups.controller";
 export { GroupMembersController } from "./group-members.controller";
 export { PhonesController } from "./phones.controller";
+export { SystemController } from "./system.controller";

@@ -1,4 +1,6 @@
+import { EmailAttributes } from "../../database/models/email";
+
 export interface EmailUpdateBodyInterface {
 	isPrimary?: boolean;
-	status?: "active" | "inactive" | "archived";
+	status?: EmailAttributes["status"];
 }

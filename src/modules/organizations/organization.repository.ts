@@ -1,5 +1,14 @@
-import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
-import Organization, { OrganizationCreationAttributes } from "../../../database/models/organization";
+import { Op } from "sequelize";
+import {
+	autoInjectable,
+	RepositoryInterface,
+	SearchResultInterface,
+	NotFoundError,
+} from "@structured-growth/microservice-sdk";
+import Organization, {
+	OrganizationCreationAttributes,
+	OrganizationUpdateAttributes,
+} from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 
 @autoInjectable()
@@ -11,15 +20,31 @@ export class OrganizationRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
+		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-		if (params.name) {
-			where["name"] = params.name;
+		params.parentOrgId && (where["parentOrgId"] = params.parentOrgId);
+		params.status && (where["status"] = { [Op.in]: params.status });
+		params.id && (where["id"] = { [Op.in]: params.id });
+
+		if (params.name?.length > 0) {
+			where["name"] = {
+				[Op.or]: params.name.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
+			};
 		}
+
+		if (params.title?.length > 0) {
+			where["title"] = {
+				[Op.or]: params.title.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
+			};
+		}
+
+		// TODO search by arn with wildcards
 
 		const { rows, count } = await Organization.findAndCountAll({
 			where,
 			offset,
 			limit,
+			order,
 		});
 
 		return {
@@ -31,7 +56,7 @@ export class OrganizationRepository
 	}
 
 	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
-		return Promise.resolve(undefined);
+		return Organization.create(params);
 	}
 
 	public async read(
@@ -46,11 +71,19 @@ export class OrganizationRepository
 		});
 	}
 
-	public async update(id: number, params: Partial<any>): Promise<Organization> {
-		return Promise.resolve(undefined);
+	// pick some attributes
+	public async update(id: number, params: OrganizationUpdateAttributes): Promise<Organization> {
+		const organization = await this.read(id);
+		organization.setAttributes(params);
+
+		return organization.save();
 	}
 
 	public async delete(id: number): Promise<void> {
-		return Promise.resolve(undefined);
+		const n = await Organization.destroy({ where: { id } });
+
+		if (n === 0) {
+			throw new NotFoundError(`Organization ${id} not found`);
+		}
 	}
 }

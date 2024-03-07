@@ -6,6 +6,8 @@ import {
 	DescribeResource,
 	inject,
 	SearchResultInterface,
+	ValidateFuncArgs,
+	NotFoundError,
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
@@ -14,6 +16,10 @@ import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.inter
 import { pick } from "lodash";
 import { UsersRepository } from "../../modules/users/users.repository";
 import { UsersService } from "../../modules/users/users.service";
+import { UserSearchParamsValidator } from "../../validators/user-search-params.validator";
+import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
+import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
+import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";
 
 const publicUserAttributes = [
 	"id",
@@ -52,8 +58,18 @@ export class UsersController extends BaseController {
 	@DescribeAction("users/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@ValidateFuncArgs(UserSearchParamsValidator)
 	async search(@Queries() query: UserSearchParamsInterface): Promise<SearchResultInterface<PublicUserAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.usersRepository.search(query);
+
+		return {
+			data: data.map((user) => ({
+				...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+				imageUrl: user.imageUrl,
+				arn: user.arn,
+			})),
+			...result,
+		};
 	}
 
 	/**
@@ -64,12 +80,14 @@ export class UsersController extends BaseController {
 	@SuccessResponse(201, "Returns created user")
 	@DescribeAction("users/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@ValidateFuncArgs(UserCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: UserCreateBodyInterface): Promise<PublicUserAttributes> {
 		const user = await this.usersService.create(body);
 		this.response.status(201);
 
 		return {
 			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+			imageUrl: user.imageUrl,
 			arn: user.arn,
 		};
 	}
@@ -83,7 +101,17 @@ export class UsersController extends BaseController {
 	@DescribeAction("users/read")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
 	async get(@Path() userId: number): Promise<PublicUserAttributes> {
-		return undefined;
+		const user = await this.usersRepository.read(userId);
+
+		if (!user) {
+			throw new NotFoundError(`User ${userId} not found`);
+		}
+
+		return {
+			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+			imageUrl: user.imageUrl,
+			arn: user.arn,
+		};
 	}
 
 	/**
@@ -94,15 +122,17 @@ export class UsersController extends BaseController {
 	@SuccessResponse(200, "Returns updated user")
 	@DescribeAction("users/update")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@ValidateFuncArgs(UserUpdateParamsValidator)
 	async update(
 		@Path() userId: number,
 		@Queries() query: {},
 		@Body() body: UserUpdateBodyInterface
 	): Promise<PublicUserAttributes> {
-		const user = await this.usersRepository.update(userId, body);
+		const user = await this.usersService.update(userId, body);
 
 		return {
 			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+			imageUrl: user.imageUrl,
 			arn: user.arn,
 		};
 	}
@@ -115,9 +145,9 @@ export class UsersController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("users/delete")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@ValidateFuncArgs(UserDeleteParamsValidator)
 	async delete(@Path() userId: number): Promise<void> {
+		await this.usersRepository.delete(userId);
 		this.response.status(204);
-
-		return this.usersRepository.delete(userId);
 	}
 }

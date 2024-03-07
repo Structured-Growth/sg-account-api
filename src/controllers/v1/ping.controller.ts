@@ -1,10 +1,15 @@
 import { Get, NoSecurity, Route, Tags, OperationId, SuccessResponse } from "tsoa";
 import { autoInjectable, BaseController, DescribeAction } from "@structured-growth/microservice-sdk";
+import { inject } from "@structured-growth/microservice-sdk";
 
 @Route("v1/ping")
-@Tags("Ping")
+@Tags("PingController")
 @autoInjectable()
 export class PingController extends BaseController {
+	constructor(@inject("appPrefix") private appPrefix?: string) {
+		super();
+	}
+
 	/**
 	 * Check if server is alive
 	 */
@@ -13,11 +18,9 @@ export class PingController extends BaseController {
 	@Get("/alive")
 	@DescribeAction("ping/alive")
 	@SuccessResponse(200, "Returns response body")
-	async pingGet(): Promise<{ ok: boolean }> {
-		this.logger.debug("Ping GET method call");
-
+	async pingGet(): Promise<{ message: string }> {
 		return {
-			ok: true,
+			message: `I'm ${this.appPrefix} service`,
 		};
 	}
 }

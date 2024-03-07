@@ -8,7 +8,7 @@ export interface PhoneSearchParamsInterface extends DefaultSearchParamsInterface
 	 * `phoneNumber: ["555*", "*111*", "-*888"]`
 	 */
 	phoneNumber?: string[];
-	userId?: number[];
+	userId?: number;
 	isPrimary?: boolean;
 	status?: PhoneAttributes["status"][];
 }

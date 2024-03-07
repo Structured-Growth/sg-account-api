@@ -5,21 +5,47 @@ import {
 	DescribeAction,
 	DescribeResource,
 	SearchResultInterface,
+	ValidateFuncArgs,
+	NotFoundError,
+	inject,
 } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
 import { GroupCreateBodyInterface } from "../../interfaces/group-create-body.interface";
 import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.interface";
+import { GroupsRepository } from "../../modules/groups/groups.repository";
+import { GroupService } from "../../modules/groups/groups.service";
+import { GroupSearchParamsValidator } from "../../validators/group-search-params.validator";
+import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
+import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
+import { pick, result } from "lodash";
 
-type PublicGroupAttributes = Pick<
-	GroupAttributes,
-	"id" | "orgId" | "accountId" | "createdAt" | "updatedAt" | "title" | "name" | "status" | "arn"
-> & { imageUrl: string };
+const publicGroupAttributes = [
+	"id",
+	"orgId",
+	"accountId",
+	"parentGroupId",
+	"title",
+	"name",
+	"status",
+	"createdAt",
+	"updatedAt",
+	"arn",
+] as const;
+type GroupKeys = (typeof publicGroupAttributes)[number];
+type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: string };
 
 @Route("v1/groups")
 @Tags("Groups")
 @autoInjectable()
 export class GroupsController extends BaseController {
+	constructor(
+		@inject("GroupsRepository") private groupsRepository: GroupsRepository,
+		@inject("GroupService") private groupsService: GroupService
+	) {
+		super();
+	}
+
 	/**
 	 * Search Groups
 	 */
@@ -29,8 +55,18 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@ValidateFuncArgs(GroupSearchParamsValidator)
 	async search(@Queries() query: GroupSearchParamsInterface): Promise<SearchResultInterface<PublicGroupAttributes>> {
-		return undefined;
+		const { data, ...result } = await this.groupsRepository.search(query);
+
+		return {
+			data: data.map((group) => ({
+				...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+				imageUrl: group.imageUrl,
+				arn: group.arn,
+			})),
+			...result,
+		};
 	}
 
 	/**
@@ -41,8 +77,16 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(201, "Returns created group")
 	@DescribeAction("groups/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@ValidateFuncArgs(GroupCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: GroupCreateBodyInterface): Promise<PublicGroupAttributes> {
-		return undefined;
+		const group = await this.groupsService.create(body);
+		this.response.status(201);
+
+		return {
+			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
+			arn: group.arn,
+		};
 	}
 
 	/**
@@ -54,7 +98,17 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/read")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async get(@Path() groupId: number): Promise<PublicGroupAttributes> {
-		return undefined;
+		const group = await this.groupsRepository.read(groupId);
+
+		if (!group) {
+			throw new NotFoundError(`Group ${groupId} not found`);
+		}
+
+		return {
+			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
+			arn: group.arn,
+		};
 	}
 
 	/**
@@ -65,12 +119,19 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(200, "Returns updated group")
 	@DescribeAction("groups/update")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@ValidateFuncArgs(GroupUpdateParamsValidator)
 	async update(
 		@Path() groupId: number,
 		@Queries() query: {},
 		@Body() body: GroupUpdateBodyInterface
 	): Promise<PublicGroupAttributes> {
-		return undefined;
+		const group = await this.groupsService.update(groupId, body);
+
+		return {
+			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
+			imageUrl: group.imageUrl,
+			arn: group.arn,
+		};
 	}
 
 	/**
@@ -82,6 +143,7 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/delete")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	async delete(@Path() groupId: number): Promise<void> {
-		return undefined;
+		await this.groupsRepository.delete(groupId);
+		this.response.status(204);
 	}
 }

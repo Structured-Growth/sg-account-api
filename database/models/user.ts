@@ -7,7 +7,7 @@ import Account from "./account";
 export interface UserAttributes extends DefaultModelInterface {
 	firstName: string;
 	lastName: string;
-	birthday: Date | null;
+	birthday: string | null;
 	gender: "male" | "female";
 	imageUuid: string | null;
 	isPrimary: boolean;
@@ -15,6 +15,10 @@ export interface UserAttributes extends DefaultModelInterface {
 }
 
 export interface UserCreationAttributes extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+
+
+export interface UserUpdateAttributes extends Pick<UserCreationAttributes, "firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status"> {}
+
 
 @Table({
 	tableName: "users",
@@ -46,7 +50,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 	lastName: string;
 
 	@Column
-	birthday: Date;
+	birthday: string;
 
 	@Column(DataType.STRING)
 	gender: UserAttributes["gender"];
@@ -66,6 +70,11 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 
 	get arn(): string {
 		return [container.resolve("appPrefix"), this.region, this.orgId, this.accountId, `users/${this.id}`].join(":");
+	}
+
+	get imageUrl(): string | null {
+		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		return this.imageUuid ? `${bucketUrl}/user-pictures/${this.imageUuid}.png` : null;
 	}
 }
 

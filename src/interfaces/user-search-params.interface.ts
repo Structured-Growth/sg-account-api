@@ -15,10 +15,10 @@ export interface UserSearchParamsInterface extends DefaultSearchParamsInterface 
 	 */
 	lastName?: string[];
 	/**
-	 * Filter by birthday. Pass two values to search in a range or a single date for exact search.
+	 * Filter by birthday. Pass two values to search in a range.
 	 */
-	birthday?: Date[];
-	gender?: "male" | "female";
+	birthday?: string[];
+	gender?: ("male" | "female")[];
 	isPrimary?: boolean;
 	status?: UserAttributes["status"][];
 }

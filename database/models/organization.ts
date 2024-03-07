@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import {
 	container,
 	RegionEnum,
@@ -7,7 +6,6 @@ import {
 	BelongsToOrgInterface,
 	BelongsToAccountInterface,
 } from "@structured-growth/microservice-sdk";
-import { random } from "lodash";
 
 export interface OrganizationAttributes
 	extends Omit<DefaultModelInterface, keyof BelongsToOrgInterface | keyof BelongsToAccountInterface> {
@@ -19,7 +17,11 @@ export interface OrganizationAttributes
 	status: "active" | "inactive" | "archived";
 }
 
-export interface OrganizationCreationAttributes extends Optional<OrganizationAttributes, "id"> {}
+export interface OrganizationCreationAttributes
+	extends Omit<OrganizationAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+
+export interface OrganizationUpdateAttributes
+	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status"> {}
 
 @Table({
 	tableName: "organizations",
@@ -61,9 +63,8 @@ export class Organization
 	}
 
 	get imageUrl(): string | null {
-		// todo
-		// return container.resolve("s3UserDataBucketWebSiteUrl") + `/pictures/${this.imageUuid}.jpg`;
-		return null;
+		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		return this.imageUuid ? `${bucketUrl}/organization-pictures/${this.imageUuid}.png` : null;
 	}
 }
 

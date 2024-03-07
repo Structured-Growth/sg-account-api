@@ -8,7 +8,7 @@ export interface EmailSearchParamsInterface extends DefaultSearchParamsInterface
 	 * `email: ["user@*", "-*@example.com"]`
 	 */
 	email?: string[];
-	userId?: number[];
+	userId?: number;
 	isPrimary?: boolean;
 	status?: EmailAttributes["status"][];
 }
