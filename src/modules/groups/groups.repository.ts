@@ -13,7 +13,12 @@ import { isUndefined, omitBy } from "lodash";
 export class GroupsRepository
 	implements RepositoryInterface<Group, GroupSearchParamsInterface, GroupCreationAttributes>
 {
-	public async search(params: GroupSearchParamsInterface): Promise<SearchResultInterface<Group>> {
+	public async search(
+		params: GroupSearchParamsInterface,
+		options?: {
+			onlyTotal: boolean;
+		}
+	): Promise<SearchResultInterface<Group>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
@@ -22,11 +27,9 @@ export class GroupsRepository
 
 		params.orgId && (where["orgId"] = params.orgId);
 		params.accountId && (where["accountId"] = params.accountId);
+		params.parentGroupId && (where["parentGroupId"] = params.parentGroupId);
 		params.id && (where["id"] = { [Op.in]: params.id });
-		params.parentGroupId && (where["parentGroupId"] = { [Op.in]: params.parentGroupId });
 		params.status && (where["status"] = { [Op.in]: params.status });
-
-		// TODO search by arn with wildcards
 
 		if (params.name?.length > 0) {
 			where["name"] = {
@@ -40,19 +43,35 @@ export class GroupsRepository
 			};
 		}
 
-		const { rows, count } = await Group.findAndCountAll({
-			where,
-			offset,
-			limit,
-			order,
-		});
+		// TODO search by arn with wildcards
 
-		return {
-			data: rows,
-			total: count,
-			limit,
-			page,
-		};
+		if (options?.onlyTotal) {
+			const countResult = await Group.count({
+				where,
+				group: [],
+			});
+			const count = countResult[0]?.count || 0;
+			return {
+				data: [],
+				total: count,
+				limit,
+				page,
+			};
+		} else {
+			const { rows, count } = await Group.findAndCountAll({
+				where,
+				offset,
+				limit,
+				order,
+			});
+
+			return {
+				data: rows,
+				total: count,
+				limit,
+				page,
+			};
+		}
 	}
 
 	public async create(params: GroupCreationAttributes): Promise<Group> {

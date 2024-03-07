@@ -1,5 +1,4 @@
 import * as slug from "slug";
-import { Buffer } from "buffer";
 import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
 import Group, { GroupUpdateAttributes } from "../../../database/models/group";
@@ -19,23 +18,31 @@ export class GroupService {
 	) {}
 
 	public async create(params: GroupCreateBodyInterface): Promise<Group> {
-		const account = await this.accountRepository.read(params.accountId);
+		const account = await this.accountRepository.read(params.accountId, {
+			attributes: ["id", "orgId"],
+		});
+
 		if (!account) {
 			throw new NotFoundError(`Account ${params.accountId} not found`);
 		}
 
 		let parentGroup: Group | undefined;
+
 		if (params.parentGroupId) {
-			parentGroup = await this.groupRepository.read(params.parentGroupId);
+			parentGroup = await this.groupRepository.read(params.parentGroupId, {
+				attributes: ["id"],
+			});
 			if (!parentGroup) {
 				throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
 			}
 		}
 
 		const name = slug(params.title);
-		const count = await Group.count({
+		const countResult = await Group.count({
 			where: { name },
+			group: [],
 		});
+		const count = countResult[0]?.count || 0;
 
 		if (count > 0) {
 			throw new ValidationError({
@@ -76,9 +83,11 @@ export class GroupService {
 		let name;
 		if (params.title) {
 			name = slug(params.title);
-			const count = await Group.count({
+			const countResult = await Group.count({
 				where: { name },
+				group: [],
 			});
+			const count = countResult[0]?.count || 0;
 
 			if (count > 0) {
 				throw new ValidationError({

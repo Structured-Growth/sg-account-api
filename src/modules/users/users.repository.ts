@@ -54,7 +54,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		if (options?.onlyTotal) {
 			const countResult = await User.count({
 				where,
-				group: ["accountId"],
+				group: [],
 			});
 			const count = countResult[0]?.count || 0;
 			return {

@@ -17,7 +17,6 @@ export class OrganizationService {
 	) {}
 
 	public async create(params: OrganizationCreateBodyInterface): Promise<Organization> {
-
 		if (params.parentOrgId) {
 			const parentOrg = await this.organizationRepository.read(params.parentOrgId);
 			if (!parentOrg) {
@@ -25,11 +24,12 @@ export class OrganizationService {
 			}
 		}
 
-		console.log(typeof slug);
 		const name = slug(params.title);
-		const count = await Organization.count({
+		const countResult = await Organization.count({
 			where: { name },
+			group: [],
 		});
+		const count = countResult[0]?.count || 0;
 
 		if (count > 0) {
 			throw new ValidationError({
@@ -68,9 +68,11 @@ export class OrganizationService {
 		let name;
 		if (params.title) {
 			name = slug(params.title);
-			const count = await Organization.count({
+			const countResult = await Organization.count({
 				where: { name },
+				group: [],
 			});
+			const count = countResult[0]?.count || 0;
 
 			if (count > 0) {
 				throw new ValidationError({

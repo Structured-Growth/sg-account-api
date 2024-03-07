@@ -13,8 +13,8 @@ import { GroupAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
 import { GroupCreateBodyInterface } from "../../interfaces/group-create-body.interface";
 import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.interface";
-import { GroupsRepository } from "../../modules/groups/groups.repository"
-import { GroupService } from "../../modules/groups/groups.service"
+import { GroupsRepository } from "../../modules/groups/groups.repository";
+import { GroupService } from "../../modules/groups/groups.service";
 import { GroupSearchParamsValidator } from "../../validators/group-search-params.validator";
 import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
 import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
@@ -24,6 +24,7 @@ const publicGroupAttributes = [
 	"id",
 	"orgId",
 	"accountId",
+	"parentGroupId",
 	"title",
 	"name",
 	"status",
@@ -31,7 +32,7 @@ const publicGroupAttributes = [
 	"updatedAt",
 	"arn",
 ] as const;
-type GroupKeys = (typeof publicGroupAttributes)[number]
+type GroupKeys = (typeof publicGroupAttributes)[number];
 type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: string };
 
 @Route("v1/groups")
@@ -40,10 +41,11 @@ type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: stri
 export class GroupsController extends BaseController {
 	constructor(
 		@inject("GroupsRepository") private groupsRepository: GroupsRepository,
-		@inject("GroupService") private groupsService: GroupService,
+		@inject("GroupService") private groupsService: GroupService
 	) {
 		super();
 	}
+
 	/**
 	 * Search Groups
 	 */
@@ -76,10 +78,7 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@ValidateFuncArgs(GroupCreateParamsValidator)
-	async create(
-		@Queries() query: {},
-		@Body() body: GroupCreateBodyInterface
-	): Promise<PublicGroupAttributes> {
+	async create(@Queries() query: {}, @Body() body: GroupCreateBodyInterface): Promise<PublicGroupAttributes> {
 		const group = await this.groupsService.create(body);
 		this.response.status(201);
 

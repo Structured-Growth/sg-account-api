@@ -1,4 +1,3 @@
-import { Buffer } from "buffer";
 import { injectWithTransform, autoInjectable, Logger, LoggerTransform } from "@structured-growth/microservice-sdk";
 
 @autoInjectable()

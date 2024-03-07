@@ -42,7 +42,7 @@ export class EmailsRepository
 		if (options?.onlyTotal) {
 			const countResult = await Email.count({
 				where,
-				group: ["orgId"],
+				group: [],
 			});
 			const count = countResult[0]?.count || 0;
 			return {
