@@ -19,6 +19,8 @@ import { GroupSearchParamsValidator } from "../../validators/group-search-params
 import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
 import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
 import { pick, result } from "lodash";
+import { GroupReadParamsValidator } from "../../validators/group-read-params.validator";
+import { GroupDeleteParamsValidator } from "../../validators/group-delete-params.validator";
 
 const publicGroupAttributes = [
 	"id",
@@ -97,6 +99,7 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(200, "Returns group")
 	@DescribeAction("groups/read")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@ValidateFuncArgs(GroupReadParamsValidator)
 	async get(@Path() groupId: number): Promise<PublicGroupAttributes> {
 		const group = await this.groupsRepository.read(groupId);
 
@@ -142,6 +145,7 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("groups/delete")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@ValidateFuncArgs(GroupDeleteParamsValidator)
 	async delete(@Path() groupId: number): Promise<void> {
 		await this.groupsRepository.delete(groupId);
 		this.response.status(204);
