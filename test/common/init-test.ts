@@ -5,7 +5,7 @@ import { routes } from "../../src/routes";
 
 export function initTest() {
 	const server = agent(webServer(routes));
-	const context: Record<any, any> = {};
+	const context: any = {};
 
 	waitAppIsReady();
 
