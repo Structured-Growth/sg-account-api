@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "./load-environment";
 import { App } from "./app";
 import { container, Lifecycle, logWriters, Logger } from "@structured-growth/microservice-sdk";
-import { KeyValueStorage, keyValueStorageDrivers } from "@structured-growth/microservice-sdk/key-value";
+import { KeyValueStorage, keyValueStorageDrivers } from "@structured-growth/microservice-sdk";
 import { loadEnvironment } from "./load-environment";
 import { AccountRepository } from "../modules/accounts/accounts.repository";
 import { AccountsService } from "../modules/accounts/accounts.service";
@@ -19,8 +19,8 @@ import { PhonesService } from "../modules/phones/phones.service";
 import { UsersService } from "../modules/users/users.service";
 import { UsersRepository } from "../modules/users/users.repository";
 import { ImageValidator } from "../validators/image.validator";
-import { emailTransports, Mailer } from "@structured-growth/microservice-sdk/mailer";
-import { smsProviders, SmsService } from "@structured-growth/microservice-sdk/sms";
+import { emailTransports, Mailer } from "@structured-growth/microservice-sdk";
+import { smsProviders, SmsService } from "@structured-growth/microservice-sdk";
 
 // load and validate env variables
 loadEnvironment();

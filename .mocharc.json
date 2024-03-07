@@ -4,7 +4,6 @@
     "test/**/*.test.*"
   ],
   "require": [
-    "ts-node/esm",
     "ts-node/register"
   ],
   "watch-files": [
