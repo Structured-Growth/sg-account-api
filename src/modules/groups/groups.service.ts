@@ -19,7 +19,7 @@ export class GroupService {
 
 	public async create(params: GroupCreateBodyInterface): Promise<Group> {
 		const account = await this.accountRepository.read(params.accountId, {
-			attributes: ["id", "orgId"],
+			attributes: ["id", "orgId", "region"],
 		});
 
 		if (!account) {
