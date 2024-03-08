@@ -68,7 +68,7 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> imple
 	}
 
 	get imageUrl(): string {
-		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		const bucketUrl: string = container.resolve("s3PublicDataBucketWebSiteUrl");
 		return this.imageUuid ? `${bucketUrl}/group-pictures/${this.imageUuid}.png` : null;
 	}
 }
