@@ -73,7 +73,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 	}
 
 	get imageUrl(): string | null {
-		const bucketUrl: string = container.resolve("s3UserDataBucketWebSiteUrl");
+		const bucketUrl: string = container.resolve("s3PublicDataBucketWebSiteUrl");
 		return this.imageUuid ? `${bucketUrl}/user-pictures/${this.imageUuid}.png` : null;
 	}
 }

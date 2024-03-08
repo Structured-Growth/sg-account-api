@@ -34,8 +34,8 @@ container.register("isTest", { useValue: process.env.STAGE === "test" });
 container.register("logDbRequests", { useValue: process.env.LOG_DB_REQUESTS === "true" });
 container.register("logRequestBody", { useValue: process.env.LOG_HTTP_REQUEST_BODY === "true" });
 container.register("logResponses", { useValue: process.env.LOG_HTTP_RESPONSES === "true" });
-container.register("s3UserDataBucket", { useValue: process.env.S3_USER_DATA_BUCKET });
-container.register("s3UserDataBucketWebSiteUrl", { useValue: process.env.S3_USER_DATA_BUCKET_WEBSITE_URL });
+container.register("s3PublicDataBucket", { useValue: process.env.S3_PUBLIC_DATA_BUCKET });
+container.register("s3PublicDataBucketWebSiteUrl", { useValue: process.env.S3_PUBLIC_DATA_BUCKET_WEBSITE_URL });
 container.register("encryptionKey", { useValue: process.env.ENCRYPTION_KEY });
 container.register("emailVerificationCodeLifeTimeHours", {
 	useValue: Number(process.env.EMAIL_VERIFICATION_CODE_LIFETIME_HOURS || 1),
