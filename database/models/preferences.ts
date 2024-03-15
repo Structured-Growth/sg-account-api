@@ -19,6 +19,7 @@ export interface PreferencesCreationAttributes extends Optional<PreferencesAttri
 	tableName: "preferences",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Preferences
 	extends Model<PreferencesAttributes, PreferencesCreationAttributes>

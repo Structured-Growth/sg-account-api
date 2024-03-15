@@ -21,6 +21,7 @@ export interface GroupMemberUpdateAttributes extends Pick<GroupMemberAttributes,
 	tableName: "group_members",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class GroupMember
 	extends Model<GroupMemberAttributes, GroupMemberCreationAttributes>

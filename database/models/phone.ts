@@ -21,6 +21,7 @@ export interface PhoneCreationAttributes extends Omit<PhoneAttributes, "id" | "a
 	tableName: "phones",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Phone extends Model<PhoneAttributes, PhoneCreationAttributes> implements PhoneAttributes {
 	@Column

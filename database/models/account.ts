@@ -12,16 +12,15 @@ export interface AccountAttributes extends Omit<DefaultModelInterface, keyof Bel
 }
 
 export interface AccountCreationAttributes
-	extends Omit<AccountAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {
-}
+	extends Omit<AccountAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "accounts",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Account extends Model<AccountAttributes, AccountCreationAttributes> implements AccountAttributes {
-
 	@Column
 	@ForeignKey(() => Organization)
 	orgId: number;

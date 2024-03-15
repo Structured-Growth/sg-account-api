@@ -21,6 +21,7 @@ export interface GroupUpdateAttributes
 	tableName: "groups",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Group extends Model<GroupAttributes, GroupCreationAttributes> implements GroupAttributes {
 	@Column
