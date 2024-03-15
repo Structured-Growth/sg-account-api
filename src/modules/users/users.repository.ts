@@ -7,6 +7,7 @@ import {
 } from "@structured-growth/microservice-sdk";
 import User, { UserCreationAttributes, UserUpdateAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
+import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class UsersRepository implements RepositoryInterface<User, UserSearchParamsInterface, UserCreationAttributes> {
@@ -101,7 +102,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		if (!user) {
 			throw new NotFoundError(`User ${id} not found`);
 		}
-		user.setAttributes(params);
+		user.setAttributes(omitBy(params, isUndefined));
 
 		return user.save();
 	}

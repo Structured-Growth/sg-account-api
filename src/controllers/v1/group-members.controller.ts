@@ -10,50 +10,47 @@ import {
 	ValidateFuncArgs,
 } from "@structured-growth/microservice-sdk";
 import { GroupMemberAttributes } from "../../../database/models/group-member";
-import { GroupMemberRepository } from "../../modules/groupmember/group-member.repository"
-import { GroupsRepository } from "../../modules/groups/groups.repository"
-import { GroupMemberService } from "../../modules/groupmember/group-member.service"
+import { GroupMemberRepository } from "../../modules/group-member/group-member.repository";
+import { GroupsRepository } from "../../modules/groups/groups.repository";
+import { GroupMemberService } from "../../modules/group-member/group-member.service";
 import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
 import { GroupMemberCreateBodyInterface } from "../../interfaces/group-member-create-body.interface";
 import { GroupMemberUpdateBodyInterface } from "../../interfaces/group-member-update-body.interface";
 import { GroupMemberSearchParamsValidator } from "../../validators/group-member-search-params.validator";
 import { GroupMemberCreateParamsValidator } from "../../validators/group-member-create-params.validator";
 import { GroupMemberUpdateParamsValidator } from "../../validators/group-member-update-params.validator";
-import group, { GroupAttributes } from "../../../database/models/group";
 import { pick, result } from "lodash";
 
 const publicGroupMemberAttributes = [
-		"id",
-		"groupId",
-		"accountId",
-		"userId",
-		"createdAt",
-		"updatedAt",
-		"status",
-		"arn",
+	"id",
+	"groupId",
+	"accountId",
+	"userId",
+	"createdAt",
+	"updatedAt",
+	"status",
+	"arn",
 ] as const;
-type GroupMemberKeys = (typeof publicGroupMemberAttributes)[number]
+type GroupMemberKeys = (typeof publicGroupMemberAttributes)[number];
 type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupMemberKeys>;
 
-
-@Route("v1/groups")
+@Route("v1/groups/:groupId/members")
 @Tags("Group Members")
 @autoInjectable()
 export class GroupMembersController extends BaseController {
 	constructor(
 		@inject("GroupMemberRepository") private groupMemberRepository: GroupMemberRepository,
 		@inject("GroupsRepository") private groupsRepository: GroupsRepository,
-		@inject("GroupMemberService") private groupMemberService: GroupMemberService,
-){
+		@inject("GroupMemberService") private groupMemberService: GroupMemberService
+	) {
 		super();
-
 	}
 
 	/**
 	 * Search group members
 	 */
 	@OperationId("Search")
-	@Get("/:groupId/members")
+	@Get("/")
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
@@ -62,12 +59,15 @@ export class GroupMembersController extends BaseController {
 		@Path() groupId: number,
 		@Queries() query: GroupMemberSearchParamsInterface
 	): Promise<SearchResultInterface<PublicGroupMemberAttributes>> {
-		const { data, ...result } = await this.groupMemberRepository.search(query);
+		const { data, ...result } = await this.groupMemberRepository.search({
+			groupId,
+			...query,
+		});
 
 		return {
-			data: data.map((groupmember) => ({
-				...(pick(groupmember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
-				arn: groupmember.arn,
+			data: data.map((groupMember) => ({
+				...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
+				arn: groupMember.arn,
 			})),
 			...result,
 		};
@@ -77,7 +77,7 @@ export class GroupMembersController extends BaseController {
 	 * Add user to a group.
 	 */
 	@OperationId("Create")
-	@Post("/:groupId/members")
+	@Post("/")
 	@SuccessResponse(201, "Returns created group member")
 	@DescribeAction("group-members/create")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
@@ -87,8 +87,9 @@ export class GroupMembersController extends BaseController {
 		@Queries() query: {},
 		@Body() body: GroupMemberCreateBodyInterface
 	): Promise<PublicGroupMemberAttributes> {
-		const groupMember = await this.groupMemberService.create(body);
+		const groupMember = await this.groupMemberService.create(Number(groupId), body);
 		this.response.status(201);
+
 		return {
 			...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
 			arn: groupMember.arn,
@@ -99,7 +100,7 @@ export class GroupMembersController extends BaseController {
 	 * Get group member
 	 */
 	@OperationId("Read")
-	@Get("/:groupId/members/:groupMemberId")
+	@Get(":groupMemberId")
 	@SuccessResponse(200, "Returns group member")
 	@DescribeAction("group-members/read")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
@@ -118,7 +119,7 @@ export class GroupMembersController extends BaseController {
 
 		return {
 			...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
-			arn: group.arn,
+			arn: groupMember.arn,
 		};
 	}
 
@@ -126,7 +127,7 @@ export class GroupMembersController extends BaseController {
 	 * Update group member
 	 */
 	@OperationId("Update")
-	@Put("/:groupId/members/:groupMemberId")
+	@Put(":groupMemberId")
 	@SuccessResponse(200, "Returns updated groupMember")
 	@DescribeAction("group-members/update")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
@@ -138,8 +139,13 @@ export class GroupMembersController extends BaseController {
 		@Queries() query: {},
 		@Body() body: GroupMemberUpdateBodyInterface
 	): Promise<PublicGroupMemberAttributes> {
-		const groupMember = await this.groupMemberService.update(groupId, body);
+		const group = await this.groupsRepository.read(groupId);
 
+		if (!group) {
+			throw new NotFoundError(`Group ${groupId} not found`);
+		}
+
+		const groupMember = await this.groupMemberService.update(Number(groupMemberId), body);
 
 		return {
 			...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
@@ -151,15 +157,18 @@ export class GroupMembersController extends BaseController {
 	 * Remove user from a group
 	 */
 	@OperationId("Delete")
-	@Delete("/:groupId/members/:groupMemberId")
+	@Delete(":groupMemberId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("group-members/delete")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
 	async delete(@Path() groupId: number, @Path() groupMemberId: number): Promise<void> {
+		const group = await this.groupsRepository.read(groupId);
+
 		if (!group) {
 			throw new NotFoundError(`Group ${groupId} not found`);
 		}
+
 		await this.groupMemberRepository.delete(groupMemberId);
 		this.response.status(204);
 	}
