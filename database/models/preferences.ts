@@ -1,5 +1,4 @@
 import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
-import { Optional } from "sequelize";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
 import Account from "./account";
@@ -13,7 +12,10 @@ export interface PreferencesAttributes extends DefaultModelInterface {
 	};
 }
 
-export interface PreferencesCreationAttributes extends Optional<PreferencesAttributes, "id"> {}
+export interface PreferencesCreationAttributes
+	extends Omit<PreferencesAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+
+export interface PreferencesUpdateAttributes extends Pick<PreferencesCreationAttributes, "preferences"> {}
 
 @Table({
 	tableName: "preferences",

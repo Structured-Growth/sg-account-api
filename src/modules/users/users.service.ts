@@ -1,6 +1,3 @@
-import * as slug from "slug";
-import { Buffer } from "buffer";
-import { v4 } from "uuid";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
 import User, { UserUpdateAttributes } from "../../../database/models/user";
 import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
@@ -8,7 +5,6 @@ import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.inter
 import { UsersRepository } from "./users.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
-import Account from "../../../database/models/account";
 import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
