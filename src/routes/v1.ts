@@ -53,8 +53,8 @@ router.post(pathPrefix + '/v1/emails/:emailId/verify', handleRequest(Controllers
 router.delete(pathPrefix + '/v1/emails/:emailId', handleRequest(Controllers.EmailsController, "delete", handlerOpts));
 
 //PreferencesController
-router.get(pathPrefix + '/v1/preferences', handleRequest(Controllers.PreferencesController, "read", handlerOpts));
-router.post(pathPrefix + '/v1/preferences', handleRequest(Controllers.PreferencesController, "update", handlerOpts));
+router.get(pathPrefix + '/v1/preferences/:accountId', handleRequest(Controllers.PreferencesController, "read", handlerOpts));
+router.post(pathPrefix + '/v1/preferences/:accountId', handleRequest(Controllers.PreferencesController, "update", handlerOpts));
 
 //GroupsController
 router.get(pathPrefix + '/v1/groups', handleRequest(Controllers.GroupsController, "search", handlerOpts));
@@ -110,8 +110,8 @@ export const actionToRouteMap = {
 	"EmailsController.sendCode": 'post /v1/emails/:emailId/send-code',
 	"EmailsController.verify": 'post /v1/emails/:emailId/verify',
 	"EmailsController.delete": 'delete /v1/emails/:emailId',
-	"PreferencesController.read": 'get /v1/preferences',
-	"PreferencesController.update": 'post /v1/preferences',
+	"PreferencesController.read": 'get /v1/preferences/:accountId',
+	"PreferencesController.update": 'post /v1/preferences/:accountId',
 	"GroupsController.search": 'get /v1/groups',
 	"GroupsController.create": 'post /v1/groups',
 	"GroupsController.get": 'get /v1/groups/:groupId',

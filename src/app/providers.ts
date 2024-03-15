@@ -21,6 +21,8 @@ import { UsersRepository } from "../modules/users/users.repository";
 import { ImageValidator } from "../validators/image.validator";
 import { emailTransports, Mailer } from "@structured-growth/microservice-sdk";
 import { smsProviders, SmsService } from "@structured-growth/microservice-sdk";
+import { PreferencesRepository } from "../modules/preferences/preferences.repository";
+import { PreferencesService } from "../modules/preferences/preferences.service";
 
 // load and validate env variables
 loadEnvironment();
@@ -76,6 +78,7 @@ container.register("GroupMemberService", GroupMemberService);
 container.register("OrganizationService", OrganizationService);
 container.register("PhonesService", PhonesService);
 container.register("UsersService", UsersService);
+container.register("PreferencesService", PreferencesService);
 
 // repositories
 container.register("AccountRepository", AccountRepository);
@@ -85,6 +88,7 @@ container.register("GroupMemberRepository", GroupMemberRepository);
 container.register("OrganizationRepository", OrganizationRepository);
 container.register("UsersRepository", UsersRepository);
 container.register("PhonesRepository", PhonesRepository);
+container.register("PreferencesRepository", PreferencesRepository);
 
 //validators
 container.register("ImageValidator", ImageValidator);
