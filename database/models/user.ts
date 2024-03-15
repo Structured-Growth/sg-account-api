@@ -14,16 +14,20 @@ export interface UserAttributes extends DefaultModelInterface {
 	status: "active" | "inactive" | "archived";
 }
 
-export interface UserCreationAttributes extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+export interface UserCreationAttributes
+	extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
-
-export interface UserUpdateAttributes extends Pick<UserCreationAttributes, "firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status"> {}
-
+export interface UserUpdateAttributes
+	extends Pick<
+		UserCreationAttributes,
+		"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status"
+	> {}
 
 @Table({
 	tableName: "users",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
 	@Column

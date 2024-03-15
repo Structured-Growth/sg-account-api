@@ -27,6 +27,7 @@ export interface OrganizationUpdateAttributes
 	tableName: "organizations",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Organization
 	extends Model<OrganizationAttributes, OrganizationCreationAttributes>

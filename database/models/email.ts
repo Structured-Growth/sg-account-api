@@ -21,6 +21,7 @@ export interface EmailCreationAttributes
 	tableName: "emails",
 	timestamps: true,
 	underscored: true,
+	paranoid: true,
 })
 export class Email extends Model<EmailAttributes, EmailCreationAttributes> implements EmailAttributes {
 	@Column
