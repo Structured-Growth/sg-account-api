@@ -16,4 +16,9 @@ export interface OrganizationSearchParamsInterface extends Omit<DefaultSearchPar
 	 * `name: ["Starts*", "-*ends"]`
 	 */
 	name?: string[];
+	/**
+	 * Search by custom entity fields.
+	 * Example: metadata[userType]=doctor
+	 */
+	"metadata[customFieldName]"?: string;
 }

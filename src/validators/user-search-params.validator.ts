@@ -12,6 +12,7 @@ export const UserSearchParamsValidator = joi.object({
 			gender: joi.array().items(joi.string().valid("male", "female").required().label("Gender")),
 			isPrimary: joi.boolean().label("Is primary"),
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required()),
+			metadata: joi.object(),
 		})
 		.concat(CommonSearchParamsValidator),
 });

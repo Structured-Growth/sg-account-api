@@ -54,6 +54,7 @@ export class OrganizationService {
 			name: name,
 			imageUuid: imageUuid || null,
 			status: params.status || "inactive",
+			metadata: params.metadata || {},
 		});
 	}
 
@@ -99,6 +100,7 @@ export class OrganizationService {
 					name,
 					imageUuid,
 					status: params.status,
+					metadata: params.metadata,
 				},
 				isUndefined
 			) as OrganizationUpdateAttributes

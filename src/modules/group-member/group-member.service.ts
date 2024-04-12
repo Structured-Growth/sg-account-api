@@ -43,6 +43,7 @@ export class GroupMemberService {
 			accountId: group.accountId,
 			userId: params.userId,
 			status: params.status || "inactive",
+			metadata: params.metadata || {},
 		});
 	}
 
@@ -54,6 +55,7 @@ export class GroupMemberService {
 
 		return this.groupMemberRepository.update(groupMemberId, {
 			status: params.status,
+			metadata: params.metadata,
 		});
 	}
 }

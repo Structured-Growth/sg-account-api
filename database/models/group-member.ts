@@ -10,12 +10,13 @@ export interface GroupMemberAttributes extends DefaultModelInterface {
 	groupId: number;
 	userId: number;
 	status: "active" | "inactive" | "archived";
+	metadata?: Record<string, string | number>;
 }
 
 export interface GroupMemberCreationAttributes
 	extends Omit<GroupMemberAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
-export interface GroupMemberUpdateAttributes extends Pick<GroupMemberAttributes, "status"> {}
+export interface GroupMemberUpdateAttributes extends Pick<GroupMemberAttributes, "status" | "metadata"> {}
 
 @Table({
 	tableName: "group_members",
@@ -60,6 +61,9 @@ export class GroupMember
 
 	@Column(DataType.STRING)
 	status: GroupMemberAttributes["status"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [

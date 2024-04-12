@@ -6,5 +6,6 @@ export const GroupMemberUpdateParamsValidator = joi.object({
 	query: joi.object(),
 	body: joi.object({
 		status: joi.string().valid("active", "inactive", "archived").label("Status"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

@@ -6,5 +6,6 @@ export const GroupMemberCreateParamsValidator = joi.object({
 	body: joi.object({
 		userId: joi.number().positive().required().label("User Id"),
 		status: joi.string().valid("active", "inactive").label("Status"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

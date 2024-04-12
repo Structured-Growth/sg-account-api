@@ -10,12 +10,13 @@ export interface PreferencesAttributes extends DefaultModelInterface {
 		language: string;
 		locale: string;
 	};
+	metadata?: Record<string, string | number>;
 }
 
 export interface PreferencesCreationAttributes
 	extends Omit<PreferencesAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
-export interface PreferencesUpdateAttributes extends Pick<PreferencesCreationAttributes, "preferences"> {}
+export interface PreferencesUpdateAttributes extends Pick<PreferencesCreationAttributes, "preferences" | "metadata"> {}
 
 @Table({
 	tableName: "preferences",
@@ -46,6 +47,9 @@ export class Preferences
 
 	@Column(DataType.JSON)
 	preferences: PreferencesAttributes["preferences"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "preferences/<preferencesId>"].join(

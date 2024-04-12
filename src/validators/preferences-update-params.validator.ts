@@ -8,5 +8,6 @@ export const PreferencesUpdateParamsValidator = joi.object({
 		timezone: joi.string().min(2).max(5).label("Timezone abbreviation"),
 		language: joi.string().valid("en", "uk").label("Language"),
 		locale: joi.string().valid("US", "UA").label("Locale"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

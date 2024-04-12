@@ -21,4 +21,9 @@ export interface UserSearchParamsInterface extends DefaultSearchParamsInterface 
 	gender?: ("male" | "female")[];
 	isPrimary?: boolean;
 	status?: UserAttributes["status"][];
+	/**
+	 * Search by custom entity fields.
+	 * Example: metadata[userType]=doctor
+	 */
+	"metadata[customFieldName]"?: string;
 }

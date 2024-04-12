@@ -11,5 +11,6 @@ export const UserUpdateParamsValidator = joi.object({
 		status: joi.string().valid("active", "inactive", "archived").label("Status"),
 		isPrimary: joi.boolean().label("Is primary"),
 		imageBase64: joi.string().label("Image"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

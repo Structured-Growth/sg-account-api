@@ -10,5 +10,6 @@ export const UserCreateParamsValidator = joi.object({
 		gender: joi.string().valid("male", "female"),
 		status: joi.string().valid("active", "inactive").label("Status"),
 		imageBase64: joi.string().label("Image"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

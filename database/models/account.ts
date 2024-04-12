@@ -9,6 +9,7 @@ import Organization from "./organization";
 
 export interface AccountAttributes extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface> {
 	status: "active" | "inactive" | "archived";
+	metadata?: Record<string, string | number>;
 }
 
 export interface AccountCreationAttributes
@@ -33,6 +34,9 @@ export class Account extends Model<AccountAttributes, AccountCreationAttributes>
 
 	@Column(DataType.STRING)
 	status: AccountAttributes["status"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>"].join(":");

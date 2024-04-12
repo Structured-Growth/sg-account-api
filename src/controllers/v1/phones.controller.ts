@@ -35,6 +35,7 @@ const publicPhoneAttributes = [
 	"isPrimary",
 	"status",
 	"arn",
+	"metadata",
 ] as const;
 type PhoneKeys = (typeof publicPhoneAttributes)[number];
 type PublicPhoneAttributes = Pick<PhoneAttributes, PhoneKeys>;

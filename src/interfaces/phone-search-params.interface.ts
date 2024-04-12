@@ -11,4 +11,9 @@ export interface PhoneSearchParamsInterface extends DefaultSearchParamsInterface
 	userId?: number;
 	isPrimary?: boolean;
 	status?: PhoneAttributes["status"][];
+	/**
+	 * Search by custom entity fields.
+	 * Example: metadata[userType]=doctor
+	 */
+	"metadata[customFieldName]"?: string;
 }

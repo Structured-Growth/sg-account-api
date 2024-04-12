@@ -22,6 +22,7 @@ export class AccountsService {
 			orgId: organization.id,
 			region: organization.region,
 			status: params.status || "inactive",
+			metadata: params.metadata || {},
 		});
 	}
 }

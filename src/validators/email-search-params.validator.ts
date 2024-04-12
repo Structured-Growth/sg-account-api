@@ -10,6 +10,7 @@ export const SearchEmailParamsValidator = joi.object({
 			email: joi.array().items(joi.string().max(50).required()).label("Email"),
 			status: joi.array().items(joi.string().valid("verification", "active", "inactive", "archived").required()),
 			isPrimary: joi.boolean().label("is Primary"),
+			metadata: joi.object().label("Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

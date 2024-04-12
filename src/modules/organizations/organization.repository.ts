@@ -4,18 +4,25 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
+	container,
 } from "@structured-growth/microservice-sdk";
 import Organization, {
 	OrganizationCreationAttributes,
 	OrganizationUpdateAttributes,
 } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
+import { isUndefined, omitBy } from "lodash";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class OrganizationRepository
 	implements RepositoryInterface<Organization, OrganizationSearchParamsInterface, OrganizationCreationAttributes>
 {
-	public async search(params: OrganizationSearchParamsInterface): Promise<SearchResultInterface<Organization>> {
+	public async search(
+		params: OrganizationSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+		}
+	): Promise<SearchResultInterface<Organization>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
@@ -38,6 +45,10 @@ export class OrganizationRepository
 			};
 		}
 
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
+		}
+
 		// TODO search by arn with wildcards
 
 		const { rows, count } = await Organization.findAndCountAll({
@@ -56,6 +67,8 @@ export class OrganizationRepository
 	}
 
 	public async create(params: OrganizationCreationAttributes): Promise<Organization> {
+		const customFieldService = container.resolve<CustomFieldService>("CustomFieldService");
+		await customFieldService.validate("Organization", params.metadata, params.parentOrgId);
 		return Organization.create(params);
 	}
 
@@ -73,8 +86,10 @@ export class OrganizationRepository
 
 	// pick some attributes
 	public async update(id: number, params: OrganizationUpdateAttributes): Promise<Organization> {
+		const customFieldService = container.resolve<CustomFieldService>("CustomFieldService");
 		const organization = await this.read(id);
-		organization.setAttributes(params);
+		organization.setAttributes(omitBy(params, isUndefined));
+		await customFieldService.validate("Organization", organization.toJSON().metadata, organization.parentOrgId);
 
 		return organization.save();
 	}

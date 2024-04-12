@@ -12,6 +12,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	imageUuid: string | null;
 	isPrimary: boolean;
 	status: "active" | "inactive" | "archived";
+	metadata?: Record<string, string | number>;
 }
 
 export interface UserCreationAttributes
@@ -20,7 +21,7 @@ export interface UserCreationAttributes
 export interface UserUpdateAttributes
 	extends Pick<
 		UserCreationAttributes,
-		"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status"
+		"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status" | "metadata"
 	> {}
 
 @Table({
@@ -67,6 +68,9 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 
 	@Column(DataType.STRING)
 	status: UserAttributes["status"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "users/<userId>"].join(":");

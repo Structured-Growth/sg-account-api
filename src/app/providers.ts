@@ -23,6 +23,8 @@ import { emailTransports, Mailer } from "@structured-growth/microservice-sdk";
 import { smsProviders, SmsService } from "@structured-growth/microservice-sdk";
 import { PreferencesRepository } from "../modules/preferences/preferences.repository";
 import { PreferencesService } from "../modules/preferences/preferences.service";
+import { CustomFieldService } from "../modules/custom-fields/custom-field.service";
+import { CustomFieldRepository } from "../modules/custom-fields/custom-field.repository";
 
 // load and validate env variables
 loadEnvironment();
@@ -79,6 +81,7 @@ container.register("OrganizationService", OrganizationService);
 container.register("PhonesService", PhonesService);
 container.register("UsersService", UsersService);
 container.register("PreferencesService", PreferencesService);
+container.register("CustomFieldService", CustomFieldService);
 
 // repositories
 container.register("AccountRepository", AccountRepository);
@@ -89,6 +92,7 @@ container.register("OrganizationRepository", OrganizationRepository);
 container.register("UsersRepository", UsersRepository);
 container.register("PhonesRepository", PhonesRepository);
 container.register("PreferencesRepository", PreferencesRepository);
+container.register("CustomFieldRepository", CustomFieldRepository);
 
 //validators
 container.register("ImageValidator", ImageValidator);

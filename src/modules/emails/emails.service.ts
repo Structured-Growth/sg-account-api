@@ -62,6 +62,7 @@ export class EmailsService {
 			verificationCodeExpires: expirationDate,
 			verificationCodeHash: hash,
 			verificationCodeSalt: null,
+			metadata: params.metadata || {},
 		});
 
 		if (params.sendVerificationCode) {
