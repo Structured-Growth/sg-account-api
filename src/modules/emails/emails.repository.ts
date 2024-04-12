@@ -3,7 +3,7 @@ import {
 	NotFoundError,
 	RepositoryInterface,
 	SearchResultInterface,
-	inject
+	inject,
 } from "@structured-growth/microservice-sdk";
 import Email, { EmailAttributes, EmailCreationAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
@@ -14,11 +14,10 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 export class EmailsRepository
 	implements RepositoryInterface<Email, EmailSearchParamsInterface, EmailCreationAttributes>
 {
-
 	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
 
 	public async search(
-		params: EmailSearchParamsInterface& {
+		params: EmailSearchParamsInterface & {
 			metadata?: Record<string, string | number>;
 		},
 		options?: {

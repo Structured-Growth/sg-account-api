@@ -4,7 +4,8 @@ import {
 	joi,
 	validate,
 	ValidationError,
-	NotFoundError, RegionEnum,
+	NotFoundError,
+	RegionEnum,
 } from "@structured-growth/microservice-sdk";
 import { CustomFieldRepository } from "./custom-field.repository";
 import { OrganizationRepository } from "../organizations/organization.repository";

@@ -36,7 +36,7 @@ const publicEmailAttributes = [
 	"isPrimary",
 	"status",
 	"arn",
-	"metadata"
+	"metadata",
 ] as const;
 type EmailKeys = (typeof publicEmailAttributes)[number];
 type PublicEmailAttributes = Pick<EmailAttributes, EmailKeys>;

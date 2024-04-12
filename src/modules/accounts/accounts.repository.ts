@@ -4,7 +4,7 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
-	inject
+	inject,
 } from "@structured-growth/microservice-sdk";
 import Account, { AccountAttributes, AccountCreationAttributes } from "../../../database/models/account";
 import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
