@@ -9,13 +9,14 @@ export interface GroupAttributes extends DefaultModelInterface {
 	name: string;
 	imageUuid: string | null;
 	status: "active" | "inactive" | "archived";
+	metadata?: Record<string, string | number>;
 }
 
 export interface GroupCreationAttributes
 	extends Omit<GroupAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface GroupUpdateAttributes
-	extends Partial<Pick<GroupCreationAttributes, "parentGroupId" | "title" | "status" | "imageUuid">> {}
+	extends Partial<Pick<GroupCreationAttributes, "parentGroupId" | "title" | "status" | "imageUuid" | "metadata">> {}
 
 @Table({
 	tableName: "groups",
@@ -59,6 +60,9 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> imple
 
 	@Column(DataType.STRING)
 	status: GroupAttributes["status"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "groups/<groupId>"].join(":");

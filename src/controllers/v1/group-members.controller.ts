@@ -30,6 +30,7 @@ const publicGroupMemberAttributes = [
 	"updatedAt",
 	"status",
 	"arn",
+	"metadata"
 ] as const;
 type GroupMemberKeys = (typeof publicGroupMemberAttributes)[number];
 type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupMemberKeys>;

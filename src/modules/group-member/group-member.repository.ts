@@ -4,6 +4,7 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
+	inject,
 } from "@structured-growth/microservice-sdk";
 import GroupMember, {
 	GroupMemberCreationAttributes,
@@ -11,13 +12,16 @@ import GroupMember, {
 } from "../../../database/models/group-member";
 import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
 import { isUndefined, omitBy } from "lodash";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class GroupMemberRepository
 	implements RepositoryInterface<GroupMember, GroupMemberSearchParamsInterface, GroupMemberCreationAttributes>
 {
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
 	public async search(
-		params: GroupMemberSearchParamsInterface & { groupId: number },
+		params: GroupMemberSearchParamsInterface & { groupId: number; metadata?: Record<string, string | number> },
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -31,6 +35,10 @@ export class GroupMemberRepository
 		params.groupId && (where["groupId"] = params.groupId);
 		params.userId && (where["userId"] = { [Op.in]: params.userId });
 		params.status && (where["status"] = { [Op.in]: params.status });
+
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
+		}
 
 		// TODO search by arn with wildcards
 
@@ -64,6 +72,7 @@ export class GroupMemberRepository
 	}
 
 	public async create(params: GroupMemberCreationAttributes): Promise<GroupMember> {
+		await this.customFieldService.validate("GroupMember", params.metadata, params.orgId);
 		return GroupMember.create(params);
 	}
 
@@ -85,6 +94,7 @@ export class GroupMemberRepository
 			throw new NotFoundError(`Group member ${id} not found`);
 		}
 		groupMember.setAttributes(omitBy(params, isUndefined));
+		await this.customFieldService.validate("GroupMember", groupMember.toJSON().metadata, groupMember.orgId);
 
 		return groupMember.save();
 	}

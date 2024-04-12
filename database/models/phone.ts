@@ -13,9 +13,11 @@ export interface PhoneAttributes extends DefaultModelInterface {
 	verificationCodeHash: string;
 	verificationCodeSalt: string;
 	verificationCodeExpires: Date;
+	metadata?: Record<string, string | number>;
 }
 
-export interface PhoneCreationAttributes extends Omit<PhoneAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
+export interface PhoneCreationAttributes
+	extends Omit<PhoneAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 @Table({
 	tableName: "phones",
@@ -65,6 +67,9 @@ export class Phone extends Model<PhoneAttributes, PhoneCreationAttributes> imple
 
 	@Column
 	verificationCodeExpires: Date;
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "phones/<phoneId>"].join(":");

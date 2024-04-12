@@ -7,5 +7,6 @@ export const CreateEmailParamsValidator = joi.object({
 		userId: joi.number().positive().required().label("User Id"),
 		email: joi.string().email().required().label("Email"),
 		sendVerificationCode: joi.boolean().label("Send verification code"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

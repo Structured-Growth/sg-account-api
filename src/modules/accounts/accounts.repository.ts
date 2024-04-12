@@ -4,16 +4,24 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
+	inject
 } from "@structured-growth/microservice-sdk";
 import Account, { AccountAttributes, AccountCreationAttributes } from "../../../database/models/account";
 import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
 import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body.interface";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class AccountRepository
 	implements RepositoryInterface<Account, AccountSearchParamsInterface, AccountCreationAttributes>
 {
-	public async search(params: AccountSearchParamsInterface): Promise<SearchResultInterface<Account>> {
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
+	public async search(
+		params: AccountSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+		}
+	): Promise<SearchResultInterface<Account>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
@@ -23,6 +31,10 @@ export class AccountRepository
 		params.orgId && (where["orgId"] = params.orgId);
 		params.status && (where["status"] = { [Op.in]: params.status });
 		params.id && (where["id"] = { [Op.in]: params.id });
+
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
+		}
 
 		// TODO search by arn with wildcards
 
@@ -42,6 +54,7 @@ export class AccountRepository
 	}
 
 	public async create(params: AccountCreationAttributes): Promise<Account> {
+		await this.customFieldService.validate("Account", params.metadata, params.orgId);
 		return Account.create(params);
 	}
 
@@ -64,6 +77,7 @@ export class AccountRepository
 			throw new NotFoundError(`Account ${id} not found`);
 		}
 		account.setAttributes(params);
+		await this.customFieldService.validate("Account", account.toJSON().metadata, account.orgId);
 
 		return account.save();
 	}

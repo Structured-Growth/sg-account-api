@@ -11,4 +11,9 @@ export interface EmailSearchParamsInterface extends DefaultSearchParamsInterface
 	userId?: number;
 	isPrimary?: boolean;
 	status?: EmailAttributes["status"][];
+	/**
+	 * Search by custom entity fields.
+	 * Example: metadata[userType]=doctor
+	 */
+	"metadata[customFieldName]"?: string;
 }

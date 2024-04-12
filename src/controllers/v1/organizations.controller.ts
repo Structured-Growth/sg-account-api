@@ -33,6 +33,7 @@ const publicOrganizationAttributes = [
 	"createdAt",
 	"updatedAt",
 	"arn",
+	"metadata"
 ] as const;
 type OrganizationKeys = (typeof publicOrganizationAttributes)[number];
 type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKeys> & { imageUrl: string | null };

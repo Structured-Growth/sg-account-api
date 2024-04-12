@@ -79,6 +79,13 @@ router.post(pathPrefix + '/v1/phones/:phoneId/send-code', handleRequest(Controll
 router.post(pathPrefix + '/v1/phones/:phoneId/verify', handleRequest(Controllers.PhonesController, "verify", handlerOpts));
 router.delete(pathPrefix + '/v1/phones/:phoneId', handleRequest(Controllers.PhonesController, "delete", handlerOpts));
 
+//CustomFieldsController
+router.get(pathPrefix + '/v1/custom-fields', handleRequest(Controllers.CustomFieldsController, "search", handlerOpts));
+router.post(pathPrefix + '/v1/custom-fields', handleRequest(Controllers.CustomFieldsController, "create", handlerOpts));
+router.get(pathPrefix + '/v1/custom-fields/:customFieldId', handleRequest(Controllers.CustomFieldsController, "get", handlerOpts));
+router.put(pathPrefix + '/v1/custom-fields/:customFieldId', handleRequest(Controllers.CustomFieldsController, "update", handlerOpts));
+router.delete(pathPrefix + '/v1/custom-fields/:customFieldId', handleRequest(Controllers.CustomFieldsController, "delete", handlerOpts));
+
 //ResolverController
 router.get(pathPrefix + '/v1/resolver/resolve', handleRequest(Controllers.ResolverController, "resolve", handlerOpts));
 router.get(pathPrefix + '/v1/resolver/actions', handleRequest(Controllers.ResolverController, "actions", handlerOpts));
@@ -129,6 +136,11 @@ export const actionToRouteMap = {
 	"PhonesController.sendCode": 'post /v1/phones/:phoneId/send-code',
 	"PhonesController.verify": 'post /v1/phones/:phoneId/verify',
 	"PhonesController.delete": 'delete /v1/phones/:phoneId',
+	"CustomFieldsController.search": 'get /v1/custom-fields',
+	"CustomFieldsController.create": 'post /v1/custom-fields',
+	"CustomFieldsController.get": 'get /v1/custom-fields/:customFieldId',
+	"CustomFieldsController.update": 'put /v1/custom-fields/:customFieldId',
+	"CustomFieldsController.delete": 'delete /v1/custom-fields/:customFieldId',
 	"ResolverController.resolve": 'get /v1/resolver/resolve',
 	"ResolverController.actions": 'get /v1/resolver/actions',
 	"ResolverController.models": 'get /v1/resolver/models',

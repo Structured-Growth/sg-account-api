@@ -5,4 +5,9 @@ export interface GroupMemberSearchParamsInterface
 	extends Omit<DefaultSearchParamsInterface, "orgId" | "accountId" | "region"> {
 	userId?: number[];
 	status?: GroupMemberAttributes["status"][];
+	/**
+	 * Search by custom entity fields.
+	 * Example: metadata[userType]=doctor
+	 */
+	"metadata[customFieldName]"?: string;
 }

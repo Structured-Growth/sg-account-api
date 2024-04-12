@@ -10,6 +10,7 @@ export const PhoneSearchParamsValidator = joi.object({
 			userId: joi.number().positive().label("User ID"),
 			isPrimary: joi.boolean().label("Is primary"),
 			status: joi.array().items(joi.string().valid("verification", "active", "inactive", "archived").label("Status")),
+			metadata: joi.object().label("Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

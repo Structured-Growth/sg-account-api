@@ -8,4 +8,9 @@ export interface UserUpdateBodyInterface {
 	status?: UserAttributes["status"];
 	isPrimary?: boolean;
 	imageBase64?: string;
+	/**
+	 * Custom fields with their values.
+	 * Field should be created before.
+	 */
+	metadata?: Record<string, string>;
 }

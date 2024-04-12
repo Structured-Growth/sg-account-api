@@ -1,15 +1,26 @@
-import { autoInjectable, RepositoryInterface, SearchResultInterface } from "@structured-growth/microservice-sdk";
+import {
+	autoInjectable,
+	RepositoryInterface,
+	SearchResultInterface,
+	inject,
+} from "@structured-growth/microservice-sdk";
 import Phone, { PhoneAttributes, PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
 import { Op } from "sequelize";
 import { NotFoundError } from "@structured-growth/microservice-sdk";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
+import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class PhonesRepository
 	implements RepositoryInterface<Phone, PhoneSearchParamsInterface, PhoneCreationAttributes>
 {
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
 	public async search(
-		params: PhoneSearchParamsInterface,
+		params: PhoneSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+		},
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -31,6 +42,10 @@ export class PhonesRepository
 			where["phoneNumber"] = {
 				[Op.or]: params.phoneNumber.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
+		}
+
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
 		}
 
 		if (options?.onlyTotal) {
@@ -63,6 +78,7 @@ export class PhonesRepository
 	}
 
 	public async create(params: PhoneCreationAttributes): Promise<Phone> {
+		await this.customFieldService.validate("Phone", params.metadata, params.orgId);
 		return Phone.create(params);
 	}
 
@@ -83,7 +99,8 @@ export class PhonesRepository
 		if (!phone) {
 			throw new NotFoundError(`Phone ${id} not found`);
 		}
-		phone.setAttributes(params);
+		phone.setAttributes(omitBy(params, isUndefined));
+		await this.customFieldService.validate("Phone", phone.toJSON().metadata, phone.orgId);
 
 		return phone.save();
 	}

@@ -22,7 +22,7 @@ import { AccountUpdateParamsValidator } from "../../validators/account-update-pa
 import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
 import { AccountDeleteParamsValidator } from "../../validators/account-delete-params.validator";
 
-const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn"] as const;
+const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn", "metadata"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
 type PublicAccountAttributes = Pick<AccountAttributes, AccountKeys>;
 

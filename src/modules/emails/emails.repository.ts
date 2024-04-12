@@ -3,17 +3,24 @@ import {
 	NotFoundError,
 	RepositoryInterface,
 	SearchResultInterface,
+	inject
 } from "@structured-growth/microservice-sdk";
 import Email, { EmailAttributes, EmailCreationAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
 import { Op } from "sequelize";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class EmailsRepository
 	implements RepositoryInterface<Email, EmailSearchParamsInterface, EmailCreationAttributes>
 {
+
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
 	public async search(
-		params: EmailSearchParamsInterface,
+		params: EmailSearchParamsInterface& {
+			metadata?: Record<string, string | number>;
+		},
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -35,6 +42,10 @@ export class EmailsRepository
 			where["email"] = {
 				[Op.or]: params.email.map((str) => ({ [Op.iLike]: str.replace(/\*/g, "%") })),
 			};
+		}
+
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
 		}
 
 		// TODO search by arn with wildcards
@@ -69,6 +80,7 @@ export class EmailsRepository
 	}
 
 	public async create(params: EmailCreationAttributes): Promise<Email> {
+		await this.customFieldService.validate("Email", params.metadata, params.orgId);
 		return Email.create(params);
 	}
 
@@ -90,6 +102,7 @@ export class EmailsRepository
 			throw new NotFoundError(`Email ${id} not found`);
 		}
 		email.setAttributes(params);
+		await this.customFieldService.validate("Email", email.toJSON().metadata, email.orgId);
 
 		return email.save();
 	}

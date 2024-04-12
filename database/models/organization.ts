@@ -15,13 +15,14 @@ export interface OrganizationAttributes
 	name: string;
 	imageUuid: string | null;
 	status: "active" | "inactive" | "archived";
+	metadata?: Record<string, string | number>;
 }
 
 export interface OrganizationCreationAttributes
 	extends Omit<OrganizationAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface OrganizationUpdateAttributes
-	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status"> {}
+	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status" | "metadata"> {}
 
 @Table({
 	tableName: "organizations",
@@ -54,6 +55,9 @@ export class Organization
 
 	@Column(DataType.STRING)
 	status: OrganizationAttributes["status"];
+
+	@Column(DataType.JSONB)
+	metadata?: Record<string, string | number>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>"].join(":");

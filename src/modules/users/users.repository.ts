@@ -4,15 +4,19 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
+	inject,
 } from "@structured-growth/microservice-sdk";
 import User, { UserCreationAttributes, UserUpdateAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
 import { isUndefined, omitBy } from "lodash";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class UsersRepository implements RepositoryInterface<User, UserSearchParamsInterface, UserCreationAttributes> {
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
 	public async search(
-		params: UserSearchParamsInterface,
+		params: UserSearchParamsInterface & { metadata?: Record<string, string | number> },
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -50,6 +54,10 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 			};
 		}
 
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
+		}
+
 		// TODO search by arn with wildcards
 
 		if (options?.onlyTotal) {
@@ -82,6 +90,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 	}
 
 	public async create(params: UserCreationAttributes): Promise<User> {
+		await this.customFieldService.validate("User", params.metadata, params.orgId);
 		return User.create(params);
 	}
 
@@ -103,6 +112,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 			throw new NotFoundError(`User ${id} not found`);
 		}
 		user.setAttributes(omitBy(params, isUndefined));
+		await this.customFieldService.validate("User", user.toJSON().metadata, user.orgId);
 
 		return user.save();
 	}

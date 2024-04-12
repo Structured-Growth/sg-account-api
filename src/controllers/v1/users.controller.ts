@@ -33,6 +33,7 @@ const publicUserAttributes = [
 	"gender",
 	"isPrimary",
 	"status",
+	"metadata",
 	"arn",
 ] as const;
 type UserKeys = (typeof publicUserAttributes)[number];

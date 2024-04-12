@@ -9,5 +9,6 @@ export const OrganizationCreateParamsValidator = joi.object({
 		region: joi.string().min(2).required().label("Organization region"),
 		status: joi.string().valid("active", "inactive").label("Status"),
 		imageBase64: joi.string(),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

@@ -60,6 +60,7 @@ export class UsersService {
 			gender: params.gender,
 			status: params.status || "inactive",
 			imageUuid: imageUuid || null,
+			metadata: params.metadata || {},
 			isPrimary,
 		});
 	}
@@ -98,6 +99,7 @@ export class UsersService {
 					imageUuid: imageUuid || null,
 					isPrimary: params.isPrimary,
 					status: params.status || "inactive",
+					metadata: params.metadata,
 				},
 				isUndefined
 			) as UserUpdateAttributes
