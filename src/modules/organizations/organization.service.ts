@@ -65,7 +65,7 @@ export class OrganizationService {
 		}
 
 		let name;
-		if (params.title) {
+		if (params.title && params.title !== checkOrg.title) {
 			name = slug(params.title);
 			const countResult = await Organization.count({
 				where: { name },
