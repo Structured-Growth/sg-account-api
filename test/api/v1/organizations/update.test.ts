@@ -24,7 +24,7 @@ describe("PUT /api/v1/organizations/:organizationId", () => {
 			title: randomNewTitle,
 			status: "archived",
 		});
-		assert.equal(statusCode, 201);
+		assert.equal(statusCode, 200);
 		assert.isNumber(body.id);
 		assert.isString(body.createdAt);
 		assert.isString(body.updatedAt);
@@ -49,15 +49,11 @@ describe("PUT /api/v1/organizations/:organizationId", () => {
 		assert.isString(body.validation.body.status[0]);
 	});
 
-	it("Should return validation error if name already exists", async () => {
+	it("Should not return validation error if name was not changed", async () => {
 		const { statusCode, body } = await server.put(`/v1/organizations/${context.createdOrgId}`).send({
 			title: randomNewTitle,
 		});
-		assert.equal(statusCode, 422);
-		assert.isDefined(body.validation);
-		assert.equal(body.name, "ValidationError");
-		assert.isString(body.message);
-		assert.isString(body.validation.title[0]);
+		assert.equal(statusCode, 200);
 	});
 
 	it("Should return validation error if id is wrong", async () => {
