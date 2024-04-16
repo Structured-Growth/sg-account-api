@@ -1,7 +1,8 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../database/models/user";
 
-export interface UserSearchParamsInterface extends DefaultSearchParamsInterface {
+export interface UserSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
+	accountId?: number;
 	/**
 	 * Filter by first name. Multiple filters and wildcards are allowed. Add minus to filter off:
 	 *

@@ -66,7 +66,11 @@ export class CustomFieldService {
 		const { valid, message, errors } = validate(validator, data);
 
 		if (!valid && throwError) {
-			throw new ValidationError(errors);
+			throw new ValidationError({
+				body: {
+					metadata: errors,
+				},
+			});
 		}
 
 		return { valid, message, errors };
