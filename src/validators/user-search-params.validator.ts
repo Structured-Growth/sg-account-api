@@ -5,7 +5,7 @@ export const UserSearchParamsValidator = joi.object({
 	query: joi
 		.object({
 			orgId: joi.number().positive().required().label("Organization Id"),
-			accountId: joi.number().positive().required().label("Account Id"),
+			accountId: joi.number().positive().label("Account Id"),
 			firstName: joi.array().items(joi.string().max(50).required()).label("First name"),
 			lastName: joi.array().items(joi.string().max(50).required()).label("Last name"),
 			birthday: joi.array().items(joi.date().iso().label("Birthday").required().allow(null)).length(2),
