@@ -1,9 +1,10 @@
 "use strict";
 
 const Sequelize = require("sequelize");
+
 /** @type {import("sequelize-cli").Migration} */
 module.exports = {
-	async up(queryInterface, Sequelize) {
+	async up(queryInterface) {
 		await queryInterface.addColumn("accounts", "metadata", Sequelize.JSONB);
 		await queryInterface.addColumn("emails", "metadata", Sequelize.JSONB);
 		await queryInterface.addColumn("group_members", "metadata", Sequelize.JSONB);
