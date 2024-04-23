@@ -5,7 +5,7 @@ export const PhoneSearchParamsValidator = joi.object({
 	query: joi
 		.object({
 			orgId: joi.number().positive().required().label("Organization ID"),
-			accountId: joi.number().positive().required().label("Account ID"),
+			accountId: joi.number().required().label("Account ID"),
 			phoneNumber: joi.array().items(joi.string().required()).label("Phone number"),
 			userId: joi.number().positive().label("User ID"),
 			isPrimary: joi.boolean().label("Is primary"),
