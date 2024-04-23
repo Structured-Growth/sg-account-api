@@ -1,7 +1,8 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
 import { EmailAttributes } from "../../database/models/email";
 
-export interface EmailSearchParamsInterface extends DefaultSearchParamsInterface {
+export interface EmailSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
+	accountId?: number;
 	/**
 	 * Wildcards and exclusions are allowed:
 	 *
