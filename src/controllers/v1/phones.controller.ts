@@ -23,6 +23,7 @@ import { PhoneReadParamsValidator } from "../../validators/phone-read-params.val
 import { PhoneSendCodeParamsValidator } from "../../validators/phone-send-code-params.validator";
 import { PhoneVerifyParamsValidator } from "../../validators/phone-verify-params.validator";
 import { PhoneDeleteParamsValidator } from "../../validators/phone-delete-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicPhoneAttributes = [
 	"id",
@@ -83,12 +84,16 @@ export class PhonesController extends BaseController {
 	@DescribeResource("User", ({ body }) => Number(body.userId))
 	@ValidateFuncArgs(PhoneCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: PhoneCreateBodyInterface): Promise<PublicPhoneAttributes> {
-		const organization = await this.phonesService.create(body);
+		const phone = await this.phonesService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, phone.arn, `${this.appPrefix}:phones/create`, JSON.stringify(body))
+		);
+
 		return {
-			...(pick(organization.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
-			arn: organization.arn,
+			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+			arn: phone.arn,
 		};
 	}
 
@@ -130,6 +135,10 @@ export class PhonesController extends BaseController {
 	): Promise<PublicPhoneAttributes> {
 		const phone = await this.phonesService.update(Number(phoneId), body);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, phone.arn, `${this.appPrefix}:phones/update`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
 			arn: phone.arn,
@@ -166,6 +175,10 @@ export class PhonesController extends BaseController {
 	): Promise<PublicPhoneAttributes> {
 		const phone = await this.phonesService.verifyPhone(phoneId, body.verificationCode);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, phone.arn, `${this.appPrefix}:phones/verify`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
 			arn: phone.arn,
@@ -182,7 +195,18 @@ export class PhonesController extends BaseController {
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
 	@ValidateFuncArgs(PhoneDeleteParamsValidator)
 	async delete(@Path() phoneId: number): Promise<void> {
+		const phone = await this.phonesRepository.read(phoneId);
+
+		if (!phoneId) {
+			throw new NotFoundError(`Phone ${phoneId} not found`);
+		}
+
 		await this.phonesRepository.delete(phoneId);
+
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, phone.arn, `${this.appPrefix}:phones/delete`, JSON.stringify({}))
+		);
+
 		this.response.status(204);
 	}
 }

@@ -20,6 +20,7 @@ import { UserSearchParamsValidator } from "../../validators/user-search-params.v
 import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
 import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
 import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicUserAttributes = [
 	"id",
@@ -86,6 +87,10 @@ export class UsersController extends BaseController {
 		const user = await this.usersService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, user.arn, `${this.appPrefix}:users/create`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
 			imageUrl: user.imageUrl,
@@ -131,6 +136,10 @@ export class UsersController extends BaseController {
 	): Promise<PublicUserAttributes> {
 		const user = await this.usersService.update(userId, body);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, user.arn, `${this.appPrefix}:users/update`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
 			imageUrl: user.imageUrl,
@@ -148,7 +157,16 @@ export class UsersController extends BaseController {
 	@DescribeResource("User", ({ params }) => Number(params.userId))
 	@ValidateFuncArgs(UserDeleteParamsValidator)
 	async delete(@Path() userId: number): Promise<void> {
+		const user = await this.usersRepository.read(userId);
+
+		if (!user) {
+			throw new NotFoundError(`User ${userId} not found`);
+		}
+
 		await this.usersRepository.delete(userId);
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, user.arn, `${this.appPrefix}:users/delete`, JSON.stringify({}))
+		);
 		this.response.status(204);
 	}
 }

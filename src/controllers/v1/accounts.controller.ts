@@ -21,6 +21,7 @@ import { AccountCreateParamsValidator } from "../../validators/account-create-pa
 import { AccountUpdateParamsValidator } from "../../validators/account-update-params.validator";
 import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
 import { AccountDeleteParamsValidator } from "../../validators/account-delete-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn", "metadata"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
@@ -74,6 +75,15 @@ export class AccountsController extends BaseController {
 		const account = await this.accountService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn, // who performed an action sg-account-api:us:1:1
+				account.arn, // on which resource action was performed  sg-account-api:us:1:2
+				`${this.appPrefix}:accounts/create`, // sg-account-api:accounts/create
+				JSON.stringify(body) // {"orgId": 1, "status": "active"}
+			)
+		);
+
 		return {
 			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
 			arn: account.arn,
@@ -118,6 +128,10 @@ export class AccountsController extends BaseController {
 	): Promise<PublicAccountAttributes> {
 		const account = await this.accountRepository.update(accountId, body);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, account.arn, `${this.appPrefix}:accounts/update`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
 			arn: account.arn,
@@ -134,7 +148,18 @@ export class AccountsController extends BaseController {
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	@ValidateFuncArgs(AccountDeleteParamsValidator)
 	async delete(@Path() accountId: number): Promise<void> {
+		const account = await this.accountRepository.read(accountId);
+
+		if (!account) {
+			throw new NotFoundError(`Account ${accountId} not found`);
+		}
+
 		await this.accountRepository.delete(accountId);
+
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, account.arn, `${this.appPrefix}:accounts/delete`, JSON.stringify({}))
+		);
+
 		this.response.status(204);
 	}
 }

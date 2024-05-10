@@ -1,7 +1,14 @@
 import "reflect-metadata";
 import "./load-environment";
 import { App } from "./app";
-import { container, Lifecycle, logWriters, Logger } from "@structured-growth/microservice-sdk";
+import {
+	container,
+	Lifecycle,
+	logWriters,
+	Logger,
+	eventBusProviders,
+	EventbusService,
+} from "@structured-growth/microservice-sdk";
 import { KeyValueStorage, keyValueStorageDrivers } from "@structured-growth/microservice-sdk";
 import { loadEnvironment } from "./load-environment";
 import { AccountRepository } from "../modules/accounts/accounts.repository";
@@ -66,6 +73,10 @@ container.register(
 	keyValueStorageDrivers[process.env.KV_STORAGE_DRIVER || "DynamoDbKvStorageDriver"]
 );
 container.register("KeyValueStorage", KeyValueStorage);
+
+container.register("eventbusName", { useValue: process.env.EVENTBUS_NAME || "sg-eventbus-dev" });
+container.register("EventbusProvider", eventBusProviders[process.env.EVENTBUS_PROVIDER || "TestEventbusProvider"]);
+container.register("EventbusService", EventbusService);
 
 container.register("EmailTransport", emailTransports[process.env.EMAIL_TRANSPORT || "TestEmailTransport"]);
 container.register("Mailer", Mailer);

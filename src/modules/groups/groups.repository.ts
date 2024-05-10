@@ -39,9 +39,9 @@ export class GroupsRepository
 				attributes: [],
 			});
 			where[Op.or] = [
-				{accountId: Number(params.accountId)},
+				{ accountId: Number(params.accountId) },
 				Sequelize.literal(`members.account_id = ${params.accountId}`),
-			]
+			];
 		}
 
 		if (params.name?.length > 0) {
@@ -79,7 +79,7 @@ export class GroupsRepository
 				offset,
 				limit,
 				order,
-				subQuery: false
+				subQuery: false,
 			});
 
 			return {
