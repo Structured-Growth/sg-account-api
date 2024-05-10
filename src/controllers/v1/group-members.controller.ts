@@ -20,6 +20,7 @@ import { GroupMemberSearchParamsValidator } from "../../validators/group-member-
 import { GroupMemberCreateParamsValidator } from "../../validators/group-member-create-params.validator";
 import { GroupMemberUpdateParamsValidator } from "../../validators/group-member-update-params.validator";
 import { pick, result } from "lodash";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicGroupMemberAttributes = [
 	"id",
@@ -91,6 +92,15 @@ export class GroupMembersController extends BaseController {
 		const groupMember = await this.groupMemberService.create(Number(groupId), body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				groupMember.arn,
+				`${this.appPrefix}:group-members/create`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
 			arn: groupMember.arn,
@@ -148,6 +158,15 @@ export class GroupMembersController extends BaseController {
 
 		const groupMember = await this.groupMemberService.update(Number(groupMemberId), body);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				groupMember.arn,
+				`${this.appPrefix}:group-members/update`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
 			arn: groupMember.arn,
@@ -170,7 +189,23 @@ export class GroupMembersController extends BaseController {
 			throw new NotFoundError(`Group ${groupId} not found`);
 		}
 
+		const groupMember = await this.groupMemberRepository.read(groupMemberId);
+
+		if (!groupMember) {
+			throw new NotFoundError(`Group member ${groupMemberId} not found`);
+		}
+
 		await this.groupMemberRepository.delete(groupMemberId);
+
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				groupMember.arn,
+				`${this.appPrefix}:group-members/delete`,
+				JSON.stringify({})
+			)
+		);
+
 		this.response.status(204);
 	}
 }

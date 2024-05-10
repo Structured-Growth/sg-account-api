@@ -21,6 +21,7 @@ import { CustomFieldCreateParamsValidator } from "../../validators/custom-field-
 import { CustomFieldUpdateParamsValidator } from "../../validators/custom-field-update-params.validator";
 import { CustomFieldReadParamsValidator } from "../../validators/custom-field-read-params.validator";
 import { CustomFieldDeleteParamsValidator } from "../../validators/custom-field-delete-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicCustomFieldAttributes = [
 	"id",
@@ -87,6 +88,15 @@ export class CustomFieldsController extends BaseController {
 		const customField = await this.customFieldService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				customField.arn,
+				`${this.appPrefix}:custom-fields/create`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(customField.toJSON(), publicCustomFieldAttributes) as PublicCustomFieldAttributes),
 			arn: customField.arn,
@@ -131,6 +141,15 @@ export class CustomFieldsController extends BaseController {
 	): Promise<PublicCustomFieldAttributes> {
 		const customField = await this.customFieldRepository.update(customFieldId, body);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				customField.arn,
+				`${this.appPrefix}:custom-fields/update`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(customField.toJSON(), publicCustomFieldAttributes) as PublicCustomFieldAttributes),
 			arn: customField.arn,
@@ -147,7 +166,23 @@ export class CustomFieldsController extends BaseController {
 	@DescribeResource("CustomField", ({ params }) => Number(params.customFieldId))
 	@ValidateFuncArgs(CustomFieldDeleteParamsValidator)
 	async delete(@Path() customFieldId: number): Promise<void> {
+		const customField = await this.customFieldRepository.read(customFieldId);
+
+		if (!customField) {
+			throw new NotFoundError(`CustomField ${customFieldId} not found`);
+		}
+
 		await this.customFieldRepository.delete(customFieldId);
+
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				customField.arn,
+				`${this.appPrefix}:custom-fields/delete`,
+				JSON.stringify({})
+			)
+		);
+
 		this.response.status(204);
 	}
 }

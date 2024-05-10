@@ -11,6 +11,7 @@ import { PreferencesAttributes } from "../../../database/models/preferences";
 import { PreferencesReadParamsValidator } from "../../validators/preferences-read-params.validator";
 import { PreferencesService } from "../../modules/preferences/preferences.service";
 import { PreferencesUpdateParamsValidator } from "../../validators/preferences-update-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 @Route("v1/preferences")
 @Tags("Preferences")
@@ -50,6 +51,15 @@ export class PreferencesController extends BaseController {
 		@Body() body: Partial<PreferencesAttributes["preferences"]>
 	): Promise<PreferencesAttributes["preferences"]> {
 		const preferences = await this.preferencesService.update(accountId, body);
+
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				preferences.arn,
+				`${this.appPrefix}:preferences/update`,
+				JSON.stringify(body)
+			)
+		);
 
 		return preferences.preferences;
 	}

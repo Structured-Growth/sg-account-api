@@ -8,6 +8,8 @@ import {
 import Group, { GroupCreationAttributes, GroupUpdateAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
 import { isUndefined, omitBy } from "lodash";
+import GroupMember from "../../../database/models/group-member";
+import { Sequelize } from "sequelize-typescript";
 
 @autoInjectable()
 export class GroupsRepository
@@ -23,13 +25,24 @@ export class GroupsRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
+		const include = [];
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.orgId && (where["orgId"] = params.orgId);
-		params.accountId && (where["accountId"] = params.accountId);
 		params.parentGroupId && (where["parentGroupId"] = params.parentGroupId);
 		params.id && (where["id"] = { [Op.in]: params.id });
 		params.status && (where["status"] = { [Op.in]: params.status });
+
+		if (params.accountId) {
+			include.push({
+				model: GroupMember,
+				attributes: [],
+			});
+			where[Op.or] = [
+				{ accountId: Number(params.accountId) },
+				Sequelize.literal(`members.account_id = ${params.accountId}`),
+			];
+		}
 
 		if (params.name?.length > 0) {
 			where["name"] = {
@@ -48,9 +61,11 @@ export class GroupsRepository
 		if (options?.onlyTotal) {
 			const countResult = await Group.count({
 				where,
+				include,
 				group: [],
 			});
 			const count = countResult[0]?.count || 0;
+
 			return {
 				data: [],
 				total: count,
@@ -60,9 +75,11 @@ export class GroupsRepository
 		} else {
 			const { rows, count } = await Group.findAndCountAll({
 				where,
+				include,
 				offset,
 				limit,
 				order,
+				subQuery: false,
 			});
 
 			return {

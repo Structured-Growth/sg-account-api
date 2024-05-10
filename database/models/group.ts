@@ -1,7 +1,8 @@
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationAttributes } from "./organization";
 import Account from "./account";
+import GroupMember from "./group-member";
 
 export interface GroupAttributes extends DefaultModelInterface {
 	parentGroupId: number | null;
@@ -63,6 +64,9 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> imple
 
 	@Column(DataType.JSONB)
 	metadata?: Record<string, string | number>;
+
+	@HasMany(() => GroupMember)
+	members: GroupMember[];
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "groups/<groupId>"].join(":");

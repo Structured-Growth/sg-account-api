@@ -17,7 +17,7 @@ import { ResolveModelsResponseInterface } from "../../interfaces/resolve-models-
 @Tags("Resolver")
 @autoInjectable()
 export class ResolverController extends BaseController {
-	constructor(@inject("App") private app?: App, @inject("appPrefix") private appPrefix?: string) {
+	constructor(@inject("App") private app?: App) {
 		super();
 	}
 

@@ -21,6 +21,7 @@ import { GroupUpdateParamsValidator } from "../../validators/group-update-params
 import { pick, result } from "lodash";
 import { GroupReadParamsValidator } from "../../validators/group-read-params.validator";
 import { GroupDeleteParamsValidator } from "../../validators/group-delete-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicGroupAttributes = [
 	"id",
@@ -84,6 +85,10 @@ export class GroupsController extends BaseController {
 		const group = await this.groupsService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, group.arn, `${this.appPrefix}:groups/create`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
 			imageUrl: group.imageUrl,
@@ -130,6 +135,10 @@ export class GroupsController extends BaseController {
 	): Promise<PublicGroupAttributes> {
 		const group = await this.groupsService.update(groupId, body);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, group.arn, `${this.appPrefix}:groups/update`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
 			imageUrl: group.imageUrl,
@@ -147,7 +156,18 @@ export class GroupsController extends BaseController {
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
 	@ValidateFuncArgs(GroupDeleteParamsValidator)
 	async delete(@Path() groupId: number): Promise<void> {
+		const group = await this.groupsRepository.read(groupId);
+
+		if (!group) {
+			throw new NotFoundError(`Group ${groupId} not found`);
+		}
+
 		await this.groupsRepository.delete(groupId);
+
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, group.arn, `${this.appPrefix}:groups/delete`, JSON.stringify({}))
+		);
+
 		this.response.status(204);
 	}
 }

@@ -24,6 +24,7 @@ import { UpdateEmailParamsValidator } from "../../validators/email-update-params
 import { EmailSendCodeParamsValidator } from "../../validators/email-send-code-params.validator";
 import { EmailVerifyParamsValidator } from "../../validators/email-verify-params.validator";
 import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicEmailAttributes = [
 	"id",
@@ -88,6 +89,10 @@ export class EmailsController extends BaseController {
 		const email = await this.emailService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, email.arn, `${this.appPrefix}:emails/create`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
 			arn: email.arn,
@@ -132,6 +137,10 @@ export class EmailsController extends BaseController {
 	): Promise<PublicEmailAttributes> {
 		const email = await this.emailService.update(Number(emailId), body);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, email.arn, `${this.appPrefix}:emails/update`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
 			arn: email.arn,
@@ -168,6 +177,10 @@ export class EmailsController extends BaseController {
 	): Promise<PublicEmailAttributes> {
 		const email = await this.emailService.verifyEmail(emailId, body.verificationCode);
 
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, email.arn, `${this.appPrefix}:emails/verify`, JSON.stringify(body))
+		);
+
 		return {
 			...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
 			arn: email.arn,
@@ -184,7 +197,18 @@ export class EmailsController extends BaseController {
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
 	@ValidateFuncArgs(EmailDeleteParamsValidator)
 	async delete(@Path() emailId: number): Promise<void> {
+		const email = await this.emailRepository.read(emailId);
+
+		if (!email) {
+			throw new NotFoundError(`Email ${email} not found`);
+		}
+
 		await this.emailRepository.delete(emailId);
+
+		await this.eventBus.publish(
+			new EventMutation(this.principal.arn, email.arn, `${this.appPrefix}:emails/delete`, JSON.stringify({}))
+		);
+
 		this.response.status(204);
 	}
 }

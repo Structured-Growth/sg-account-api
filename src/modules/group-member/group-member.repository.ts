@@ -33,6 +33,7 @@ export class GroupMemberRepository
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.groupId && (where["groupId"] = params.groupId);
+		params.accountId && (where["accountId"] = { [Op.in]: params.accountId });
 		params.userId && (where["userId"] = { [Op.in]: params.userId });
 		params.status && (where["status"] = { [Op.in]: params.status });
 

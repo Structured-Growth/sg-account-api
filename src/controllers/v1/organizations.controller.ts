@@ -22,6 +22,7 @@ import { OrganizationService } from "../../modules/organizations/organization.se
 import { OrganizationRepository } from "../../modules/organizations/organization.repository";
 import { OrganizationDeleteParamsValidator } from "../../validators/organization-delete-params.validator";
 import { OrganizationReadParamsValidator } from "../../validators/organization-read-params.validator";
+import { EventMutation } from "@structured-growth/microservice-sdk";
 
 const publicOrganizationAttributes = [
 	"id",
@@ -94,6 +95,15 @@ export class OrganizationsController extends BaseController {
 		const organization = await this.organizationService.create(body);
 		this.response.status(201);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				organization.arn,
+				`${this.appPrefix}:organizations/create`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
 			imageUrl: organization.imageUrl,
@@ -140,6 +150,15 @@ export class OrganizationsController extends BaseController {
 	): Promise<PublicOrganizationAttributes> {
 		const organization = await this.organizationService.update(organizationId, body);
 
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				organization.arn,
+				`${this.appPrefix}:organizations/update`,
+				JSON.stringify(body)
+			)
+		);
+
 		return {
 			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
 			imageUrl: organization.imageUrl,
@@ -163,6 +182,16 @@ export class OrganizationsController extends BaseController {
 			throw new NotFoundError(`Organization ${organizationId} not found`);
 		}
 		await this.organizationsRepository.delete(organizationId);
+
+		await this.eventBus.publish(
+			new EventMutation(
+				this.principal.arn,
+				organization.arn,
+				`${this.appPrefix}:organizations/delete`,
+				JSON.stringify({})
+			)
+		);
+
 		this.response.status(204);
 	}
 }
