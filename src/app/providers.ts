@@ -8,6 +8,8 @@ import {
 	Logger,
 	eventBusProviders,
 	EventbusService,
+	AuthService,
+	PolicyService,
 } from "@structured-growth/microservice-sdk";
 import { KeyValueStorage, keyValueStorageDrivers } from "@structured-growth/microservice-sdk";
 import { loadEnvironment } from "./load-environment";
@@ -67,6 +69,13 @@ container.register("LogWriter", logWriters[process.env.LOG_WRITER || "ConsoleLog
 });
 container.register("Logger", Logger);
 container.register("App", App, { lifecycle: Lifecycle.Singleton });
+
+container.register("authenticationEnabled", { useValue: process.env.AUTHENTICATION_ENABLED === "true" });
+container.register("authorizationEnabled", { useValue: process.env.AUTHORIZATION_ENABLED === "true" });
+container.register("oAuthServiceGetUserUrl", { useValue: process.env.OAUTH_USER_URL });
+container.register("policiesServiceUrl", { useValue: process.env.POLICY_SERVICE_URL });
+container.register("AuthService", AuthService);
+container.register("PolicyService", PolicyService);
 
 container.register(
 	"KeyValueStorageDriver",
