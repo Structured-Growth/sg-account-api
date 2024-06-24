@@ -48,5 +48,11 @@ export function loadEnvironment() {
 		EMAIL_VERIFICATION_TEST_CODE: joi.string().allow(""),
 		PHONE_VERIFICATION_CODE_LIFETIME_HOURS: joi.number().required(),
 		PHONE_VERIFICATION_TEST_CODE: joi.string().allow(""),
+		EVENTBUS_PROVIDER: joi.string().required(),
+		EVENTBUS_NAME: joi.string().required(),
+		AUTHENTICATION_ENABLED: joi.bool().required(),
+		AUTHORIZATION_ENABLED: joi.bool().required(),
+		OAUTH_USER_URL: joi.string().required(),
+		POLICY_SERVICE_URL: joi.string().required(),
 	});
 }
