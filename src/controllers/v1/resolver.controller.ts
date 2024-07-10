@@ -16,7 +16,6 @@ import { ResolveModelsResponseInterface } from "../../interfaces/resolve-models-
 @Tags("Resolver")
 @autoInjectable()
 export class ResolverController extends BaseController {
-
 	/**
 	 * Resolve resource's ARN
 	 */
