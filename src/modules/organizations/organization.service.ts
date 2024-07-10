@@ -28,7 +28,6 @@ export class OrganizationService {
 			group: [],
 		});
 		const count = countResult[0]?.count || 0;
-
 		if (count > 0) {
 			throw new ValidationError({
 				title: "Organization with the same name is already exist",
