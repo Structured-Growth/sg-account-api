@@ -74,7 +74,7 @@ describe("GET /api/v1/users", () => {
 		const { statusCode, body } = await server.get("/v1/users").query({
 			"id[0]": context.userId,
 			orgId: context.organization.id,
-			accountId: context.account.id,
+			"accountId[0]": context.account.id,
 			"firstName[0]": "firstname",
 			"lastName[0]": "lastname",
 			"birthday[0]": "1986-04-01",

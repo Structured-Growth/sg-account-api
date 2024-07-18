@@ -28,7 +28,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.orgId && (where["orgId"] = params.orgId);
-		params.accountId && (where["accountId"] = params.accountId);
+		params.accountId && (where["accountId"] = { [Op.in]: params.accountId });
 		params.status && (where["status"] = { [Op.in]: params.status });
 		params.id && (where["id"] = { [Op.in]: params.id });
 		params.gender && (where["gender"] = { [Op.in]: params.gender });

@@ -65,7 +65,7 @@ describe("GET /api/v1/emails", () => {
 		const { statusCode, body } = await server.get("/v1/emails").query({
 			"id[0]": context.emailId,
 			orgId: context.organization.id,
-			accountId: context.account.id,
+			"accountId[0]": context.account.id,
 			isPrimary: true,
 			"status[0]": "verification",
 		});

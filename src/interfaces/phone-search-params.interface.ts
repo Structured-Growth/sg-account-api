@@ -2,14 +2,14 @@ import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sd
 import { PhoneAttributes } from "../../database/models/phone";
 
 export interface PhoneSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
-	accountId?: number;
+	accountId?: number[];
 	/**
 	 * Wildcards and exclusions are allowed:
 	 *
 	 * `phoneNumber: ["555*", "*111*", "-*888"]`
 	 */
 	phoneNumber?: string[];
-	userId?: number;
+	userId?: number[];
 	isPrimary?: boolean;
 	status?: PhoneAttributes["status"][];
 	/**

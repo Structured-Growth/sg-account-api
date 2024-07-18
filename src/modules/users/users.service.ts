@@ -42,7 +42,7 @@ export class UsersService {
 		const { total } = await this.userRepository.search(
 			{
 				orgId: organization.id,
-				accountId: params.accountId,
+				accountId: [params.accountId],
 			},
 			{
 				onlyTotal: true,

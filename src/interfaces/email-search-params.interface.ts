@@ -2,14 +2,14 @@ import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sd
 import { EmailAttributes } from "../../database/models/email";
 
 export interface EmailSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
-	accountId?: number;
+	accountId?: number[];
 	/**
 	 * Wildcards and exclusions are allowed:
 	 *
 	 * `email: ["user@*", "-*@example.com"]`
 	 */
 	email?: string[];
-	userId?: number;
+	userId?: number[];
 	isPrimary?: boolean;
 	status?: EmailAttributes["status"][];
 	/**

@@ -39,7 +39,7 @@ export class EmailsService {
 
 		const { data, total } = await this.emailRepository.search({
 			orgId: account.orgId,
-			accountId: params.accountId,
+			accountId: [params.accountId],
 		});
 
 		if (find(data, { email: params.email })) {
@@ -82,14 +82,14 @@ export class EmailsService {
 			// mark other emails as non-primary
 			const { data, total } = await this.emailRepository.search({
 				orgId: email.orgId,
-				accountId: email.accountId,
+				accountId: [email.accountId],
 			});
 			await Promise.all(data.map((email) => this.emailRepository.update(email.id, { isPrimary: false })));
 		} else if (!isUndefined(params.isPrimary)) {
 			// check if there is at least one primary email exists
 			const { data, total } = await this.emailRepository.search({
 				orgId: email.orgId,
-				accountId: email.accountId,
+				accountId: [email.accountId],
 				isPrimary: true,
 			});
 			if (!total || data[0].id === emailId) {
