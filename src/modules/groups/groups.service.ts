@@ -81,7 +81,7 @@ export class GroupService {
 		}
 
 		let name;
-		if (params.title) {
+		if (params.title && params.title !== checkGroup.title) {
 			name = slug(params.title);
 			const countResult = await Group.count({
 				where: { name },
