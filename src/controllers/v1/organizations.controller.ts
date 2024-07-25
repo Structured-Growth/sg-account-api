@@ -148,7 +148,7 @@ export class OrganizationsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: OrganizationUpdateBodyInterface
 	): Promise<PublicOrganizationAttributes> {
-		const organization = await this.organizationService.update(organizationId, body);
+		const organization = await this.organizationService.update(organizationId, body, body.customFieldsOrgId);
 
 		await this.eventBus.publish(
 			new EventMutation(

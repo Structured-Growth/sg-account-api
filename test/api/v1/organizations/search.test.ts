@@ -6,6 +6,7 @@ import { agent } from "supertest";
 import { routes } from "../../../../src/routes";
 import Organization from "../../../../database/models/organization";
 import { initTest } from "../../../common/init-test";
+import * as slug from "slug";
 
 describe("GET /api/v1/organizations", () => {
 	const { server, context } = initTest();
@@ -15,6 +16,7 @@ describe("GET /api/v1/organizations", () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomTitle,
+			name: slug(randomTitle),
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
