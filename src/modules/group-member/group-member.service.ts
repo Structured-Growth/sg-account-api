@@ -40,7 +40,7 @@ export class GroupMemberService {
 			orgId: group.orgId,
 			region: group.region,
 			groupId: groupId,
-			accountId: group.accountId,
+			accountId: user.accountId,
 			userId: params.userId,
 			status: params.status || "inactive",
 			metadata: params.metadata || {},
