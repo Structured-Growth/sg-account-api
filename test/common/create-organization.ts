@@ -1,5 +1,6 @@
 import { assert } from "chai";
 import { random, set } from "lodash";
+import * as slug from "slug";
 
 export function createOrganization(
 	server,
@@ -16,6 +17,7 @@ export function createOrganization(
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomTitle,
+			name: slug(randomTitle),
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);

@@ -1,6 +1,7 @@
 import "../../../../src/app/providers";
 import { assert } from "chai";
 import { initTest } from "../../../common/init-test";
+import * as slug from "slug";
 
 describe("POST /api/v1/organizations", () => {
 	const { server, context } = initTest();
@@ -12,6 +13,7 @@ describe("POST /api/v1/organizations", () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomParentTitle,
+			name: slug(randomParentTitle),
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -23,6 +25,7 @@ describe("POST /api/v1/organizations", () => {
 			parentOrgId: context.createdOrgId,
 			region: "us",
 			title: randomTitle,
+			name: slug(randomTitle),
 			status: "active",
 		});
 		assert.equal(statusCode, 201);
@@ -43,6 +46,7 @@ describe("POST /api/v1/organizations", () => {
 			parentOrgId: "main",
 			region: "APAC",
 			title: 321,
+			name: "123",
 			status: "enabled",
 		});
 		assert.equal(statusCode, 422);
@@ -58,6 +62,7 @@ describe("POST /api/v1/organizations", () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomParentTitle,
+			name: slug(randomParentTitle),
 		});
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");

@@ -85,11 +85,19 @@ export class OrganizationRepository
 	}
 
 	// pick some attributes
-	public async update(id: number, params: OrganizationUpdateAttributes): Promise<Organization> {
+	public async update(
+		id: number,
+		params: OrganizationUpdateAttributes,
+		customFieldsOrgId = null
+	): Promise<Organization> {
 		const customFieldService = container.resolve<CustomFieldService>("CustomFieldService");
 		const organization = await this.read(id);
 		organization.setAttributes(omitBy(params, isUndefined));
-		await customFieldService.validate("Organization", organization.toJSON().metadata, organization.parentOrgId);
+		await customFieldService.validate(
+			"Organization",
+			organization.toJSON().metadata,
+			customFieldsOrgId || organization.parentOrgId
+		);
 
 		return organization.save();
 	}

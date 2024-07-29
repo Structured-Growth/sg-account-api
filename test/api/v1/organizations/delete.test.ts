@@ -1,6 +1,7 @@
 import "../../../../src/app/providers";
 import { assert } from "chai";
 import { initTest } from "../../../common/init-test";
+import * as slug from "slug";
 
 describe("DELETE /api/v1/organizations/:organizationId", () => {
 	const { server, context } = initTest();
@@ -11,6 +12,7 @@ describe("DELETE /api/v1/organizations/:organizationId", () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			title: randomParentTitle,
+			name: slug(randomParentTitle),
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -22,6 +24,7 @@ describe("DELETE /api/v1/organizations/:organizationId", () => {
 			parentOrgId: context.createdOrgId,
 			region: "us",
 			title: randomTitle,
+			name: slug(randomTitle),
 			status: "active",
 		});
 		assert.equal(statusCode, 201);

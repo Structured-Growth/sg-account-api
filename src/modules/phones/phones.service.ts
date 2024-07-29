@@ -31,7 +31,7 @@ export class PhonesService {
 
 		const { data, total } = await this.phonesRepository.search({
 			orgId: account.orgId,
-			accountId: params.accountId,
+			accountId: [params.accountId],
 		});
 
 		if (find(data, { phoneNumber: params.phoneNumber })) {
@@ -74,14 +74,14 @@ export class PhonesService {
 			// mark other emails as non-primary
 			const { data, total } = await this.phonesRepository.search({
 				orgId: phone.orgId,
-				accountId: phone.accountId,
+				accountId: [phone.accountId],
 			});
 			await Promise.all(data.map((phone) => this.phonesRepository.update(phone.id, { isPrimary: false })));
 		} else if (!isUndefined(params.isPrimary)) {
 			// check if there is at least one primary email exists
 			const { data, total } = await this.phonesRepository.search({
 				orgId: phone.orgId,
-				accountId: phone.accountId,
+				accountId: [phone.accountId],
 				isPrimary: true,
 			});
 			if (!total || data[0].id === phoneId) {

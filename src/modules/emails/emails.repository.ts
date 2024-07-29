@@ -31,8 +31,8 @@ export class EmailsRepository
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.orgId && (where["orgId"] = params.orgId);
-		params.accountId && (where["accountId"] = params.accountId);
-		params.userId && (where["userId"] = params.userId);
+		params.accountId && (where["accountId"] = { [Op.in]: params.accountId });
+		params.userId && (where["userId"] = { [Op.in]: params.userId });
 		params.status && (where["status"] = { [Op.in]: params.status });
 		params.isPrimary !== undefined && (where["isPrimary"] = params.isPrimary);
 		params.id && (where["id"] = { [Op.in]: params.id });

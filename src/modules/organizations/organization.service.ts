@@ -1,4 +1,3 @@
-import * as slug from "slug";
 import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationUpdateAttributes } from "../../../database/models/organization";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
@@ -22,15 +21,16 @@ export class OrganizationService {
 			}
 		}
 
-		const name = slug(params.title);
 		const countResult = await Organization.count({
-			where: { name },
+			where: { name: params.name },
 			group: [],
 		});
 		const count = countResult[0]?.count || 0;
 		if (count > 0) {
 			throw new ValidationError({
-				title: "Organization with the same name is already exist",
+				body: {
+					name: ["Organization with the same name is already exist"],
+				},
 			});
 		}
 
@@ -39,7 +39,9 @@ export class OrganizationService {
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					body: {
+						imageBase64: ["Invalid image file"],
+					},
 				});
 			}
 			// imageUuid = v4();
@@ -50,31 +52,35 @@ export class OrganizationService {
 			parentOrgId: params.parentOrgId || null,
 			region: params.region,
 			title: params.title,
-			name: name,
+			name: params.name,
 			imageUuid: imageUuid || null,
 			status: params.status || "inactive",
 			metadata: params.metadata || {},
 		});
 	}
 
-	public async update(organizationId, params: OrganizationUpdateBodyInterface): Promise<Organization> {
+	public async update(
+		organizationId,
+		params: OrganizationUpdateBodyInterface,
+		customFieldsOrgId = null
+	): Promise<Organization> {
 		const checkOrg = await this.organizationRepository.read(organizationId);
 		if (!checkOrg) {
 			throw new NotFoundError(`Organization ${organizationId} not found`);
 		}
 
-		let name;
-		if (params.title && params.title !== checkOrg.title) {
-			name = slug(params.title);
+		if (params.name && params.name !== checkOrg.name) {
 			const countResult = await Organization.count({
-				where: { name },
+				where: { name: params.name },
 				group: [],
 			});
 			const count = countResult[0]?.count || 0;
 
 			if (count > 0) {
 				throw new ValidationError({
-					title: "Organization with the same name is already exist",
+					body: {
+						name: ["Organization with the same name is already exist"],
+					},
 				});
 			}
 		}
@@ -83,7 +89,9 @@ export class OrganizationService {
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					body: {
+						imageBase64: ["Invalid image file"],
+					},
 				});
 			}
 			// imageUuid = v4();
@@ -96,13 +104,14 @@ export class OrganizationService {
 			omitBy(
 				{
 					title: params.title,
-					name,
+					name: params.name,
 					imageUuid,
 					status: params.status,
 					metadata: params.metadata,
 				},
 				isUndefined
-			) as OrganizationUpdateAttributes
+			) as OrganizationUpdateAttributes,
+			customFieldsOrgId
 		);
 	}
 }

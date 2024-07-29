@@ -22,6 +22,7 @@ import { AccountUpdateParamsValidator } from "../../validators/account-update-pa
 import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
 import { AccountDeleteParamsValidator } from "../../validators/account-delete-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
+import { UsersRepository } from "../../modules/users/users.repository";
 
 const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn", "metadata"] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
@@ -33,6 +34,7 @@ type PublicAccountAttributes = Pick<AccountAttributes, AccountKeys>;
 export class AccountsController extends BaseController {
 	constructor(
 		@inject("AccountRepository") private accountRepository: AccountRepository,
+		@inject("UsersRepository") private usersRepository: UsersRepository,
 		@inject("AccountsService") private accountService: AccountsService
 	) {
 		super();

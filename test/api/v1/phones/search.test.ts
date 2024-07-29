@@ -65,7 +65,7 @@ describe("GET /api/v1/phones", () => {
 		const { statusCode, body } = await server.get("/v1/phones").query({
 			"id[0]": context.phoneId,
 			orgId: context.organization.id,
-			accountId: context.account.id,
+			"accountId[0]": context.account.id,
 			isPrimary: true,
 			"status[0]": "verification",
 		});
@@ -90,7 +90,7 @@ describe("GET /api/v1/phones", () => {
 	it("Should search by phone number", async () => {
 		const { statusCode, body } = await server.get("/v1/phones").query({
 			orgId: context.organization.id,
-			accountId: context.account.id,
+			"accountId[0]": context.account.id,
 			"phoneNumber[]": "*5551112233",
 		});
 		assert.equal(statusCode, 200);
