@@ -79,6 +79,7 @@ export class GroupsRepository
 				offset,
 				limit,
 				order,
+				distinct: true,
 				subQuery: false,
 			});
 
