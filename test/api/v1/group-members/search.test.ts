@@ -23,6 +23,11 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		contextPath: "user",
 	});
 
+	createUser(server, context, {
+		accountId: (context) => context.account.id,
+		contextPath: "user2",
+	});
+
 	createGroup(server, context, {
 		accountId: (context) => context.account.id,
 		contextPath: "group",
@@ -37,6 +42,15 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		context.groupMemberId = body.id;
 	});
 
+	it("Should add another member to group", async () => {
+		const { statusCode, body } = await server.post(`/v1/groups/${context.group.id}/members`).send({
+			userId: context.user2.id,
+			status: "active",
+		});
+		assert.equal(statusCode, 201);
+		context.groupMember2Id = body.id;
+	});
+
 	it("Should return group members", async () => {
 		const { statusCode, body } = await server.get(`/v1/groups/${context.group.id}/members`).query({
 			"id[0]": context.groupMemberId,
@@ -46,6 +60,25 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		assert.equal(body.data[0].groupId, context.group.id);
 		assert.equal(body.data[0].accountId, context.account.id);
 		assert.equal(body.data[0].userId, context.user.id);
+		assert.isString(body.data[0].createdAt);
+		assert.isString(body.data[0].updatedAt);
+		assert.equal(body.data[0].status, "active");
+		assert.isString(body.data[0].arn);
+		assert.equal(body.page, 1);
+		assert.equal(body.limit, 20);
+		assert.equal(body.total, 1);
+	});
+
+	it("Should return group", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			"id[0]": context.group.id,
+			orgId: context.organization.id,
+			accountId: context.account.id,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.data[0].id, context.group.id);
+		assert.equal(body.data[0].orgId, context.organization.id);
+		assert.equal(body.data[0].accountId, context.account.id);
 		assert.isString(body.data[0].createdAt);
 		assert.isString(body.data[0].updatedAt);
 		assert.equal(body.data[0].status, "active");
