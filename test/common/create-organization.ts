@@ -1,5 +1,5 @@
 import { assert } from "chai";
-import { random, set } from "lodash";
+import { isFunction, random, set } from "lodash";
 import * as slug from "slug";
 
 export function createOrganization(
@@ -7,6 +7,7 @@ export function createOrganization(
 	context: Record<any, any>,
 	options: {
 		contextPath: string;
+		parentOrgId?: ((context: Record<any, any>) => number) | number;
 	} = {
 		contextPath: "organization",
 	}
@@ -16,6 +17,7 @@ export function createOrganization(
 	it("Should create organization", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
+			parentOrgId: isFunction(options.parentOrgId) ? options.parentOrgId(context) : options.parentOrgId,
 			title: randomTitle,
 			name: slug(randomTitle),
 		});

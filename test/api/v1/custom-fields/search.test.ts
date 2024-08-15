@@ -11,6 +11,11 @@ describe("GET /api/v1/custom-fields", () => {
 		contextPath: "organization",
 	});
 
+	createOrganization(server, context, {
+		contextPath: "organization2",
+		parentOrgId: (context) => context.organization.id,
+	});
+
 	createAccount(server, context, {
 		orgId: (context) => context.organization.id,
 		contextPath: "account",
@@ -38,6 +43,7 @@ describe("GET /api/v1/custom-fields", () => {
 
 	it("Should return custom field", async () => {
 		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
+			orgId: context.organization.id,
 			"id[]": context.customFieldId,
 		});
 		assert.equal(statusCode, 200);
@@ -54,5 +60,25 @@ describe("GET /api/v1/custom-fields", () => {
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+	});
+
+	it("Should not return inherited custom fields", async () => {
+		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
+			orgId: context.organization2.id,
+			"id[]": context.customFieldId,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 0);
+	});
+
+	it("Should return inherited custom fields", async () => {
+		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
+			orgId: context.organization2.id,
+			"id[]": context.customFieldId,
+			includeInherited: true,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.data[0].id, context.customFieldId);
+		assert.equal(body.data[0].orgId, context.organization.id);
 	});
 });

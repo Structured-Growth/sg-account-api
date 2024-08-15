@@ -61,7 +61,10 @@ export class CustomFieldsController extends BaseController {
 	async search(
 		@Queries() query: CustomFieldSearchParamsInterface
 	): Promise<SearchResultInterface<PublicCustomFieldAttributes>> {
-		const { data, ...result } = await this.customFieldRepository.search(query);
+		const { data, ...result } = await this.customFieldService.search({
+			...query,
+			includeInherited: query.includeInherited?.toString() !== "false",
+		});
 
 		return {
 			data: data.map((customField) => ({

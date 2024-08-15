@@ -2,9 +2,15 @@ import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sd
 import { CustomFieldAttributes } from "../../database/models/custom-field";
 
 export interface CustomFieldSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "orgId" | "accountId"> {
-	orgId?: number;
+	orgId: number;
 	entity?: CustomFieldAttributes["entity"][];
 	title?: CustomFieldAttributes["title"][];
 	name?: CustomFieldAttributes["name"][];
 	status?: CustomFieldAttributes["status"][];
+	/**
+	 * Include inherited custom fields from parent organizations.
+	 *
+	 * @default true
+	 */
+	includeInherited?: boolean;
 }

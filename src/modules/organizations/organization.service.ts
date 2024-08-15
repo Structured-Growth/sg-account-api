@@ -114,4 +114,16 @@ export class OrganizationService {
 			customFieldsOrgId
 		);
 	}
+
+	public async getParentOrganizations(orgId: number): Promise<Organization[]> {
+		const parentOrganizations = [];
+		const organization = await this.organizationRepository.read(orgId);
+		let parent = await this.organizationRepository.read(organization.parentOrgId);
+		while (parent) {
+			parentOrganizations.push(parent);
+			parent = await this.organizationRepository.read(parent.parentOrgId);
+		}
+
+		return parentOrganizations;
+	}
 }
