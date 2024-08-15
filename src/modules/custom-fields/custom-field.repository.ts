@@ -11,16 +11,27 @@ import { CustomFieldUpdateBodyInterface } from "../../interfaces/custom-field-up
 
 @autoInjectable()
 export class CustomFieldRepository
-	implements RepositoryInterface<CustomField, CustomFieldSearchParamsInterface, CustomFieldCreationAttributes>
+	implements
+		RepositoryInterface<
+			CustomField,
+			Omit<CustomFieldSearchParamsInterface, "includeInherited" | "orgId"> & {
+				orgId: number[];
+			},
+			CustomFieldCreationAttributes
+		>
 {
-	public async search(params: CustomFieldSearchParamsInterface): Promise<SearchResultInterface<CustomField>> {
+	public async search(
+		params: Omit<CustomFieldSearchParamsInterface, "includeInherited" | "orgId"> & {
+			orgId: number[];
+		}
+	): Promise<SearchResultInterface<CustomField>> {
 		const page = params.page || 1;
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
-		params.orgId && (where["orgId"] = params.orgId);
+		params.orgId && (where["orgId"] = { [Op.in]: params.orgId });
 		params.id && (where["id"] = { [Op.in]: params.id });
 		params.entity && (where["entity"] = { [Op.in]: params.entity });
 		params.status && (where["status"] = { [Op.in]: params.status });

@@ -3,7 +3,7 @@ import { joi } from "@structured-growth/microservice-sdk";
 export const CustomFieldCreateParamsValidator = joi.object({
 	query: joi.object(),
 	body: joi.object({
-		orgId: joi.number().positive().label("Organization Id"),
+		orgId: joi.number().positive().required().label("Organization Id"),
 		entity: joi
 			.string()
 			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember")

@@ -12,30 +12,48 @@ import { OrganizationRepository } from "../organizations/organization.repository
 import CustomField, { CustomFieldAttributes } from "../../../database/models/custom-field";
 import { CustomFieldCreateBodyInterface } from "../../interfaces/custom-field-create-body.interface";
 import { Op } from "sequelize";
+import { CustomFieldSearchParamsInterface } from "../../interfaces/custom-field-search-params.interface";
+import { SearchResultInterface } from "@structured-growth/microservice-sdk/.dist";
+import { OrganizationService } from "../organizations/organization.service";
+import { flatten, map, omit } from "lodash";
 
 @autoInjectable()
 export class CustomFieldService {
 	constructor(
 		@inject("CustomFieldRepository") private customFieldRepository: CustomFieldRepository,
-		@inject("OrganizationRepository") private organizationRepository: OrganizationRepository
+		@inject("OrganizationRepository") private organizationRepository: OrganizationRepository,
+		@inject("OrganizationService") private organizationService: OrganizationService
 	) {}
 
 	public async create(data: CustomFieldCreateBodyInterface): Promise<CustomField> {
 		let region = RegionEnum.US;
-		if (data.orgId) {
-			const organization = await this.organizationRepository.read(data.orgId);
+		const organization = await this.organizationRepository.read(data.orgId);
 
-			if (!organization) {
-				throw new NotFoundError(`Organization ${data.orgId} not found`);
-			}
-			region = organization.region;
+		if (!organization) {
+			throw new NotFoundError(`Organization ${data.orgId} not found`);
 		}
+		region = organization.region;
 
 		return this.customFieldRepository.create({
 			...data,
 			region,
 			status: data.status || "active",
 		});
+	}
+
+	public async search(params: CustomFieldSearchParamsInterface): Promise<SearchResultInterface<CustomField>> {
+		if (params.includeInherited) {
+			const organizations = await this.organizationService.getParentOrganizations(params.orgId);
+			return this.customFieldRepository.search({
+				...omit(params, "includeInherited", "orgId"),
+				orgId: [params.orgId, ...map(organizations, "id")],
+			});
+		} else {
+			return this.customFieldRepository.search({
+				...omit(params, "includeInherited", "orgId"),
+				orgId: [params.orgId],
+			});
+		}
 	}
 
 	public async validate(
@@ -48,11 +66,18 @@ export class CustomFieldService {
 		message?: string;
 		errors?: object;
 	}> {
+		if (!orgId) {
+			return {
+				valid: true,
+			};
+		}
+
+		const organizations = await this.organizationService.getParentOrganizations(orgId);
 		const customFields = await CustomField.findAll({
 			where: {
 				entity: entityName,
 				orgId: {
-					[Op.or]: [null, orgId || null],
+					[Op.or]: [orgId, ...map(organizations, "id")],
 				},
 			},
 		});
