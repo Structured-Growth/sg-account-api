@@ -33,6 +33,7 @@ router.get(pathPrefix + '/v1/ping/alive', handleRequest(Controllers.PingControll
 router.get(pathPrefix + '/v1/organizations', handleRequest(Controllers.OrganizationsController, "search", handlerOpts));
 router.post(pathPrefix + '/v1/organizations', handleRequest(Controllers.OrganizationsController, "create", handlerOpts));
 router.get(pathPrefix + '/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "get", handlerOpts));
+router.get(pathPrefix + '/v1/organizations/:organizationId/parents', handleRequest(Controllers.OrganizationsController, "getParents", handlerOpts));
 router.put(pathPrefix + '/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "update", handlerOpts));
 router.delete(pathPrefix + '/v1/organizations/:organizationId', handleRequest(Controllers.OrganizationsController, "delete", handlerOpts));
 
@@ -103,6 +104,7 @@ export const actionToRouteMap = {
 	"OrganizationsController.search": 'get /v1/organizations',
 	"OrganizationsController.create": 'post /v1/organizations',
 	"OrganizationsController.get": 'get /v1/organizations/:organizationId',
+	"OrganizationsController.getParents": 'get /v1/organizations/:organizationId/parents',
 	"OrganizationsController.update": 'put /v1/organizations/:organizationId',
 	"OrganizationsController.delete": 'delete /v1/organizations/:organizationId',
 	"AccountsController.search": 'get /v1/accounts',

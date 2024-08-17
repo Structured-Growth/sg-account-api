@@ -135,6 +135,25 @@ export class OrganizationsController extends BaseController {
 	}
 
 	/**
+	 * Get parent organizations.
+	 */
+	@OperationId("Get parents")
+	@Get("/:organizationId/parents")
+	@SuccessResponse(200, "Returns parent organizations")
+	@DescribeAction("organizations/get-parents")
+	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@ValidateFuncArgs(OrganizationReadParamsValidator)
+	async getParents(@Path() organizationId: number): Promise<PublicOrganizationAttributes[]> {
+		const organizations = await this.organizationService.getParentOrganizations(organizationId);
+
+		return organizations.map((organization) => ({
+			...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+			imageUrl: organization.imageUrl,
+			arn: organization.arn,
+		}));
+	}
+
+	/**
 	 * Update Organization
 	 */
 	@OperationId("Update")
