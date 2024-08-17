@@ -115,6 +115,9 @@ export class OrganizationService {
 		);
 	}
 
+	/**
+	 * Get list of parent organizations
+	 */
 	public async getParentOrganizations(orgId: number): Promise<Organization[]> {
 		const parentOrganizations = [];
 		const organization = await this.organizationRepository.read(orgId);
