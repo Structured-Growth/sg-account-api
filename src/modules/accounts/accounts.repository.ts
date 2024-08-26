@@ -22,8 +22,8 @@ export class AccountRepository
 			metadata?: Record<string, string | number>;
 		}
 	): Promise<SearchResultInterface<Account>> {
-		const page = params.page || 1;
-		const limit = params.limit || 20;
+		const page = Number(params.page || 1);
+		const limit = Number(params.limit || 20);
 		const offset = (page - 1) * limit;
 		const where = {};
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];

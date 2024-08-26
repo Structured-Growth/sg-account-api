@@ -59,7 +59,7 @@ export class UsersController extends BaseController {
 	@SuccessResponse(200, "Returns list of users")
 	@DescribeAction("users/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
-	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@ValidateFuncArgs(UserSearchParamsValidator)
 	async search(@Queries() query: UserSearchParamsInterface): Promise<SearchResultInterface<PublicUserAttributes>> {
 		const { data, ...result } = await this.usersRepository.search(query);
