@@ -34,7 +34,7 @@ export class GroupMemberRepository
 
 		params.id && (where["id"] = { [Op.in]: params.id });
 		params.groupId && (where["groupId"] = params.groupId);
-		params.accountId && (where["accountId"] = { [Op.in]: params.accountId });
+		params.accountId && (where["accountId"] = params.accountId);
 		params.userId && (where["userId"] = { [Op.in]: params.userId });
 		params.status && (where["status"] = { [Op.in]: params.status });
 
