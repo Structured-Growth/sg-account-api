@@ -34,6 +34,7 @@ const publicOrganizationAttributes = [
 	"createdAt",
 	"updatedAt",
 	"arn",
+	"signUpEnabled",
 	"metadata",
 ] as const;
 type OrganizationKeys = (typeof publicOrganizationAttributes)[number];
