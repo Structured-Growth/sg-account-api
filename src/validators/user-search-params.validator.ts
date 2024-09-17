@@ -13,6 +13,8 @@ export const UserSearchParamsValidator = joi.object({
 			isPrimary: joi.boolean().label("Is primary"),
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required()),
 			metadata: joi.object(),
+			multi: joi.boolean().label("Multi"),
+			search: joi.string().max(50).label("Search"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

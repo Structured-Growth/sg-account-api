@@ -11,12 +11,14 @@ import {
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
+import { UserMultiSearchParamsInterface } from "../../interfaces/user-multi-search-params.interface";
 import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
 import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.interface";
 import { pick } from "lodash";
 import { UsersRepository } from "../../modules/users/users.repository";
 import { UsersService } from "../../modules/users/users.service";
 import { UserSearchParamsValidator } from "../../validators/user-search-params.validator";
+import { UserMultiSearchParamsValidator } from "../../validators/user-multi-search-params.validator";
 import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
 import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
 import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";
@@ -61,18 +63,39 @@ export class UsersController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@ValidateFuncArgs(UserSearchParamsValidator)
-	async search(@Queries() query: UserSearchParamsInterface): Promise<SearchResultInterface<PublicUserAttributes>> {
-		const { data, ...result } = await this.usersRepository.search(query);
+	async search(
+		@Queries() query: UserSearchParamsInterface
+	): Promise<SearchResultInterface<PublicUserAttributes> | Record<number, { [key: string]: any }>> {
+		if (Boolean(query.multi) === true) {
+			return await this.usersService.multiSearch({ orgId: query.orgId, search: query.search });
+		} else {
+			const { data, ...result } = await this.usersRepository.search(query);
 
-		return {
-			data: data.map((user) => ({
-				...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
-				imageUrl: user.imageUrl,
-				arn: user.arn,
-			})),
-			...result,
-		};
+			return {
+				data: data.map((user) => ({
+					...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+					imageUrl: user.imageUrl,
+					arn: user.arn,
+				})),
+				...result,
+			};
+		}
 	}
+
+	// /**
+	//  * MultiSearch Users
+	//  */
+	// @OperationId("Search")
+	// @Get("/multi")
+	// @SuccessResponse(200, "Returns multi list of users")
+	// @DescribeAction("users/multi")
+	// @DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	// @ValidateFuncArgs(UserMultiSearchParamsValidator)
+	// async multiSearch(
+	// 	@Queries() query: UserMultiSearchParamsInterface
+	// ): Promise<Array<{ userId: number; coincidence: string[] }>> {
+	// 	return await this.usersRepository.multiSearch(query);
+	// }
 
 	/**
 	 * Create User.

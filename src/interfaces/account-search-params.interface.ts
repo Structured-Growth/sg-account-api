@@ -13,4 +13,6 @@ export interface AccountSearchParamsInterface extends Omit<DefaultSearchParamsIn
 	 * Additionally include primary user/email/phone number into response.
 	 */
 	include?: ("user" | "email" | "phone")[];
+
+	[param: string]: any;
 }

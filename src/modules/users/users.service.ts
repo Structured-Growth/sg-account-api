@@ -6,13 +6,18 @@ import { UsersRepository } from "./users.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
 import { isUndefined, omitBy } from "lodash";
+import { UserMultiSearchParamsInterface } from "../../interfaces/user-multi-search-params.interface";
+import { PhonesRepository } from "../phones/phones.repository";
+import { EmailsRepository } from "../emails/emails.repository";
 
 @autoInjectable()
 export class UsersService {
 	constructor(
 		@inject("UsersRepository") private userRepository: UsersRepository,
 		@inject("AccountRepository") private accountRepository: AccountRepository,
-		@inject("ImageValidator") private imageValidator: ImageValidator
+		@inject("ImageValidator") private imageValidator: ImageValidator,
+		@inject("EmailsRepository") private emailsRepository: EmailsRepository,
+		@inject("PhonesRepository") private phonesRepository: PhonesRepository
 	) {}
 
 	public async create(params: UserCreateBodyInterface): Promise<User> {
@@ -104,5 +109,135 @@ export class UsersService {
 				isUndefined
 			) as UserUpdateAttributes
 		);
+	}
+
+	public async multiSearch(params: UserMultiSearchParamsInterface): Promise<Record<number, { [key: string]: any }>> {
+		const searchResults = {};
+
+		const [
+			firstNameSearchResults,
+			lastNameSearchResults,
+			emailSearchResults,
+			phoneSearchResults,
+			accountSearchResults,
+		] = await Promise.all([
+			this.userRepository.search({
+				orgId: params.orgId,
+				firstName: [`*${params.search}*`],
+			}),
+			this.userRepository.search({
+				orgId: params.orgId,
+				lastName: [`*${params.search}*`],
+			}),
+			this.emailsRepository.search({
+				orgId: params.orgId,
+				email: [`*${params.search}*`],
+			}),
+			this.phonesRepository.search({
+				orgId: params.orgId,
+				phoneNumber: [`*${params.search}*`],
+			}),
+			this.accountRepository.search({
+				orgId: params.orgId,
+				id: [isNaN(parseInt(params.search)) ? 0 : parseInt(params.search)],
+				metadata: { accountType: "patient" },
+			}),
+		]);
+
+		const firstNamesData = firstNameSearchResults.data.map((user) => user.dataValues);
+		firstNamesData.forEach((user) => {
+			if (!searchResults[user.accountId]) {
+				searchResults[user.accountId] = {
+					accountId: user.accountId,
+					userId: user.id,
+					coincidence: { "first name": user.firstName },
+				};
+			} else {
+				if (!searchResults[user.accountId].coincidence["first name"]) {
+					searchResults[user.accountId].coincidence["first name"] = user.firstName;
+				}
+			}
+		});
+
+		const lastNamesData = lastNameSearchResults.data.map((user) => user.dataValues);
+		lastNamesData.forEach((user) => {
+			if (!searchResults[user.accountId]) {
+				searchResults[user.accountId] = {
+					accountId: user.accountId,
+					userId: user.id,
+					coincidence: { "last name": user.lastName },
+				};
+			} else {
+				if (!searchResults[user.accountId].coincidence["last name"]) {
+					searchResults[user.accountId].coincidence["last name"] = user.lastName;
+				}
+			}
+		});
+
+		const emailsData = emailSearchResults.data.map((email) => email.dataValues);
+		emailsData.forEach((email) => {
+			if (!searchResults[email.accountId]) {
+				searchResults[email.accountId] = {
+					accountId: email.accountId,
+					userId: email.userId,
+					coincidence: { email: email.email },
+				};
+			} else {
+				if (!searchResults[email.accountId].coincidence["email"]) {
+					searchResults[email.accountId].coincidence["email"] = email.email;
+				}
+			}
+		});
+
+		const phonesData = phoneSearchResults.data.map((phone) => phone.dataValues);
+		phonesData.forEach((phone) => {
+			if (!searchResults[phone.accountId]) {
+				searchResults[phone.accountId] = {
+					accountId: phone.accountId,
+					userId: phone.userId,
+					coincidence: { phone: phone.phoneNumber },
+				};
+			} else {
+				if (!searchResults[phone.accountId].coincidence["phone"]) {
+					searchResults[phone.accountId].coincidence["phone"] = phone.phoneNumber;
+				}
+			}
+		});
+
+		const accountsData = accountSearchResults.data.map((account) => account.dataValues);
+		accountsData.forEach((account) => {
+			if (!searchResults[account.id]) {
+				searchResults[account.id] = {
+					accountId: account.id,
+					coincidence: { id: account.id },
+				};
+			} else {
+				if (!searchResults[account.id].coincidence["id"]) {
+					searchResults[account.id].coincidence["id"] = account.id;
+				}
+			}
+		});
+
+		const filteredResults = {};
+
+		const accountIds = Object.keys(searchResults).map((id) => parseInt(id));
+
+		const filterSearchResults = await this.accountRepository.search({
+			orgId: params.orgId,
+			id: accountIds,
+			metadata: { accountType: "patient" },
+		});
+
+		const filterData = filterSearchResults.data.map((account) => account.dataValues);
+
+		const patientAccountIds = filterData.map((account) => account.id);
+
+		patientAccountIds.forEach((accountId) => {
+			if (searchResults[accountId]) {
+				filteredResults[accountId] = searchResults[accountId];
+			}
+		});
+
+		return filteredResults;
 	}
 }
