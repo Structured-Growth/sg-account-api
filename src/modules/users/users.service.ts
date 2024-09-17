@@ -140,7 +140,7 @@ export class UsersService {
 			this.accountRepository.search({
 				orgId: params.orgId,
 				id: [isNaN(parseInt(params.search)) ? 0 : parseInt(params.search)],
-				metadata: { accountType: "patient" },
+				metadata: { accountType: params.accountType },
 			}),
 		]);
 
@@ -225,7 +225,7 @@ export class UsersService {
 		const filterSearchResults = await this.accountRepository.search({
 			orgId: params.orgId,
 			id: accountIds,
-			metadata: { accountType: "patient" },
+			metadata: { accountType: params.accountType },
 		});
 
 		const filterData = filterSearchResults.data.map((account) => account.dataValues);

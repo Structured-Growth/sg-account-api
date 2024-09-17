@@ -15,6 +15,7 @@ export const UserSearchParamsValidator = joi.object({
 			metadata: joi.object(),
 			multi: joi.boolean().label("Multi"),
 			search: joi.string().max(50).label("Search"),
+			accountType: joi.string().valid("patient", "hcp").label("Account type"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

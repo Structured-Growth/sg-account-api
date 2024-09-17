@@ -67,7 +67,11 @@ export class UsersController extends BaseController {
 		@Queries() query: UserSearchParamsInterface
 	): Promise<SearchResultInterface<PublicUserAttributes> | Record<number, { [key: string]: any }>> {
 		if (Boolean(query.multi) === true) {
-			return await this.usersService.multiSearch({ orgId: query.orgId, search: query.search });
+			return await this.usersService.multiSearch({
+				orgId: query.orgId,
+				search: query.search,
+				accountType: query.accountType,
+			});
 		} else {
 			const { data, ...result } = await this.usersRepository.search(query);
 
