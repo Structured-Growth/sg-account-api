@@ -13,9 +13,8 @@ export const UserSearchParamsValidator = joi.object({
 			isPrimary: joi.boolean().label("Is primary"),
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required()),
 			metadata: joi.object(),
-			multi: joi.boolean().label("Multi"),
 			search: joi.string().max(50).label("Search"),
-			accountType: joi.string().valid("patient", "hcp").label("Account type"),
+			accountMetadata: joi.string().max(50).label("Account Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

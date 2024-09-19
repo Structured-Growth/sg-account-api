@@ -9,7 +9,9 @@ import { isUndefined, omitBy } from "lodash";
 import { UserMultiSearchParamsInterface } from "../../interfaces/user-multi-search-params.interface";
 import { PhonesRepository } from "../phones/phones.repository";
 import { EmailsRepository } from "../emails/emails.repository";
-
+/**
+ * The service is under development, implementation of multi-search via API.
+ */
 @autoInjectable()
 export class UsersService {
 	constructor(

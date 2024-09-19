@@ -66,40 +66,17 @@ export class UsersController extends BaseController {
 	async search(
 		@Queries() query: UserSearchParamsInterface
 	): Promise<SearchResultInterface<PublicUserAttributes> | Record<number, { [key: string]: any }>> {
-		if (Boolean(query.multi) === true) {
-			return await this.usersService.multiSearch({
-				orgId: query.orgId,
-				search: query.search,
-				accountType: query.accountType,
-			});
-		} else {
-			const { data, ...result } = await this.usersRepository.search(query);
+		const { data, ...result } = await this.usersRepository.search(query);
 
-			return {
-				data: data.map((user) => ({
-					...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
-					imageUrl: user.imageUrl,
-					arn: user.arn,
-				})),
-				...result,
-			};
-		}
+		return {
+			data: data.map((user) => ({
+				...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
+				imageUrl: user.imageUrl,
+				arn: user.arn,
+			})),
+			...result,
+		};
 	}
-
-	// /**
-	//  * MultiSearch Users
-	//  */
-	// @OperationId("Search")
-	// @Get("/multi")
-	// @SuccessResponse(200, "Returns multi list of users")
-	// @DescribeAction("users/multi")
-	// @DescribeResource("Organization", ({ query }) => Number(query.orgId))
-	// @ValidateFuncArgs(UserMultiSearchParamsValidator)
-	// async multiSearch(
-	// 	@Queries() query: UserMultiSearchParamsInterface
-	// ): Promise<Array<{ userId: number; coincidence: string[] }>> {
-	// 	return await this.usersRepository.multiSearch(query);
-	// }
 
 	/**
 	 * Create User.
