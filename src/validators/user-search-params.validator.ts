@@ -14,7 +14,7 @@ export const UserSearchParamsValidator = joi.object({
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required()),
 			metadata: joi.object(),
 			search: joi.string().max(50).label("Search"),
-			accountMetadata: joi.string().max(50).label("Account Metadata"),
+			accountMetadata: joi.object().label("Account Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

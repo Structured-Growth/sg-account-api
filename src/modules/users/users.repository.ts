@@ -63,14 +63,10 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		}
 
 		if (params.accountMetadata) {
-			const [key, value] = params.accountMetadata.split("-");
-
 			include.push({
 				model: Account,
 				where: {
-					metadata: {
-						[Op.contains]: { [key]: value },
-					},
+					metadata: params.accountMetadata,
 				},
 			});
 		}
