@@ -74,7 +74,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		if (params.search) {
 			include.push({ model: Phone }, { model: Email });
 
-			const searchValue = `%${params.search}%`;
+			const searchValue = `%${params.search.toLowerCase()}%`;
 
 			where[Op.or] = [
 				{ id: parseInt(params.search) || 0 },
