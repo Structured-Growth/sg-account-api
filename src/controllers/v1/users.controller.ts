@@ -63,9 +63,7 @@ export class UsersController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@ValidateFuncArgs(UserSearchParamsValidator)
-	async search(
-		@Queries() query: UserSearchParamsInterface
-	): Promise<SearchResultInterface<PublicUserAttributes> | Record<number, { [key: string]: any }>> {
+	async search(@Queries() query: UserSearchParamsInterface): Promise<SearchResultInterface<PublicUserAttributes>> {
 		const { data, ...result } = await this.usersRepository.search(query);
 
 		return {
