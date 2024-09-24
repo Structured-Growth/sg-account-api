@@ -11,14 +11,12 @@ import {
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
-import { UserMultiSearchParamsInterface } from "../../interfaces/user-multi-search-params.interface";
 import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
 import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.interface";
 import { pick } from "lodash";
 import { UsersRepository } from "../../modules/users/users.repository";
 import { UsersService } from "../../modules/users/users.service";
 import { UserSearchParamsValidator } from "../../validators/user-search-params.validator";
-import { UserMultiSearchParamsValidator } from "../../validators/user-multi-search-params.validator";
 import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
 import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
 import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";

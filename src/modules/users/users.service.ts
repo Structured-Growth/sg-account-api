@@ -6,7 +6,6 @@ import { UsersRepository } from "./users.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
 import { isUndefined, omitBy } from "lodash";
-import { UserMultiSearchParamsInterface } from "../../interfaces/user-multi-search-params.interface";
 import { PhonesRepository } from "../phones/phones.repository";
 import { EmailsRepository } from "../emails/emails.repository";
 @autoInjectable()
