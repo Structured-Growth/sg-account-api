@@ -17,6 +17,7 @@ import { pick } from "lodash";
 import { UsersRepository } from "../../modules/users/users.repository";
 import { UsersService } from "../../modules/users/users.service";
 import { UserSearchParamsValidator } from "../../validators/user-search-params.validator";
+import { UserSearchWithPostParamsValidator } from "../../validators/user-search-with-post-params.validator";
 import { UserCreateParamsValidator } from "../../validators/user-create-params.validator";
 import { UserUpdateParamsValidator } from "../../validators/user-update-params.validator";
 import { UserDeleteParamsValidator } from "../../validators/user-delete-params.validator";
@@ -68,6 +69,30 @@ export class UsersController extends BaseController {
 			data: data.map((user) => ({
 				...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
 				imageUrl: user.imageUrl,
+				arn: user.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Users with POST
+	 */
+	@OperationId("Search users with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of users")
+	@DescribeAction("users/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(UserSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: UserSearchParamsInterface
+	): Promise<SearchResultInterface<PublicUserAttributes>> {
+		const { data, ...result } = await this.usersRepository.search(body);
+
+		return {
+			data: data.map((user) => ({
+				...(pick(user.toJSON(), publicUserAttributes) as PublicUserAttributes),
 				arn: user.arn,
 			})),
 			...result,

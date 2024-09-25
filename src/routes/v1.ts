@@ -18,6 +18,7 @@ const pathPrefix = process.env.URI_PATH_PREFIX || '';
 
 //UsersController
 router.get(pathPrefix + '/v1/users', handleRequest(Controllers.UsersController, "search", handlerOpts));
+router.post(pathPrefix + '/v1/users/search', handleRequest(Controllers.UsersController, "searchPost", handlerOpts));
 router.post(pathPrefix + '/v1/users', handleRequest(Controllers.UsersController, "create", handlerOpts));
 router.get(pathPrefix + '/v1/users/:userId', handleRequest(Controllers.UsersController, "get", handlerOpts));
 router.put(pathPrefix + '/v1/users/:userId', handleRequest(Controllers.UsersController, "update", handlerOpts));
@@ -101,6 +102,7 @@ router.get(pathPrefix + '/v1/resolver/models', handleRequest(Controllers.Resolve
 // map is required for correct resolving action by route
 export const actionToRouteMap = {
 	"UsersController.search": 'get /v1/users',
+	"UsersController.searchPost": 'post /v1/users/search',
 	"UsersController.create": 'post /v1/users',
 	"UsersController.get": 'get /v1/users/:userId',
 	"UsersController.update": 'put /v1/users/:userId',
