@@ -79,8 +79,8 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 			where[Op.or] = [
 				{ id: parseInt(params.search) || 0 },
 				{ accountId: parseInt(params.search) || 0 },
-				{ firstName: { [Op.like]: searchValue } },
-				{ lastName: { [Op.like]: searchValue } },
+				{ firstName: { [Op.iLike]: searchValue } },
+				{ lastName: { [Op.iLike]: searchValue } },
 				{ "$phone.phone_number$": { [Op.like]: searchValue } },
 				{ "$email.email$": { [Op.like]: searchValue } },
 			];

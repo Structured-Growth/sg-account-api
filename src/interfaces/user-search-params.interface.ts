@@ -3,7 +3,11 @@ import { UserAttributes } from "../../database/models/user";
 
 export interface UserSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
 	search?: string;
-	accountMetadata?: string;
+	/**
+	 * Search by custom entity fields.
+	 * Example: accountMetadata: {accountType: patient}
+	 */
+	accountMetadata?: object;
 	accountId?: number[];
 	/**
 	 * Filter by first name. Multiple filters and wildcards are allowed. Add minus to filter off:

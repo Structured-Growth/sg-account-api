@@ -10,7 +10,7 @@ import {
 	ValidateFuncArgs,
 	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import { pick } from "lodash";
+import { isString, pick } from "lodash";
 import { Organization, OrganizationAttributes } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
@@ -68,7 +68,16 @@ export class OrganizationsController extends BaseController {
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
 	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
-		const { data, ...result } = await this.organizationsRepository.search(query);
+		const { data, ...result } = await this.organizationsRepository.search({
+			...query,
+			signUpEnabled: isString(query.signUpEnabled)
+				? query.signUpEnabled === "true"
+					? true
+					: query.signUpEnabled === "false"
+					? false
+					: undefined
+				: query.signUpEnabled,
+		});
 
 		return {
 			data: data.map((organization) => ({
