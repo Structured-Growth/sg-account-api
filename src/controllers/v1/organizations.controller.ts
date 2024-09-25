@@ -16,6 +16,7 @@ import { OrganizationSearchParamsInterface } from "../../interfaces/organization
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "../../validators/organization-search-params.validator";
+import { OrganizationSearchWithPostParamsValidator } from "../../validators/organization-search-with-post-params.validator";
 import { OrganizationCreateParamsValidator } from "../../validators/organization-create-params.validator";
 import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
 import { OrganizationService } from "../../modules/organizations/organization.service";
@@ -78,6 +79,31 @@ export class OrganizationsController extends BaseController {
 					: undefined
 				: query.signUpEnabled,
 		});
+
+		return {
+			data: data.map((organization) => ({
+				...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+				imageUrl: organization.imageUrl,
+				arn: organization.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Organizations with POST
+	 */
+	@OperationId("Search organizations with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of organizations")
+	@DescribeAction("organizations/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(OrganizationSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: OrganizationSearchParamsInterface
+	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
+		const { data, ...result } = await this.organizationsRepository.search(body);
 
 		return {
 			data: data.map((organization) => ({

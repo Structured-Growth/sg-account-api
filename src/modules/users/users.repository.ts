@@ -19,7 +19,10 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
 
 	public async search(
-		params: UserSearchParamsInterface & { metadata?: Record<string, string | number> },
+		params: UserSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+			accountMetadata?: Record<string, string | number>;
+		},
 		options?: {
 			onlyTotal: boolean;
 		}
