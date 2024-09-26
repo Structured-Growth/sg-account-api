@@ -1,8 +1,10 @@
-import { BelongsTo, Column, DataType, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, DataType, ForeignKey, Model, Table, HasMany } from "sequelize-typescript";
 import { Optional } from "sequelize";
 import { container, RegionEnum, DefaultModelInterface } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
 import Account from "./account";
+import Phone from "./phone";
+import Email from "./email";
 
 export interface UserAttributes extends DefaultModelInterface {
 	firstName: string;
@@ -71,6 +73,12 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 
 	@Column(DataType.JSONB)
 	metadata?: Record<string, string | number>;
+
+	@HasMany(() => Phone)
+	phone: Phone;
+
+	@HasMany(() => Email)
+	email: Email;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "users/<userId>"].join(":");

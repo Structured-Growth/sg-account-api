@@ -24,7 +24,10 @@ import { UpdateEmailParamsValidator } from "../../validators/email-update-params
 import { EmailSendCodeParamsValidator } from "../../validators/email-send-code-params.validator";
 import { EmailVerifyParamsValidator } from "../../validators/email-verify-params.validator";
 import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
+import { EmailSearchWithPostParamsValidator } from "../../validators/email-search-with-post-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
+import { AccountSearchWithPostParamsValidator } from "../../validators/account-search-with-post-params.validator";
+import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
 
 const publicEmailAttributes = [
 	"id",
@@ -65,6 +68,30 @@ export class EmailsController extends BaseController {
 	@ValidateFuncArgs(SearchEmailParamsValidator)
 	async search(@Queries() query: EmailSearchParamsInterface): Promise<SearchResultInterface<PublicEmailAttributes>> {
 		const { data, ...result } = await this.emailRepository.search(query);
+
+		return {
+			data: data.map((email) => ({
+				...(pick(email.toJSON(), publicEmailAttributes) as PublicEmailAttributes),
+				arn: email.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Emails with POST
+	 */
+	@OperationId("Search emails with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of emails")
+	@DescribeAction("emails/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(EmailSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: EmailSearchParamsInterface
+	): Promise<SearchResultInterface<PublicEmailAttributes>> {
+		const { data, ...result } = await this.emailRepository.search(body);
 
 		return {
 			data: data.map((email) => ({

@@ -1,4 +1,4 @@
-import { Op, where } from "sequelize";
+import { Op, Sequelize, where } from "sequelize";
 import {
 	autoInjectable,
 	RepositoryInterface,
@@ -10,13 +10,19 @@ import User, { UserCreationAttributes, UserUpdateAttributes } from "../../../dat
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
 import { isUndefined, omitBy } from "lodash";
 import { CustomFieldService } from "../custom-fields/custom-field.service";
+import Phone from "../../../database/models/phone";
+import Email from "../../../database/models/email";
+import Account from "../../../database/models/account";
 
 @autoInjectable()
 export class UsersRepository implements RepositoryInterface<User, UserSearchParamsInterface, UserCreationAttributes> {
 	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
 
 	public async search(
-		params: UserSearchParamsInterface & { metadata?: Record<string, string | number> },
+		params: UserSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+			accountMetadata?: Record<string, string | number>;
+		},
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -26,6 +32,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const offset = (page - 1) * limit;
 		const where = {};
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
+		let include = [];
 
 		params.orgId && (where["orgId"] = params.orgId);
 		params.accountId && (where["accountId"] = { [Op.in]: params.accountId });
@@ -58,6 +65,30 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 			where["metadata"] = params.metadata;
 		}
 
+		if (params.accountMetadata) {
+			include.push({
+				model: Account,
+				where: {
+					metadata: params.accountMetadata,
+				},
+			});
+		}
+
+		if (params.search) {
+			include.push({ model: Phone }, { model: Email });
+
+			const searchValue = `%${params.search.toLowerCase()}%`;
+
+			where[Op.or] = [
+				{ id: parseInt(params.search) || 0 },
+				{ accountId: parseInt(params.search) || 0 },
+				{ firstName: { [Op.iLike]: searchValue } },
+				{ lastName: { [Op.iLike]: searchValue } },
+				{ "$phone.phone_number$": { [Op.like]: searchValue } },
+				{ "$email.email$": { [Op.like]: searchValue } },
+			];
+		}
+
 		// TODO search by arn with wildcards
 
 		if (options?.onlyTotal) {
@@ -75,6 +106,8 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		} else {
 			const { rows, count } = await User.findAndCountAll({
 				where,
+				include,
+				subQuery: false,
 				offset,
 				limit,
 				order,

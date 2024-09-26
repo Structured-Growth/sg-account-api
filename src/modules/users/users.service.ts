@@ -6,13 +6,16 @@ import { UsersRepository } from "./users.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
 import { isUndefined, omitBy } from "lodash";
-
+import { PhonesRepository } from "../phones/phones.repository";
+import { EmailsRepository } from "../emails/emails.repository";
 @autoInjectable()
 export class UsersService {
 	constructor(
 		@inject("UsersRepository") private userRepository: UsersRepository,
 		@inject("AccountRepository") private accountRepository: AccountRepository,
-		@inject("ImageValidator") private imageValidator: ImageValidator
+		@inject("ImageValidator") private imageValidator: ImageValidator,
+		@inject("EmailsRepository") private emailsRepository: EmailsRepository,
+		@inject("PhonesRepository") private phonesRepository: PhonesRepository
 	) {}
 
 	public async create(params: UserCreateBodyInterface): Promise<User> {

@@ -32,6 +32,7 @@ export class OrganizationRepository
 		params.parentOrgId && (where["parentOrgId"] = params.parentOrgId);
 		params.status && (where["status"] = { [Op.in]: params.status });
 		params.id && (where["id"] = { [Op.in]: params.id });
+		params.signUpEnabled && (where["signUpEnabled"] = params.signUpEnabled);
 
 		if (params.name?.length > 0) {
 			where["name"] = {

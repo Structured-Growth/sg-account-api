@@ -1,8 +1,9 @@
 import { joi } from "@structured-growth/microservice-sdk";
 import { CommonSearchParamsValidator } from "./common-search-params.validator";
 
-export const UserSearchParamsValidator = joi.object({
-	query: joi
+export const UserSearchWithPostParamsValidator = joi.object({
+	query: joi.object(),
+	body: joi
 		.object({
 			orgId: joi.number().positive().required().label("Organization Id"),
 			accountId: joi.array().items(joi.number().positive()).label("Account Id"),

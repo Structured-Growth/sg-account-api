@@ -54,6 +54,7 @@ export class OrganizationService {
 			title: params.title,
 			name: params.name,
 			imageUuid: imageUuid || null,
+			signUpEnabled: params.signUpEnabled || true,
 			status: params.status || "inactive",
 			metadata: params.metadata || {},
 		});
@@ -106,6 +107,7 @@ export class OrganizationService {
 					title: params.title,
 					name: params.name,
 					imageUuid,
+					signUpEnabled: params.signUpEnabled,
 					status: params.status,
 					metadata: params.metadata,
 				},
