@@ -10,6 +10,7 @@ export const GroupSearchParamsValidator = joi.object({
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").label("Status")),
 			title: joi.array().items(joi.string().max(50).required()),
 			name: joi.array().items(joi.string().max(50).required()),
+			metadata: joi.object().label("Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

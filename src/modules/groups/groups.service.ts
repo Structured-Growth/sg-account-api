@@ -7,7 +7,7 @@ import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.int
 import { GroupsRepository } from "./groups.repository";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { ImageValidator } from "../../validators/image.validator";
-import { isUndefined, omitBy } from "lodash";
+import { isUndefined, omitBy, partial } from "lodash";
 
 @autoInjectable()
 export class GroupService {
@@ -71,6 +71,7 @@ export class GroupService {
 			name,
 			status: params.status || "inactive",
 			imageUuid: imageUuid || null,
+			metadata: params.metadata || {},
 		});
 	}
 
@@ -125,6 +126,7 @@ export class GroupService {
 					name,
 					status: params.status,
 					imageUuid,
+					metadata: params.metadata,
 				},
 				isUndefined
 			) as GroupUpdateAttributes

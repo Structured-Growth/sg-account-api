@@ -35,6 +35,7 @@ const publicGroupAttributes = [
 	"createdAt",
 	"updatedAt",
 	"arn",
+	"metadata",
 ] as const;
 type GroupKeys = (typeof publicGroupAttributes)[number];
 type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: string };

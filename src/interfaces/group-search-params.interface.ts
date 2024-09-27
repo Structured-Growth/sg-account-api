@@ -20,4 +20,9 @@ export interface GroupSearchParamsInterface extends Omit<DefaultSearchParamsInte
 	 * `name: ["Starts*", "-*ends"]`
 	 */
 	name?: string[];
+	/**
+	 * Search by custom field value.
+	 * Example: metadata[groupType]=patients
+	 */
+	"metadata[customFieldName]"?: string;
 }

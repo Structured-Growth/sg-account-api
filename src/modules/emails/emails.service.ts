@@ -54,7 +54,7 @@ export class EmailsService {
 		const email = await this.emailRepository.create({
 			orgId: account.orgId,
 			region: account.region,
-			status: "verification",
+			status: params.status || "verification",
 			email: params.email,
 			accountId: account.id,
 			userId: user.id,

@@ -8,5 +8,6 @@ export const GroupUpdateParamsValidator = joi.object({
 		title: joi.string().min(2).max(50).label("Group title"),
 		status: joi.string().valid("active", "inactive", "archived").label("Status"),
 		imageBase64: joi.string().label("Image"),
+		metadata: joi.object().label("Metadata"),
 	}),
 });

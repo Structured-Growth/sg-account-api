@@ -10,13 +10,19 @@ import { GroupSearchParamsInterface } from "../../interfaces/group-search-params
 import { isUndefined, omitBy } from "lodash";
 import GroupMember from "../../../database/models/group-member";
 import { Sequelize } from "sequelize-typescript";
+import { inject } from "@structured-growth/microservice-sdk";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 
 @autoInjectable()
 export class GroupsRepository
 	implements RepositoryInterface<Group, GroupSearchParamsInterface, GroupCreationAttributes>
 {
+	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+
 	public async search(
-		params: GroupSearchParamsInterface,
+		params: GroupSearchParamsInterface & {
+			metadata?: Record<string, string | number>;
+		},
 		options?: {
 			onlyTotal: boolean;
 		}
@@ -32,6 +38,10 @@ export class GroupsRepository
 		params.parentGroupId && (where["parentGroupId"] = params.parentGroupId);
 		params.id && (where["id"] = { [Op.in]: params.id });
 		params.status && (where["status"] = { [Op.in]: params.status });
+
+		if (params.metadata) {
+			where["metadata"] = params.metadata;
+		}
 
 		if (params.accountId) {
 			include.push({
@@ -93,6 +103,7 @@ export class GroupsRepository
 	}
 
 	public async create(params: GroupCreationAttributes): Promise<Group> {
+		await this.customFieldService.validate("Group", params.metadata, params.orgId);
 		return Group.create(params);
 	}
 
