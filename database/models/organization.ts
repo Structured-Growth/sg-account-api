@@ -15,6 +15,7 @@ export interface OrganizationAttributes
 	name: string;
 	imageUuid: string | null;
 	status: "active" | "inactive" | "archived";
+	signUpEnabled?: boolean;
 	metadata?: Record<string, string | number>;
 }
 
@@ -22,7 +23,7 @@ export interface OrganizationCreationAttributes
 	extends Omit<OrganizationAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface OrganizationUpdateAttributes
-	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status" | "metadata"> {}
+	extends Pick<OrganizationAttributes, "title" | "name" | "imageUuid" | "status" | "signUpEnabled" | "metadata"> {}
 
 @Table({
 	tableName: "organizations",
@@ -55,6 +56,9 @@ export class Organization
 
 	@Column(DataType.STRING)
 	status: OrganizationAttributes["status"];
+
+	@Column
+	signUpEnabled: boolean;
 
 	@Column(DataType.JSONB)
 	metadata?: Record<string, string | number>;

@@ -17,6 +17,7 @@ import { AccountUpdateBodyInterface } from "../../interfaces/account-update-body
 import { AccountRepository } from "../../modules/accounts/accounts.repository";
 import { AccountsService } from "../../modules/accounts/accounts.service";
 import { AccountSearchParamsValidator } from "../../validators/account-search-params.validator";
+import { AccountSearchWithPostParamsValidator } from "../../validators/account-search-with-post-params.validator";
 import { AccountCreateParamsValidator } from "../../validators/account-create-params.validator";
 import { AccountUpdateParamsValidator } from "../../validators/account-update-params.validator";
 import { AccountReadParamsValidator } from "../../validators/account-read-params.validator";
@@ -53,6 +54,30 @@ export class AccountsController extends BaseController {
 		@Queries() query: AccountSearchParamsInterface
 	): Promise<SearchResultInterface<PublicAccountAttributes>> {
 		const { data, ...result } = await this.accountRepository.search(query);
+
+		return {
+			data: data.map((account) => ({
+				...(pick(account.toJSON(), publicAccountAttributes) as PublicAccountAttributes),
+				arn: account.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Accounts with POST
+	 */
+	@OperationId("Search accounts with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of accounts")
+	@DescribeAction("accounts/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(AccountSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: AccountSearchParamsInterface
+	): Promise<SearchResultInterface<PublicAccountAttributes>> {
+		const { data, ...result } = await this.accountRepository.search(body);
 
 		return {
 			data: data.map((account) => ({

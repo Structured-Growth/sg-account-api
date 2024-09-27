@@ -16,6 +16,7 @@ import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.int
 import { GroupsRepository } from "../../modules/groups/groups.repository";
 import { GroupService } from "../../modules/groups/groups.service";
 import { GroupSearchParamsValidator } from "../../validators/group-search-params.validator";
+import { GroupSearchWithPostParamsValidator } from "../../validators/group-search-with-post-params.validator";
 import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
 import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
 import { pick, result } from "lodash";
@@ -34,6 +35,7 @@ const publicGroupAttributes = [
 	"createdAt",
 	"updatedAt",
 	"arn",
+	"metadata",
 ] as const;
 type GroupKeys = (typeof publicGroupAttributes)[number];
 type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: string };
@@ -66,6 +68,30 @@ export class GroupsController extends BaseController {
 			data: data.map((group) => ({
 				...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
 				imageUrl: group.imageUrl,
+				arn: group.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Groups with POST
+	 */
+	@OperationId("Search groups with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of groups")
+	@DescribeAction("groups/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(GroupSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: GroupSearchParamsInterface
+	): Promise<SearchResultInterface<PublicGroupAttributes>> {
+		const { data, ...result } = await this.groupsRepository.search(body);
+
+		return {
+			data: data.map((group) => ({
+				...(pick(group.toJSON(), publicGroupAttributes) as PublicGroupAttributes),
 				arn: group.arn,
 			})),
 			...result,

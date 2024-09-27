@@ -3,7 +3,7 @@ export interface AccountCreateBodyInterface {
 	status?: "active" | "inactive";
 	/**
 	 * Custom fields with their values.
-	 * Field should be created before.
+	 * Custom field must be created before.
 	 */
 	metadata?: Record<string, string>;
 }

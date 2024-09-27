@@ -17,10 +17,13 @@ import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-
 import { GroupMemberCreateBodyInterface } from "../../interfaces/group-member-create-body.interface";
 import { GroupMemberUpdateBodyInterface } from "../../interfaces/group-member-update-body.interface";
 import { GroupMemberSearchParamsValidator } from "../../validators/group-member-search-params.validator";
+import { GroupMemberSearchWithPostParamsValidator } from "../../validators/group-member-search-with-post-params.validator";
 import { GroupMemberCreateParamsValidator } from "../../validators/group-member-create-params.validator";
 import { GroupMemberUpdateParamsValidator } from "../../validators/group-member-update-params.validator";
 import { pick, result } from "lodash";
 import { EventMutation } from "@structured-growth/microservice-sdk";
+import { GroupSearchWithPostParamsValidator } from "../../validators/group-search-with-post-params.validator";
+import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
 
 const publicGroupMemberAttributes = [
 	"id",
@@ -65,6 +68,30 @@ export class GroupMembersController extends BaseController {
 			groupId,
 			...query,
 		});
+
+		return {
+			data: data.map((groupMember) => ({
+				...(pick(groupMember.toJSON(), publicGroupMemberAttributes) as PublicGroupMemberAttributes),
+				arn: groupMember.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search group members with POST
+	 */
+	@OperationId("Search group members with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of group members")
+	@DescribeAction("group-members/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(GroupMemberSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: GroupMemberSearchParamsInterface & { groupId: number }
+	): Promise<SearchResultInterface<PublicGroupMemberAttributes>> {
+		const { data, ...result } = await this.groupMemberRepository.search(body);
 
 		return {
 			data: data.map((groupMember) => ({

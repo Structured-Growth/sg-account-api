@@ -10,12 +10,13 @@ import {
 	ValidateFuncArgs,
 	NotFoundError,
 } from "@structured-growth/microservice-sdk";
-import { pick } from "lodash";
+import { isString, pick } from "lodash";
 import { Organization, OrganizationAttributes } from "../../../database/models/organization";
 import { OrganizationSearchParamsInterface } from "../../interfaces/organization-search-params.interface";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
 import { OrganizationSearchParamsValidator } from "../../validators/organization-search-params.validator";
+import { OrganizationSearchWithPostParamsValidator } from "../../validators/organization-search-with-post-params.validator";
 import { OrganizationCreateParamsValidator } from "../../validators/organization-create-params.validator";
 import { OrganizationUpdateParamsValidator } from "../../validators/organization-update-params.validator";
 import { OrganizationService } from "../../modules/organizations/organization.service";
@@ -34,6 +35,7 @@ const publicOrganizationAttributes = [
 	"createdAt",
 	"updatedAt",
 	"arn",
+	"signUpEnabled",
 	"metadata",
 ] as const;
 type OrganizationKeys = (typeof publicOrganizationAttributes)[number];
@@ -67,7 +69,41 @@ export class OrganizationsController extends BaseController {
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
 	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
-		const { data, ...result } = await this.organizationsRepository.search(query);
+		const { data, ...result } = await this.organizationsRepository.search({
+			...query,
+			signUpEnabled: isString(query.signUpEnabled)
+				? query.signUpEnabled === "true"
+					? true
+					: query.signUpEnabled === "false"
+					? false
+					: undefined
+				: query.signUpEnabled,
+		});
+
+		return {
+			data: data.map((organization) => ({
+				...(pick(organization.toJSON(), publicOrganizationAttributes) as PublicOrganizationAttributes),
+				imageUrl: organization.imageUrl,
+				arn: organization.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search Organizations with POST
+	 */
+	@OperationId("Search organizations with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of organizations")
+	@DescribeAction("organizations/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(OrganizationSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: OrganizationSearchParamsInterface
+	): Promise<SearchResultInterface<PublicOrganizationAttributes>> {
+		const { data, ...result } = await this.organizationsRepository.search(body);
 
 		return {
 			data: data.map((organization) => ({

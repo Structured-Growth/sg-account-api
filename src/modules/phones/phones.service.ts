@@ -46,7 +46,7 @@ export class PhonesService {
 		const phone = await this.phonesRepository.create({
 			orgId: account.orgId,
 			region: account.region,
-			status: "verification",
+			status: params.status || "verification",
 			phoneNumber: params.phoneNumber,
 			accountId: account.id,
 			userId: user.id,

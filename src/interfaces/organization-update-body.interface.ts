@@ -4,6 +4,7 @@ export interface OrganizationUpdateBodyInterface {
 	title?: string;
 	name?: string;
 	status?: OrganizationAttributes["status"];
+	signUpEnabled?: boolean;
 	imageBase64?: string;
 	/**
 	 * Custom fields with their values.

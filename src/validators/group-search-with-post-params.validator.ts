@@ -1,8 +1,9 @@
 import { joi } from "@structured-growth/microservice-sdk";
 import { CommonSearchParamsValidator } from "./common-search-params.validator";
 
-export const GroupSearchParamsValidator = joi.object({
-	query: joi
+export const GroupSearchWithPostParamsValidator = joi.object({
+	query: joi.object(),
+	body: joi
 		.object({
 			orgId: joi.number().positive().required().label("Organization Id"),
 			accountId: joi.number().positive().label("Account Id"),
@@ -10,7 +11,6 @@ export const GroupSearchParamsValidator = joi.object({
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").label("Status")),
 			title: joi.array().items(joi.string().max(50).required()),
 			name: joi.array().items(joi.string().max(50).required()),
-			metadata: joi.object().label("Metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

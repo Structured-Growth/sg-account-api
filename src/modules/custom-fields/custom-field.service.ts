@@ -13,7 +13,7 @@ import CustomField, { CustomFieldAttributes } from "../../../database/models/cus
 import { CustomFieldCreateBodyInterface } from "../../interfaces/custom-field-create-body.interface";
 import { Op } from "sequelize";
 import { CustomFieldSearchParamsInterface } from "../../interfaces/custom-field-search-params.interface";
-import { SearchResultInterface } from "@structured-growth/microservice-sdk/.dist";
+import { SearchResultInterface } from "@structured-growth/microservice-sdk";
 import { OrganizationService } from "../organizations/organization.service";
 import { flatten, map, omit } from "lodash";
 

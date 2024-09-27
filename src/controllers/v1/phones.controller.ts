@@ -15,6 +15,7 @@ import { PhoneCreateBodyInterface } from "../../interfaces/phone-create-body.int
 import { PhoneUpdateBodyInterface } from "../../interfaces/phone-update-body.interface";
 import { PhoneVerifyBodyInterface } from "../../interfaces/phone-verify-body.interface";
 import { PhoneSearchParamsValidator } from "../../validators/phone-search-params.validator";
+import { PhoneSearchWithPostParamsValidator } from "../../validators/phone-search-with-post-params.validator";
 import { PhoneCreateParamsValidator } from "../../validators/phone-create-params.validator";
 import { PhoneUpdateParamsValidator } from "../../validators/phone-update-params.validator";
 import { NotFoundError, ValidateFuncArgs } from "@structured-growth/microservice-sdk";
@@ -24,6 +25,8 @@ import { PhoneSendCodeParamsValidator } from "../../validators/phone-send-code-p
 import { PhoneVerifyParamsValidator } from "../../validators/phone-verify-params.validator";
 import { PhoneDeleteParamsValidator } from "../../validators/phone-delete-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
+import { GroupMemberSearchWithPostParamsValidator } from "../../validators/group-member-search-with-post-params.validator";
+import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
 
 const publicPhoneAttributes = [
 	"id",
@@ -64,6 +67,30 @@ export class PhonesController extends BaseController {
 	@ValidateFuncArgs(PhoneSearchParamsValidator)
 	async search(@Queries() query: PhoneSearchParamsInterface): Promise<SearchResultInterface<PublicPhoneAttributes>> {
 		const { data, ...result } = await this.phonesRepository.search(query);
+		return {
+			data: data.map((phone) => ({
+				...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
+				arn: phone.arn,
+			})),
+			...result,
+		};
+	}
+
+	/**
+	 * Search phones with POST
+	 */
+	@OperationId("Search phones with POST")
+	@Post("/search")
+	@SuccessResponse(200, "Returns list of phones")
+	@DescribeAction("phones/search")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@ValidateFuncArgs(PhoneSearchWithPostParamsValidator)
+	async searchPost(
+		@Queries() query: {},
+		@Body() body: PhoneSearchParamsInterface
+	): Promise<SearchResultInterface<PublicPhoneAttributes>> {
+		const { data, ...result } = await this.phonesRepository.search(body);
+
 		return {
 			data: data.map((phone) => ({
 				...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),

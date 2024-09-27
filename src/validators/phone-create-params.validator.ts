@@ -11,6 +11,7 @@ export const PhoneCreateParamsValidator = joi.object({
 			.required()
 			.label("Phone number"),
 		sendVerificationCode: joi.boolean().label("Send verification code"),
+		status: joi.string().valid("verification", "active", "inactive", "archived"),
 		metadata: joi.object().label("Metadata"),
 	}),
 });
