@@ -56,6 +56,10 @@ export class CustomFieldService {
 		}
 	}
 
+	/**
+	 * Validate custom field values but its schemas.
+	 * JSON object can be compiled to JSON with schema.describe() method.
+	 */
 	public async validate(
 		entityName: string,
 		data: Record<string, string | number>,
