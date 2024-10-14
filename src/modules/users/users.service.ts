@@ -8,6 +8,7 @@ import { ImageValidator } from "../../validators/image.validator";
 import { isUndefined, omitBy } from "lodash";
 import { PhonesRepository } from "../phones/phones.repository";
 import { EmailsRepository } from "../emails/emails.repository";
+
 @autoInjectable()
 export class UsersService {
 	constructor(
@@ -101,7 +102,7 @@ export class UsersService {
 					gender: params.gender,
 					imageUuid: imageUuid || null,
 					isPrimary: params.isPrimary,
-					status: params.status || "inactive",
+					status: params.status,
 					metadata: params.metadata,
 				},
 				isUndefined

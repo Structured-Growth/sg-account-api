@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
+import { joi } from "@structured-growth/microservice-sdk";
 
 describe("POST /api/v1/custom-fields", () => {
 	const { server, context } = initTest();
@@ -17,19 +18,16 @@ describe("POST /api/v1/custom-fields", () => {
 	});
 
 	it("Should create custom field", async () => {
+		const schema = joi.object({
+			userType: joi.string().required().min(3).max(50),
+		});
+
 		const { statusCode, body } = await server.post("/v1/custom-fields").send({
 			orgId: context.organization.id,
 			entity: "User",
 			title: "User Type",
 			name: "userType",
-			schema: {
-				type: "string",
-				flags: { presence: "required" },
-				rules: [
-					{ name: "min", args: { limit: 3 } },
-					{ name: "max", args: { limit: 50 } },
-				],
-			},
+			schema: schema.describe().keys["userType"],
 			status: "active",
 		});
 		assert.equal(statusCode, 201);
