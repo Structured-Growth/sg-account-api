@@ -21,9 +21,11 @@ export interface UserCreationAttributes
 	extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface UserUpdateAttributes
-	extends Pick<
-		UserCreationAttributes,
-		"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status" | "metadata"
+	extends Partial<
+		Pick<
+			UserCreationAttributes,
+			"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status" | "metadata"
+		>
 	> {}
 
 @Table({
