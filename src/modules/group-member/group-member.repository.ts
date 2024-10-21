@@ -13,6 +13,8 @@ import GroupMember, {
 import { GroupMemberSearchParamsInterface } from "../../interfaces/group-member-search-params.interface";
 import { isUndefined, omitBy } from "lodash";
 import { CustomFieldService } from "../custom-fields/custom-field.service";
+import Account from "../../../database/models/account";
+import User from "../../../database/models/user";
 
 @autoInjectable()
 export class GroupMemberRepository
@@ -30,6 +32,7 @@ export class GroupMemberRepository
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
+		let include = [];
 		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.id && (where["id"] = { [Op.in]: params.id });
@@ -42,11 +45,31 @@ export class GroupMemberRepository
 			where["metadata"] = params.metadata;
 		}
 
+		include.push(
+			{
+				model: Account,
+				where: {
+					status: {
+						[Op.or]: ["active", "inactive"],
+					},
+				},
+			},
+			{
+				model: User,
+				where: {
+					status: {
+						[Op.or]: ["active", "inactive"],
+					},
+				},
+			}
+		);
+
 		// TODO search by arn with wildcards
 
 		if (options?.onlyTotal) {
 			const countResult = await GroupMember.count({
 				where,
+				include,
 				group: [],
 			});
 			const count = countResult[0]?.count || 0;
@@ -59,6 +82,7 @@ export class GroupMemberRepository
 		} else {
 			const { rows, count } = await GroupMember.findAndCountAll({
 				where,
+				include,
 				offset,
 				limit,
 				order,
