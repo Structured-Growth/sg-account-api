@@ -50,7 +50,7 @@ export class GroupMemberRepository
 				model: Account,
 				where: {
 					status: {
-						[Op.or]: ["active", "inactive"],
+						[Op.or]: ["active"],
 					},
 				},
 			},
@@ -58,7 +58,7 @@ export class GroupMemberRepository
 				model: User,
 				where: {
 					status: {
-						[Op.or]: ["active", "inactive"],
+						[Op.or]: ["active"],
 					},
 				},
 			}
