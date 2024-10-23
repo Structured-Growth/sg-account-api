@@ -10,7 +10,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	firstName: string;
 	lastName: string;
 	birthday: string | null;
-	gender: "male" | "female";
+	gender: "male" | "female" | "unspec";
 	imageUuid: string | null;
 	isPrimary: boolean;
 	status: "active" | "inactive" | "archived";
