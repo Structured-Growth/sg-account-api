@@ -10,7 +10,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	firstName: string;
 	lastName: string;
 	birthday: string | null;
-	gender: "male" | "female";
+	gender: "male" | "female" | "unspec";
 	imageUuid: string | null;
 	isPrimary: boolean;
 	status: "active" | "inactive" | "archived";
@@ -21,9 +21,11 @@ export interface UserCreationAttributes
 	extends Omit<UserAttributes, "id" | "arn" | "createdAt" | "updatedAt" | "deletedAt"> {}
 
 export interface UserUpdateAttributes
-	extends Pick<
-		UserCreationAttributes,
-		"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status" | "metadata"
+	extends Partial<
+		Pick<
+			UserCreationAttributes,
+			"firstName" | "lastName" | "birthday" | "gender" | "imageUuid" | "isPrimary" | "status" | "metadata"
+		>
 	> {}
 
 @Table({

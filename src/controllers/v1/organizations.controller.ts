@@ -60,11 +60,6 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns list of organizations")
 	@DescribeAction("organizations/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.parentOrgId))
-	@DescribeResource(
-		"OrganizationStatus",
-		({ query }) => query.status as string,
-		`${container.resolve("appPrefix")}:<region>:<orgId>:<accountId>:organization-status/<organizationStatus>`
-	)
 	@ValidateFuncArgs(OrganizationSearchParamsValidator)
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface

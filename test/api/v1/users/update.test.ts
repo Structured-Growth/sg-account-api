@@ -36,7 +36,7 @@ describe("PUT /api/v1/users/:userId", () => {
 			lastName: "lastnamenew",
 			birthday: "1986-04-04",
 			gender: "female",
-			isPrimary: false,
+			isPrimary: true,
 			status: "active",
 		});
 		assert.equal(statusCode, 200);
@@ -49,7 +49,7 @@ describe("PUT /api/v1/users/:userId", () => {
 		assert.equal(body.lastName, "lastnamenew");
 		assert.equal(body.birthday, "1986-04-04");
 		assert.equal(body.gender, "female");
-		assert.equal(body.isPrimary, false);
+		assert.equal(body.isPrimary, true);
 		assert.equal(body.status, "active");
 		assert.isString(body.arn);
 	});

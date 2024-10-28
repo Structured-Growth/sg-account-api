@@ -26,7 +26,7 @@ export interface UserSearchParamsInterface extends Omit<DefaultSearchParamsInter
 	 * Filter by birthday. Pass two values to search in a range.
 	 */
 	birthday?: string[];
-	gender?: ("male" | "female")[];
+	gender?: ("male" | "female" | "unspec")[];
 	isPrimary?: boolean;
 	status?: UserAttributes["status"][];
 	/**
