@@ -86,11 +86,24 @@ export class UsersService {
 			// todo store image to S3 bucket
 		}
 
-		/**
-		 * TODO:
-		 * If isPrimary is false check if account has at least one primary user
-		 * If isPrimary is true set other users' isPrimary to false
-		 */
+		if (params.isPrimary) {
+			// mark other users as non-primary
+			const { data, total } = await this.userRepository.search({
+				orgId: checkUser.orgId,
+				accountId: [checkUser.accountId],
+			});
+			await Promise.all(data.map((user) => this.userRepository.update(user.id, { isPrimary: false })));
+		} else if (!isUndefined(params.isPrimary)) {
+			// check if there is at least one primary user exists
+			const { data, total } = await this.userRepository.search({
+				orgId: checkUser.orgId,
+				accountId: [checkUser.accountId],
+				isPrimary: true,
+			});
+			if (!total || data[0].id === userId) {
+				throw new ValidationError({}, "You must have at least one primary user");
+			}
+		}
 
 		return this.userRepository.update(
 			userId,
