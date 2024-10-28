@@ -66,6 +66,7 @@ describe("GET /api/v1/custom-fields", () => {
 		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
 			orgId: context.organization2.id,
 			"id[]": context.customFieldId,
+			includeInherited: false,
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.total, 0);

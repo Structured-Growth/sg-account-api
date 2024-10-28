@@ -43,7 +43,7 @@ describe("GET /api/v1/users", () => {
 	it("Should return validation error", async () => {
 		const { statusCode, body } = await server.get("/v1/users").query({
 			orgId: "a",
-			accountId: 0,
+			"accountId[]": 0,
 			id: -1,
 			arn: 1,
 			page: "b",
@@ -60,7 +60,7 @@ describe("GET /api/v1/users", () => {
 		assert.equal(body.name, "ValidationError");
 		assert.isString(body.validation.query.id[0]);
 		assert.isString(body.validation.query.orgId[0]);
-		assert.isString(body.validation.query.accountId[0]);
+		assert.isString(body.validation.query.accountId[0][0]);
 		assert.isString(body.validation.query.arn[0]);
 		assert.isString(body.validation.query.birthday[0]);
 		assert.isString(body.validation.query.gender[0]);
