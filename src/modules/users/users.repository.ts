@@ -1,4 +1,4 @@
-import { Op, Sequelize, where } from "sequelize";
+import { Op, Order, Sequelize, where } from "sequelize";
 import {
 	autoInjectable,
 	RepositoryInterface,
@@ -31,7 +31,15 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
-		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
+		const order: Order = params.sort
+			? (params.sort.map((item) => {
+					const [field, direction] = item.split(":");
+					if (field.startsWith("metadata.")) {
+						return [Sequelize.json(field), direction || "asc"];
+					}
+					return [field, direction || "asc"];
+			  }) as Order)
+			: [["createdAt", "desc"]];
 		let include = [];
 
 		params.orgId && (where["orgId"] = params.orgId);

@@ -26,7 +26,6 @@ export class AccountRepository
 		const limit = Number(params.limit || 20);
 		const offset = (page - 1) * limit;
 		const where = {};
-		// const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 		const order: Order = params.sort
 			? (params.sort.map((item) => {
 					const [field, direction] = item.split(":");
