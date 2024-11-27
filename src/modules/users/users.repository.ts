@@ -1,4 +1,4 @@
-import { Op, Order, Sequelize, where } from "sequelize";
+import { Op } from "sequelize";
 import {
 	autoInjectable,
 	RepositoryInterface,
