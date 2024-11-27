@@ -26,15 +26,7 @@ export class AccountRepository
 		const limit = Number(params.limit || 20);
 		const offset = (page - 1) * limit;
 		const where = {};
-		const order: Order = params.sort
-			? (params.sort.map((item) => {
-					const [field, direction] = item.split(":");
-					if (field.startsWith("metadata.")) {
-						return [Sequelize.json(field), direction || "asc"];
-					}
-					return [field, direction || "asc"];
-			  }) as Order)
-			: [["createdAt", "desc"]];
+		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
 
 		params.orgId && (where["orgId"] = params.orgId);
 		params.status && (where["status"] = { [Op.in]: params.status });
