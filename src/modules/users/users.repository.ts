@@ -35,8 +35,8 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const order = params.sort
 			? params.sort.map((item) => {
 					let [field, order, cast] = item.split(":");
-					field = field.startsWith("metadata") ? field.replace(".", "#>>'{") + "}'" : field;
 					if (cast) {
+						field = field.startsWith("metadata") ? field.replace(".", "#>>'{") + "}'" : field;
 						return [Sequelize.literal(`CAST("User".${field} as ${cast})`), order] as any;
 					} else {
 						return [field, order];
