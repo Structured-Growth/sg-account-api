@@ -13,6 +13,7 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 import Phone from "../../../database/models/phone";
 import Email from "../../../database/models/email";
 import Account from "../../../database/models/account";
+import { Sequelize } from "sequelize-typescript";
 
 @autoInjectable()
 export class UsersRepository implements RepositoryInterface<User, UserSearchParamsInterface, UserCreationAttributes> {
@@ -31,7 +32,17 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const limit = params.limit || 20;
 		const offset = (page - 1) * limit;
 		const where = {};
-		const order = params.sort ? (params.sort.map((item) => item.split(":")) as any) : [["createdAt", "desc"]];
+		const order = params.sort
+			? params.sort.map((item) => {
+					let [field, order, cast] = item.split(":");
+					if (cast) {
+						field = field.startsWith("metadata") ? field.replace(".", "#>>'{") + "}'" : field;
+						return [Sequelize.literal(`CAST("User".${field} as ${cast})`), order] as any;
+					} else {
+						return [field, order];
+					}
+			  })
+			: [["createdAt", "desc"]];
 		let include = [];
 
 		params.orgId && (where["orgId"] = params.orgId);
