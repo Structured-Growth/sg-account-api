@@ -59,6 +59,9 @@ export class GroupMembersController extends BaseController {
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("User", ({ query }) => query.userId?.map(Number))
+	@DescribeResource("GroupMember", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(GroupMemberSearchParamsValidator)
 	async search(
 		@Path() groupId: number,
@@ -85,13 +88,20 @@ export class GroupMembersController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("User", ({ body }) => body.userId?.map(Number))
+	@DescribeResource("GroupMember", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(GroupMemberSearchWithPostParamsValidator)
 	async searchPost(
+		@Path() groupId: number,
 		@Queries() query: {},
-		@Body() body: GroupMemberSearchParamsInterface & { groupId: number }
+		@Body() body: GroupMemberSearchParamsInterface
 	): Promise<SearchResultInterface<PublicGroupMemberAttributes>> {
-		const { data, ...result } = await this.groupMemberRepository.search(body);
+		const { data, ...result } = await this.groupMemberRepository.search({
+			groupId,
+			...body,
+		});
 
 		return {
 			data: data.map((groupMember) => ({
@@ -110,6 +120,7 @@ export class GroupMembersController extends BaseController {
 	@SuccessResponse(201, "Returns created group member")
 	@DescribeAction("group-members/create")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@DescribeResource("User", ({ body }) => Number(body.userId))
 	@ValidateFuncArgs(GroupMemberCreateParamsValidator)
 	async create(
 		@Path() groupId: number,

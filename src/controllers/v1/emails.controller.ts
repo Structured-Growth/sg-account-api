@@ -64,7 +64,8 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns list of emails")
 	@DescribeAction("emails/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
-	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
+	@DescribeResource("Email", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(SearchEmailParamsValidator)
 	async search(@Queries() query: EmailSearchParamsInterface): Promise<SearchResultInterface<PublicEmailAttributes>> {
 		const { data, ...result } = await this.emailRepository.search(query);
@@ -86,6 +87,8 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns list of emails")
 	@DescribeAction("emails/search")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Account", ({ body }) => body.accountId?.map(Number))
+	@DescribeResource("Email", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(EmailSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
