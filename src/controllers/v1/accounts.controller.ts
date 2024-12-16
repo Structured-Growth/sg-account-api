@@ -49,6 +49,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("Account", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(AccountSearchParamsValidator)
 	async search(
 		@Queries() query: AccountSearchParamsInterface
@@ -72,6 +73,7 @@ export class AccountsController extends BaseController {
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Account", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(AccountSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},

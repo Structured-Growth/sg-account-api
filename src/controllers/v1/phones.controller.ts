@@ -64,6 +64,7 @@ export class PhonesController extends BaseController {
 	@DescribeAction("phones/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Phone", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(PhoneSearchParamsValidator)
 	async search(@Queries() query: PhoneSearchParamsInterface): Promise<SearchResultInterface<PublicPhoneAttributes>> {
 		const { data, ...result } = await this.phonesRepository.search(query);
@@ -84,6 +85,8 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns list of phones")
 	@DescribeAction("phones/search")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Phone", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(PhoneSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},

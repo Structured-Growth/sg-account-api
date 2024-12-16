@@ -60,6 +60,7 @@ export class GroupsController extends BaseController {
 	@DescribeAction("groups/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Group", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(GroupSearchParamsValidator)
 	async search(@Queries() query: GroupSearchParamsInterface): Promise<SearchResultInterface<PublicGroupAttributes>> {
 		const { data, ...result } = await this.groupsRepository.search(query);
@@ -82,6 +83,8 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(200, "Returns list of groups")
 	@DescribeAction("groups/search")
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Group", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(GroupSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -106,6 +109,7 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(201, "Returns created group")
 	@DescribeAction("groups/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Group", ({ body }) => Number(body.parentGroupId))
 	@ValidateFuncArgs(GroupCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: GroupCreateBodyInterface): Promise<PublicGroupAttributes> {
 		const group = await this.groupsService.create(body);

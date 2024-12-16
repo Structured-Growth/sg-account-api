@@ -57,6 +57,7 @@ export class CustomFieldsController extends BaseController {
 	@SuccessResponse(200, "Returns list of custom fields")
 	@DescribeAction("custom-fields/search")
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("CustomField", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(CustomFieldSearchParamsValidator)
 	async search(
 		@Queries() query: CustomFieldSearchParamsInterface
