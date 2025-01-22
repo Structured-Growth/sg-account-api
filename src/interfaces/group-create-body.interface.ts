@@ -1,4 +1,5 @@
 export interface GroupCreateBodyInterface {
+	orgId?: number;
 	accountId: number;
 	parentGroupId?: number;
 	title: string;

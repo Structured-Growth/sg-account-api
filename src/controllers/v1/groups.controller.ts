@@ -108,6 +108,7 @@ export class GroupsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created group")
 	@DescribeAction("groups/create")
+	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("Group", ({ body }) => Number(body.parentGroupId))
 	@ValidateFuncArgs(GroupCreateParamsValidator)
