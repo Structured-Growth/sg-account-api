@@ -59,7 +59,9 @@ export class OrganizationsController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of organizations")
 	@DescribeAction("organizations/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.parentOrgId))
+	@DescribeResource("Organization", ({ query }) => {
+		return [query.parentOrgId, ...(query.id || [])].filter(i => !!i).map(Number)
+	})
 	@ValidateFuncArgs(OrganizationSearchParamsValidator)
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
@@ -92,7 +94,9 @@ export class OrganizationsController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of organizations")
 	@DescribeAction("organizations/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => {
+		return [body.parentOrgId, ...(body.id || {})].filter(i => !!i).map(Number)
+	})
 	@ValidateFuncArgs(OrganizationSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
