@@ -26,7 +26,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      FOLDER_NAME: my-api
+      FOLDER_NAME: my-api-account
 
     steps:
       - name: Checkout repository
@@ -69,7 +69,7 @@ jobs:
             sudo rm -rf ${{ env.FOLDER_NAME }}
 
             echo "⬇️ Cloning repository..."
-            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Structured-Growth/api-service-starter-kit.git ${{ env.FOLDER_NAME }}
+            git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/Structured-Growth/sg-account-api.git ${{ env.FOLDER_NAME }}
             cd ${{ env.FOLDER_NAME }}
           
             git checkout ${{ github.head_ref }} && git pull
