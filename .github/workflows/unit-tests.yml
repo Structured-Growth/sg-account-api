@@ -193,9 +193,6 @@ jobs:
 
       - name: Fail workflow if tests failed
         run: |
-          echo "🚨 Checking TEST_EXIT_CODE before failing workflow..."
-          echo "TEST_EXIT_CODE is: $TEST_EXIT_CODE"
-          
           if [ "$TEST_EXIT_CODE" -gt 0 ]; then
             echo "❌ Tests failed! Failing workflow..."
             exit $TEST_EXIT_CODE
