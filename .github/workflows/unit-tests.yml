@@ -121,6 +121,9 @@ jobs:
             mkdir -p mochawesome-report
             npx mocha --exit --bail=false --reporter mochawesome \
               --reporter-options reportDir=mochawesome-report,reportFilename=report,quiet=false,inline=true
+          
+            TEST_EXIT_CODE=$?
+            echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" | tee /home/ubuntu/test_exit_code.txt
 
             echo "✅ Tests completed."
           
@@ -134,6 +137,11 @@ jobs:
         run: |
           mkdir -p reports
           scp -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/report.html reports/report.html
+
+      - name: Fetch test exit code from EC2
+        run: |
+          scp -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/test_exit_code.txt .
+          echo "TEST_EXIT_CODE=$(cat test_exit_code.txt)" >> $GITHUB_ENV
 
       - name: Check if report is saved
         run: ls -lah reports/
@@ -176,8 +184,16 @@ jobs:
             echo "🗑 Cleaning up the server..."
           
             rm -f /home/ubuntu/report.html
+            rm -f /home/ubuntu/test_exit_code.txt
           
             sudo rm -rf /home/ubuntu/${{ env.FOLDER_NAME }}
           
             echo "✅ Server is restored to original state."
           EOF
+
+      - name: Fail workflow if tests failed
+        run: |
+          if [ "$TEST_EXIT_CODE" -ne 0 ]; then
+            echo "❌ Tests failed! Failing workflow..."
+            exit $TEST_EXIT_CODE
+          fi
