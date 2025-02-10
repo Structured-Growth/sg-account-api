@@ -124,6 +124,7 @@ jobs:
           
             TEST_EXIT_CODE=$?
             echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" | tee /home/ubuntu/test_exit_code.txt
+            cat /home/ubuntu/test_exit_code.txt
 
             echo "✅ Tests completed."
           
@@ -141,7 +142,14 @@ jobs:
       - name: Fetch test exit code from EC2
         run: |
           scp -o StrictHostKeyChecking=no -i private_key.pem ubuntu@${{ secrets.EC2_PUBLIC_IP }}:/home/ubuntu/test_exit_code.txt .
-          echo "TEST_EXIT_CODE=$(cat test_exit_code.txt)" >> $GITHUB_ENV
+          
+          echo "📄 Contents of test_exit_code.txt:"
+          cat test_exit_code.txt
+          
+          TEST_EXIT_CODE=$(cat test_exit_code.txt | tr -d '\n')
+          echo "Parsed TEST_EXIT_CODE: $TEST_EXIT_CODE"
+          
+          echo "TEST_EXIT_CODE=$TEST_EXIT_CODE" >> $GITHUB_ENV
 
       - name: Check if report is saved
         run: ls -lah reports/
@@ -193,6 +201,9 @@ jobs:
 
       - name: Fail workflow if tests failed
         run: |
+          echo "🚨 Checking TEST_EXIT_CODE before failing workflow..."
+          echo "TEST_EXIT_CODE is: $TEST_EXIT_CODE"
+          
           if [ "$TEST_EXIT_CODE" -ne 0 ]; then
             echo "❌ Tests failed! Failing workflow..."
             exit $TEST_EXIT_CODE
