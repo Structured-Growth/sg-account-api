@@ -30,10 +30,8 @@ export class PreferencesController extends BaseController {
 	@DescribeAction("preferences/read")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	@ValidateFuncArgs(PreferencesReadParamsValidator)
-	async read(@Path() accountId: number): Promise<PreferencesAttributes["preferences"]> {
-		const preferences = await this.preferencesService.read(accountId);
-
-		return preferences.preferences;
+	async read(@Path() accountId: number): Promise<PreferencesAttributes> {
+		return await this.preferencesService.read(accountId);
 	}
 
 	/**
@@ -48,8 +46,8 @@ export class PreferencesController extends BaseController {
 	async update(
 		@Path() accountId: number,
 		@Queries() query: {},
-		@Body() body: Partial<PreferencesAttributes["preferences"]>
-	): Promise<PreferencesAttributes["preferences"]> {
+		@Body() body: Partial<PreferencesAttributes>
+	): Promise<PreferencesAttributes> {
 		const preferences = await this.preferencesService.update(accountId, body);
 
 		await this.eventBus.publish(
@@ -61,6 +59,6 @@ export class PreferencesController extends BaseController {
 			)
 		);
 
-		return preferences.preferences;
+		return preferences;
 	}
 }
