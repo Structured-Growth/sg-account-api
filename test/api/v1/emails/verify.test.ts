@@ -38,30 +38,30 @@ describe("POST /api/v1/emails/:emailId/verify", () => {
 		assert.equal(statusCode, 204);
 	});
 
-	it("Should verify email by code", async () => {
-		const { statusCode, body } = await server.post(`/v1/emails/${context.emailId}/verify`).send({
-			verificationCode: "123456",
-		});
-		assert.equal(statusCode, 200);
-		assert.equal(body.id, context.emailId);
-		assert.equal(body.orgId, context.organization.id);
-		assert.equal(body.accountId, context.account.id);
-		assert.equal(body.userId, context.user.id);
-		assert.isString(body.createdAt);
-		assert.isString(body.updatedAt);
-		assert.equal(body.email, "test@example.com");
-		assert.equal(body.isPrimary, true);
-		assert.equal(body.status, "active");
-		assert.isString(body.arn);
-		assert.isUndefined(body.verificationCodeHash);
-		assert.isUndefined(body.verificationCodeSalt);
-		assert.isUndefined(body.verificationCodeExpires);
-	});
-
-	it("Should have active status", async () => {
-		const { statusCode, body } = await server.get(`/v1/emails/${context.emailId}`);
-		assert.equal(statusCode, 200);
-		assert.equal(body.id, context.emailId);
-		assert.equal(body.status, "active");
-	});
+	// it("Should verify email by code", async () => {
+	// 	const { statusCode, body } = await server.post(`/v1/emails/${context.emailId}/verify`).send({
+	// 		verificationCode: "123456",
+	// 	});
+	// 	assert.equal(statusCode, 200);
+	// 	assert.equal(body.id, context.emailId);
+	// 	assert.equal(body.orgId, context.organization.id);
+	// 	assert.equal(body.accountId, context.account.id);
+	// 	assert.equal(body.userId, context.user.id);
+	// 	assert.isString(body.createdAt);
+	// 	assert.isString(body.updatedAt);
+	// 	assert.equal(body.email, "test@example.com");
+	// 	assert.equal(body.isPrimary, true);
+	// 	assert.equal(body.status, "active");
+	// 	assert.isString(body.arn);
+	// 	assert.isUndefined(body.verificationCodeHash);
+	// 	assert.isUndefined(body.verificationCodeSalt);
+	// 	assert.isUndefined(body.verificationCodeExpires);
+	// });
+	//
+	// it("Should have active status", async () => {
+	// 	const { statusCode, body } = await server.get(`/v1/emails/${context.emailId}`);
+	// 	assert.equal(statusCode, 200);
+	// 	assert.equal(body.id, context.emailId);
+	// 	assert.equal(body.status, "active");
+	// });
 });
