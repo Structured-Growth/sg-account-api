@@ -6,7 +6,7 @@ export const CustomFieldCreateParamsValidator = joi.object({
 		orgId: joi.number().positive().required().label("Organization Id"),
 		entity: joi
 			.string()
-			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember")
+			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember", "Metric")
 			.required()
 			.label("Entity"),
 		title: joi.string().min(2).max(50).required().label("Custom field title"),
