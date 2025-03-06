@@ -60,7 +60,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns list of organizations")
 	@DescribeAction("organizations/search")
 	@DescribeResource("Organization", ({ query }) => {
-		return [query.parentOrgId, ...(query.id || [])].filter(i => !!i).map(Number)
+		return [query.parentOrgId, ...(query.id || [])].filter((i) => !!i).map(Number);
 	})
 	@ValidateFuncArgs(OrganizationSearchParamsValidator)
 	async search(
@@ -95,7 +95,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns list of organizations")
 	@DescribeAction("organizations/search")
 	@DescribeResource("Organization", ({ body }) => {
-		return [body.parentOrgId, ...(body.id || {})].filter(i => !!i).map(Number)
+		return [body.parentOrgId, ...(body.id || {})].filter((i) => !!i).map(Number);
 	})
 	@ValidateFuncArgs(OrganizationSearchWithPostParamsValidator)
 	async searchPost(
