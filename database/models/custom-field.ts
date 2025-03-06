@@ -7,10 +7,11 @@ import {
 } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
 
-export interface CustomFieldAttributes extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface | "orgId" | "region"> {
+export interface CustomFieldAttributes
+	extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface | "orgId" | "region"> {
 	orgId?: number;
 	region?: RegionEnum;
-	entity: "Organization" | "Account" | "User" | "Preferences" | "Phone" | "Email" | "Group" | "GroupMember";
+	entity: "Organization" | "Account" | "User" | "Preferences" | "Phone" | "Email" | "Group" | "GroupMember" | "Metric";
 	title: string;
 	name: string;
 	schema: Record<string, any>;
@@ -59,11 +60,13 @@ export class CustomField
 	status: CustomFieldAttributes["status"];
 
 	static get arnPattern(): string {
-		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", `custom-fields/<customFieldId>`].join(":");
+		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", `custom-fields/<customFieldId>`].join(
+			":"
+		);
 	}
 
 	get arn(): string {
-		return [container.resolve("appPrefix"), this.region, this.orgId || '-', '-', `custom-fields/${this.id}`].join(":");
+		return [container.resolve("appPrefix"), this.region, this.orgId || "-", "-", `custom-fields/${this.id}`].join(":");
 	}
 }
 
