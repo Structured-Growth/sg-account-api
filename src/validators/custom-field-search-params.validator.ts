@@ -10,7 +10,7 @@ export const CustomFieldSearchParamsValidator = joi.object({
 				.items(
 					joi
 						.string()
-						.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember")
+						.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember", "Metric")
 						.required()
 				)
 				.label("Custom field entity"),

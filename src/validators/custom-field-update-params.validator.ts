@@ -6,7 +6,7 @@ export const CustomFieldUpdateParamsValidator = joi.object({
 	body: joi.object({
 		entity: joi
 			.string()
-			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember")
+			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember", "Metric")
 			.label("Custom field entity"),
 		title: joi.string().min(2).max(50).label("Custom field title"),
 		name: joi.string().min(2).max(50).label("Custom field name"),
