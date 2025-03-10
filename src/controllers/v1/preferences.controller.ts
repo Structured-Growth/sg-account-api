@@ -13,6 +13,10 @@ import { PreferencesService } from "../../modules/preferences/preferences.servic
 import { PreferencesUpdateParamsValidator } from "../../validators/preferences-update-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
 
+const publicPreferenceAttributes = ["id", "orgId", "createdAt", "updatedAt", "arn", "preferences", "metadata"] as const;
+type PreferenceKeys = (typeof publicPreferenceAttributes)[number];
+type PublicPreferenceAttributes = Pick<PreferencesAttributes, PreferenceKeys>;
+
 @Route("v1/preferences")
 @Tags("Preferences")
 @autoInjectable()
@@ -30,7 +34,7 @@ export class PreferencesController extends BaseController {
 	@DescribeAction("preferences/read")
 	@DescribeResource("Account", ({ params }) => Number(params.accountId))
 	@ValidateFuncArgs(PreferencesReadParamsValidator)
-	async read(@Path() accountId: number): Promise<Preferences> {
+	async read(@Path() accountId: number): Promise<PublicPreferenceAttributes> {
 		return await this.preferencesService.read(accountId);
 	}
 
@@ -47,7 +51,7 @@ export class PreferencesController extends BaseController {
 		@Path() accountId: number,
 		@Queries() query: {},
 		@Body() body: Partial<PreferencesAttributes>
-	): Promise<Preferences> {
+	): Promise<PublicPreferenceAttributes> {
 		const preferences = await this.preferencesService.update(accountId, body);
 
 		await this.eventBus.publish(
