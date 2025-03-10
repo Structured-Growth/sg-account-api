@@ -46,9 +46,15 @@ export class PreferencesService {
 	/**
 	 * Update account preferences. Create if not exists.
 	 */
-	public async update(accountId: number, params: Partial<PreferencesAttributes["preferences"]>): Promise<Preferences> {
+	public async update(accountId: number, params: Partial<PreferencesAttributes>): Promise<Preferences> {
 		const preferences = await this.read(accountId);
-		preferences.set("preferences", Object.assign({}, preferences.preferences, params));
+
+		if (params.preferences) {
+			preferences.set("preferences", { ...preferences.preferences, ...params.preferences });
+		}
+		if (params.metadata) {
+			preferences.set("metadata", { ...preferences.metadata, ...params.metadata });
+		}
 
 		return preferences.save();
 	}
