@@ -19,9 +19,9 @@ describe("GET /api/v1/preferences/:accountId", () => {
 	it("Should read preferences", async () => {
 		const { statusCode, body } = await server.get(`/v1/preferences/${context.account.id}`);
 		assert.equal(statusCode, 200);
-		assert.equal(body.units, "metric");
-		assert.equal(body.language, "en");
-		assert.equal(body.locale, "US");
-		assert.equal(body.timezone, "CST");
+		assert.equal(body.preferences.units, "metric");
+		assert.equal(body.preferences.language, "en");
+		assert.equal(body.preferences.locale, "US");
+		assert.equal(body.preferences.timezone, "CST");
 	});
 });
