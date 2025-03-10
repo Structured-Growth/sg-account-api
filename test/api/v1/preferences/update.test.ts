@@ -18,10 +18,12 @@ describe("POST /api/v1/preferences/:accountId", () => {
 
 	it("Should update preferences", async () => {
 		const { statusCode, body } = await server.post(`/v1/preferences/${context.account.id}`).send({
-			units: "imperial",
-			language: "uk",
-			locale: "UA",
-			timezone: "EEST",
+			preferences: {
+				units: "imperial",
+				language: "uk",
+				locale: "UA",
+				timezone: "EEST",
+			},
 		});
 		assert.equal(statusCode, 200);
 	});
@@ -29,9 +31,9 @@ describe("POST /api/v1/preferences/:accountId", () => {
 	it("Should read updated preferences", async () => {
 		const { statusCode, body } = await server.get(`/v1/preferences/${context.account.id}`);
 		assert.equal(statusCode, 200);
-		assert.equal(body.units, "imperial");
-		assert.equal(body.language, "uk");
-		assert.equal(body.locale, "UA");
-		assert.equal(body.timezone, "EEST");
+		assert.equal(body.preferences.units, "imperial");
+		assert.equal(body.preferences.language, "uk");
+		assert.equal(body.preferences.locale, "UA");
+		assert.equal(body.preferences.timezone, "EEST");
 	});
 });
