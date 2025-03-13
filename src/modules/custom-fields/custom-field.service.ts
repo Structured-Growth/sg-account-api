@@ -85,7 +85,6 @@ export class CustomFieldService {
 				},
 			},
 		});
-		console.log("CustomFields: ", customFields);
 		const validator = joi.object(
 			customFields.reduce((acc, item) => {
 				acc[item.name] = joi.build(item.schema);
