@@ -1,6 +1,7 @@
 import { autoInjectable, inject } from "@structured-growth/microservice-sdk";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { PreferencesRepository } from "./preferences.repository";
+import { CustomFieldService } from "../custom-fields/custom-field.service";
 import { Preferences, PreferencesAttributes } from "../../../database/models/preferences";
 import { NotFoundError } from "@structured-growth/microservice-sdk";
 
@@ -8,7 +9,8 @@ import { NotFoundError } from "@structured-growth/microservice-sdk";
 export class PreferencesService {
 	constructor(
 		@inject("PreferencesRepository") private preferencesRepository: PreferencesRepository,
-		@inject("AccountRepository") private accountRepository: AccountRepository
+		@inject("AccountRepository") private accountRepository: AccountRepository,
+		@inject("CustomFieldService") private customFieldService: CustomFieldService
 	) {}
 
 	private defaultPreferences: PreferencesAttributes["preferences"] = {
@@ -53,6 +55,7 @@ export class PreferencesService {
 			preferences.set("preferences", { ...preferences.preferences, ...params.preferences });
 		}
 		if (params.metadata) {
+			await this.customFieldService.validate("Preferences", params.metadata, preferences.orgId);
 			preferences.set("metadata", { ...preferences.metadata, ...params.metadata });
 		}
 
