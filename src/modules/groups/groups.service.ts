@@ -1,6 +1,6 @@
 import * as slug from "slug";
 import { v4 } from "uuid";
-import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, NotFoundError, ValidationError, I18nType } from "@structured-growth/microservice-sdk";
 import Group, { GroupUpdateAttributes } from "../../../database/models/group";
 import { GroupCreateBodyInterface } from "../../interfaces/group-create-body.interface";
 import { GroupUpdateBodyInterface } from "../../interfaces/group-update-body.interface";
@@ -11,11 +11,15 @@ import { isUndefined, omitBy, partial } from "lodash";
 
 @autoInjectable()
 export class GroupService {
+	private i18n: I18nType;
 	constructor(
 		@inject("AccountRepository") private accountRepository: AccountRepository,
 		@inject("GroupsRepository") private groupRepository: GroupsRepository,
-		@inject("ImageValidator") private imageValidator: ImageValidator
-	) {}
+		@inject("ImageValidator") private imageValidator: ImageValidator,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(params: GroupCreateBodyInterface): Promise<Group> {
 		const account = await this.accountRepository.read(params.accountId, {
@@ -23,7 +27,9 @@ export class GroupService {
 		});
 
 		if (!account) {
-			throw new NotFoundError(`Account ${params.accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${params.accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		let parentGroup: Group | undefined;
@@ -33,7 +39,11 @@ export class GroupService {
 				attributes: ["id"],
 			});
 			if (!parentGroup) {
-				throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
+				throw new NotFoundError(
+					`${this.i18n.__("error.group.parent_group")} ${params.parentGroupId} ${this.i18n.__(
+						"error.common.not_found"
+					)}`
+				);
 			}
 		}
 
@@ -46,7 +56,7 @@ export class GroupService {
 
 		if (count > 0) {
 			throw new ValidationError({
-				title: "Group with the same name is already exist",
+				title: this.i18n.__("error.group.same_name"),
 			});
 		}
 
@@ -55,7 +65,7 @@ export class GroupService {
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					title: this.i18n.__("error.group.invalid_image_file"),
 				});
 			}
 			// imageUuid = v4();
@@ -78,7 +88,7 @@ export class GroupService {
 	public async update(id, params: GroupUpdateBodyInterface): Promise<Group> {
 		const checkGroup = await this.groupRepository.read(id);
 		if (!checkGroup) {
-			throw new NotFoundError(`Group ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.group.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		let name;
@@ -92,7 +102,7 @@ export class GroupService {
 
 			if (count > 0) {
 				throw new ValidationError({
-					title: "Group with the same name is already exist",
+					title: this.i18n.__("error.group.same_name"),
 				});
 			}
 		}
@@ -101,7 +111,11 @@ export class GroupService {
 		if (params.parentGroupId) {
 			parentGroup = await this.groupRepository.read(params.parentGroupId);
 			if (!parentGroup) {
-				throw new NotFoundError(`Parent group ${params.parentGroupId} not found`);
+				throw new NotFoundError(
+					`${this.i18n.__("error.group.parent_group")} ${params.parentGroupId} ${this.i18n.__(
+						"error.common.not_found"
+					)}`
+				);
 			}
 		}
 
@@ -109,7 +123,7 @@ export class GroupService {
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					title: this.i18n.__("error.group.invalid_image_file"),
 				});
 			}
 			// imageUuid = v4();

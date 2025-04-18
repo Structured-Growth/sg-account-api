@@ -2,8 +2,10 @@ import { Op } from "sequelize";
 import {
 	autoInjectable,
 	RepositoryInterface,
+	inject,
 	SearchResultInterface,
 	NotFoundError,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import CustomField, { CustomFieldCreationAttributes } from "../../../database/models/custom-field";
 import { CustomFieldSearchParamsInterface } from "../../interfaces/custom-field-search-params.interface";
@@ -20,6 +22,12 @@ export class CustomFieldRepository
 			CustomFieldCreationAttributes
 		>
 {
+	private i18n: I18nType;
+
+	constructor(@inject("i18n") private getI18n: () => I18nType) {
+		this.i18n = this.getI18n();
+	}
+
 	public async search(
 		params: Omit<CustomFieldSearchParamsInterface, "includeInherited" | "orgId"> & {
 			orgId: number[];
@@ -85,7 +93,9 @@ export class CustomFieldRepository
 		const model = await this.read(id);
 
 		if (!model) {
-			throw new NotFoundError(`CustomField ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.custom_field.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		model.setAttributes(params);
 
@@ -96,7 +106,9 @@ export class CustomFieldRepository
 		const n = await CustomField.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`CustomField ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.custom_field.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 	}
 }

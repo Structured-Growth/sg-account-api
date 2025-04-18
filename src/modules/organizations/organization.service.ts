@@ -1,4 +1,4 @@
-import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, NotFoundError, ValidationError, I18nType } from "@structured-growth/microservice-sdk";
 import Organization, { OrganizationUpdateAttributes } from "../../../database/models/organization";
 import { OrganizationCreateBodyInterface } from "../../interfaces/organization-create-body.interface";
 import { OrganizationUpdateBodyInterface } from "../../interfaces/organization-update-body.interface";
@@ -8,16 +8,24 @@ import { isUndefined, omitBy } from "lodash";
 
 @autoInjectable()
 export class OrganizationService {
+	private i18n: I18nType;
 	constructor(
 		@inject("OrganizationRepository") private organizationRepository: OrganizationRepository,
-		@inject("ImageValidator") private imageValidator: ImageValidator
-	) {}
+		@inject("ImageValidator") private imageValidator: ImageValidator,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(params: OrganizationCreateBodyInterface): Promise<Organization> {
 		if (params.parentOrgId) {
 			const parentOrg = await this.organizationRepository.read(params.parentOrgId);
 			if (!parentOrg) {
-				throw new NotFoundError(`Parent organization ${params.parentOrgId} not found`);
+				throw new NotFoundError(
+					`${this.i18n.__("error.organization.parent_organization")} ${params.parentOrgId} ${this.i18n.__(
+						"error.common.not_found"
+					)}`
+				);
 			}
 		}
 
@@ -29,7 +37,7 @@ export class OrganizationService {
 		if (count > 0) {
 			throw new ValidationError({
 				body: {
-					name: ["Organization with the same name is already exist"],
+					name: [this.i18n.__("error.organization.same_name")],
 				},
 			});
 		}
@@ -40,7 +48,7 @@ export class OrganizationService {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
 					body: {
-						imageBase64: ["Invalid image file"],
+						imageBase64: [this.i18n.__("error.organization.invalid_image_file")],
 					},
 				});
 			}
@@ -67,7 +75,9 @@ export class OrganizationService {
 	): Promise<Organization> {
 		const checkOrg = await this.organizationRepository.read(organizationId);
 		if (!checkOrg) {
-			throw new NotFoundError(`Organization ${organizationId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.organization.name")} ${organizationId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		if (params.name && params.name !== checkOrg.name) {
@@ -80,7 +90,7 @@ export class OrganizationService {
 			if (count > 0) {
 				throw new ValidationError({
 					body: {
-						name: ["Organization with the same name is already exist"],
+						name: [this.i18n.__("error.organization.same_name")],
 					},
 				});
 			}
@@ -91,7 +101,7 @@ export class OrganizationService {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
 					body: {
-						imageBase64: ["Invalid image file"],
+						imageBase64: [this.i18n.__("error.organization.invalid_image_file")],
 					},
 				});
 			}

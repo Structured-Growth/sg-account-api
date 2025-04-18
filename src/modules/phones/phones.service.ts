@@ -1,5 +1,5 @@
 import { compareSync, genSaltSync, hashSync } from "bcrypt";
-import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, NotFoundError, ValidationError, I18nType } from "@structured-growth/microservice-sdk";
 import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk";
 import { SmsService } from "@structured-growth/microservice-sdk";
 import Phone, { PhoneAttributes } from "../../../database/models/phone";
@@ -12,6 +12,7 @@ import { find, isUndefined, omitBy, random } from "lodash";
 
 @autoInjectable()
 export class PhonesService {
+	private i18n: I18nType;
 	constructor(
 		@inject("AccountRepository") private accountRepository: AccountRepository,
 		@inject("UsersRepository") private userRepository: UsersRepository,
@@ -20,8 +21,11 @@ export class PhonesService {
 		@inject("encryptionKey") private encryptionKey: string,
 		@inject("SmsService") private smsService: SmsService,
 		@inject("phoneVerificationCodeLifeTimeHours") private phoneVerificationCodeLifeTimeHours: number,
-		@inject("phoneVerificationTestCode") private phoneVerificationTestCode: string
-	) {}
+		@inject("phoneVerificationTestCode") private phoneVerificationTestCode: string,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(params: PhoneCreateBodyInterface): Promise<Phone> {
 		const [account, user] = await Promise.all([
@@ -36,7 +40,7 @@ export class PhonesService {
 
 		if (find(data, { phoneNumber: params.phoneNumber })) {
 			throw new ValidationError({
-				phoneNumber: ["Phone number is already taken"],
+				phoneNumber: [this.i18n.__("error.phone.already_taken")],
 			});
 		}
 
@@ -67,7 +71,9 @@ export class PhonesService {
 	public async update(phoneId: number, params: PhoneUpdateBodyInterface): Promise<Phone> {
 		const phone = await this.phonesRepository.read(phoneId);
 		if (!phone) {
-			throw new NotFoundError(`Phone ${phoneId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		if (params.isPrimary) {
@@ -85,7 +91,7 @@ export class PhonesService {
 				isPrimary: true,
 			});
 			if (!total || data[0].id === phoneId) {
-				throw new ValidationError({}, "You must have at least one primary phone number");
+				throw new ValidationError({}, this.i18n.__("error.phone.one_primary_phone"));
 			}
 		}
 
@@ -95,7 +101,9 @@ export class PhonesService {
 	public async sendVerificationCode(phoneId: number, code?: string) {
 		const phone = await this.phonesRepository.read(phoneId);
 		if (!phone) {
-			throw new NotFoundError(`Phone ${phoneId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		let _code = code;
@@ -110,7 +118,7 @@ export class PhonesService {
 			});
 		}
 
-		await this.smsService.send(phone.phoneNumber, `Verification code: ${_code}`);
+		await this.smsService.send(phone.phoneNumber, `${this.i18n.__("error.phone.verification_code")} ${_code}`);
 
 		return phone;
 	}
@@ -118,13 +126,15 @@ export class PhonesService {
 	public async verifyPhone(phoneId: number, code: string): Promise<Phone> {
 		const phone = await this.phonesRepository.read(phoneId);
 		if (!phone) {
-			throw new NotFoundError(`Phone ${phoneId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const isValid = compareSync(code, phone.verificationCodeHash);
 
 		if (!isValid || new Date(phone.verificationCodeExpires).getTime() < Date.now()) {
-			throw new NotFoundError("The validation code has expired or could not be found");
+			throw new NotFoundError(this.i18n.__("error.phone.validation_code_expired"));
 		}
 
 		return this.phonesRepository.update(phoneId, {

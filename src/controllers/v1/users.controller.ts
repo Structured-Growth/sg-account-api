@@ -8,6 +8,7 @@ import {
 	SearchResultInterface,
 	ValidateFuncArgs,
 	NotFoundError,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
@@ -45,11 +46,14 @@ type PublicUserAttributes = Pick<UserAttributes, UserKeys> & { imageUrl: string 
 @Tags("Users")
 @autoInjectable()
 export class UsersController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("UsersRepository") private usersRepository: UsersRepository,
-		@inject("UsersService") private usersService: UsersService
+		@inject("UsersService") private usersService: UsersService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -138,7 +142,7 @@ export class UsersController extends BaseController {
 		const user = await this.usersRepository.read(userId);
 
 		if (!user) {
-			throw new NotFoundError(`User ${userId} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.user.name")} ${userId} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		return {
@@ -188,7 +192,7 @@ export class UsersController extends BaseController {
 		const user = await this.usersRepository.read(userId);
 
 		if (!user) {
-			throw new NotFoundError(`User ${userId} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.user.name")} ${userId} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		await this.usersRepository.delete(userId);

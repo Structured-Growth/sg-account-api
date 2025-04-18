@@ -8,6 +8,7 @@ import {
 	NotFoundError,
 	ValidateFuncArgs,
 	SearchResultInterface,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { pick } from "lodash";
 import { CustomFieldAttributes } from "../../../database/models/custom-field";
@@ -42,11 +43,14 @@ type PublicCustomFieldAttributes = Pick<CustomFieldAttributes, CustomFieldKeys>;
 @Tags("Custom Fields")
 @autoInjectable()
 export class CustomFieldsController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("CustomFieldRepository") private customFieldRepository: CustomFieldRepository,
-		@inject("CustomFieldService") private customFieldService: CustomFieldService
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -120,7 +124,9 @@ export class CustomFieldsController extends BaseController {
 		const customField = await this.customFieldRepository.read(customFieldId);
 
 		if (!customField) {
-			throw new NotFoundError(`CustomField ${customFieldId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.custom_field.name")} ${customFieldId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		return {
@@ -173,7 +179,9 @@ export class CustomFieldsController extends BaseController {
 		const customField = await this.customFieldRepository.read(customFieldId);
 
 		if (!customField) {
-			throw new NotFoundError(`CustomField ${customFieldId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.custom_field.name")} ${customFieldId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		await this.customFieldRepository.delete(customFieldId);

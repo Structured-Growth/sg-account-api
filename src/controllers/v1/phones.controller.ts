@@ -6,6 +6,7 @@ import {
 	DescribeResource,
 	inject,
 	SearchResultInterface,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { Phone, PhoneAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
@@ -48,11 +49,14 @@ type PublicPhoneAttributes = Pick<PhoneAttributes, PhoneKeys>;
 @Tags("Phones")
 @autoInjectable()
 export class PhonesController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("PhonesRepository") private phonesRepository: PhonesRepository,
-		@inject("PhonesService") private phonesService: PhonesService
+		@inject("PhonesService") private phonesService: PhonesService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -140,7 +144,9 @@ export class PhonesController extends BaseController {
 		const phone = await this.phonesRepository.read(phoneId);
 
 		if (!phoneId) {
-			throw new NotFoundError(`Phone ${phoneId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		return {
 			...(pick(phone.toJSON(), publicPhoneAttributes) as PublicPhoneAttributes),
@@ -228,7 +234,9 @@ export class PhonesController extends BaseController {
 		const phone = await this.phonesRepository.read(phoneId);
 
 		if (!phoneId) {
-			throw new NotFoundError(`Phone ${phoneId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		await this.phonesRepository.delete(phoneId);

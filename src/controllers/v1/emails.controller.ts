@@ -8,6 +8,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	ValidateFuncArgs,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { pick } from "lodash";
 import { EmailAttributes } from "../../../database/models/email";
@@ -49,11 +50,14 @@ type PublicEmailAttributes = Pick<EmailAttributes, EmailKeys>;
 @Tags("Emails")
 @autoInjectable()
 export class EmailsController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("EmailsRepository") private emailRepository: EmailsRepository,
-		@inject("EmailsService") private emailService: EmailsService
+		@inject("EmailsService") private emailService: EmailsService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -142,7 +146,7 @@ export class EmailsController extends BaseController {
 		const email = await this.emailRepository.read(emailId);
 
 		if (!email) {
-			throw new NotFoundError(`Email ${email} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.email.name")} ${email} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		return {
@@ -230,7 +234,7 @@ export class EmailsController extends BaseController {
 		const email = await this.emailRepository.read(emailId);
 
 		if (!email) {
-			throw new NotFoundError(`Email ${email} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.email.name")} ${email} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		await this.emailRepository.delete(emailId);

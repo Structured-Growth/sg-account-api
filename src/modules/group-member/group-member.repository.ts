@@ -5,6 +5,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import GroupMember, {
 	GroupMemberCreationAttributes,
@@ -20,7 +21,13 @@ import User from "../../../database/models/user";
 export class GroupMemberRepository
 	implements RepositoryInterface<GroupMember, GroupMemberSearchParamsInterface, GroupMemberCreationAttributes>
 {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: GroupMemberSearchParamsInterface & { groupId: number; metadata?: Record<string, string | number> },
@@ -117,7 +124,9 @@ export class GroupMemberRepository
 	public async update(id: number, params: GroupMemberUpdateAttributes): Promise<GroupMember> {
 		const groupMember = await this.read(id);
 		if (!groupMember) {
-			throw new NotFoundError(`Group member ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group_member.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		groupMember.setAttributes(omitBy(params, isUndefined));
 		await this.customFieldService.validate("GroupMember", groupMember.toJSON().metadata, groupMember.orgId);
@@ -129,7 +138,9 @@ export class GroupMemberRepository
 		const n = await GroupMember.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Group member ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group_member.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 	}
 }

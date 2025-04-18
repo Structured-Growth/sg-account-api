@@ -1,5 +1,5 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const UserDeleteParamsValidator = joi.object({
-	userId: joi.number().positive().required().label("User Id"),
+	userId: joi.number().positive().required().label("validator.users.userId"),
 });

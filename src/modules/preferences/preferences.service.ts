@@ -1,4 +1,4 @@
-import { autoInjectable, inject } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, I18nType } from "@structured-growth/microservice-sdk";
 import { AccountRepository } from "../accounts/accounts.repository";
 import { PreferencesRepository } from "./preferences.repository";
 import { CustomFieldService } from "../custom-fields/custom-field.service";
@@ -7,11 +7,15 @@ import { NotFoundError } from "@structured-growth/microservice-sdk";
 
 @autoInjectable()
 export class PreferencesService {
+	private i18n: I18nType;
 	constructor(
 		@inject("PreferencesRepository") private preferencesRepository: PreferencesRepository,
 		@inject("AccountRepository") private accountRepository: AccountRepository,
-		@inject("CustomFieldService") private customFieldService: CustomFieldService
-	) {}
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	private defaultPreferences: PreferencesAttributes["preferences"] = {
 		units: "metric",
@@ -26,7 +30,9 @@ export class PreferencesService {
 	public async read(accountId: number): Promise<Preferences> {
 		const account = await this.accountRepository.read(accountId);
 		if (!account) {
-			throw new NotFoundError(`Account ${accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		const exists = await this.preferencesRepository.search({
 			accountId,

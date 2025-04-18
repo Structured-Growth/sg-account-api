@@ -4,13 +4,15 @@ import { CommonSearchParamsValidator } from "./common-search-params.validator";
 export const PhoneSearchParamsValidator = joi.object({
 	query: joi
 		.object({
-			orgId: joi.number().positive().required().label("Organization ID"),
-			accountId: joi.array().items(joi.number().positive()).label("Account Id"),
-			userId: joi.array().items(joi.number().positive()).label("User Id"),
-			phoneNumber: joi.array().items(joi.string().required()).label("Phone number"),
-			isPrimary: joi.boolean().label("Is primary"),
-			status: joi.array().items(joi.string().valid("verification", "active", "inactive", "archived").label("Status")),
-			metadata: joi.object().label("Metadata"),
+			orgId: joi.number().positive().required().label("validator.phones.orgId"),
+			accountId: joi.array().items(joi.number().positive()).label("validator.phones.accountId"),
+			userId: joi.array().items(joi.number().positive()).label("validator.phones.userId"),
+			phoneNumber: joi.array().items(joi.string().required()).label("validator.phones.phoneNumber"),
+			isPrimary: joi.boolean().label("validator.phones.isPrimary"),
+			status: joi
+				.array()
+				.items(joi.string().valid("verification", "active", "inactive", "archived").label("validator.phones.status")),
+			metadata: joi.object().label("validator.phones.metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

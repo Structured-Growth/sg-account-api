@@ -3,6 +3,7 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Phone, { PhoneAttributes, PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
@@ -15,7 +16,13 @@ import { isUndefined, omitBy } from "lodash";
 export class PhonesRepository
 	implements RepositoryInterface<Phone, PhoneSearchParamsInterface, PhoneCreationAttributes>
 {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: PhoneSearchParamsInterface & {
@@ -97,7 +104,7 @@ export class PhonesRepository
 	public async update(id: number, params: Partial<PhoneAttributes>): Promise<Phone> {
 		const phone = await this.read(id);
 		if (!phone) {
-			throw new NotFoundError(`Phone ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.phone.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		phone.setAttributes(omitBy(params, isUndefined));
 		await this.customFieldService.validate("Phone", phone.toJSON().metadata, phone.orgId);
@@ -109,7 +116,7 @@ export class PhonesRepository
 		const n = await Phone.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Phone ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.phone.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 	}
 }

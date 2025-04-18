@@ -4,6 +4,7 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	NotFoundError,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Group, { GroupCreationAttributes, GroupUpdateAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
@@ -17,7 +18,13 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 export class GroupsRepository
 	implements RepositoryInterface<Group, GroupSearchParamsInterface, GroupCreationAttributes>
 {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: GroupSearchParamsInterface & {
@@ -123,7 +130,7 @@ export class GroupsRepository
 	public async update(id: number, params: GroupUpdateAttributes): Promise<Group> {
 		const group = await this.read(id);
 		if (!group) {
-			throw new NotFoundError(`Group ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.group.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		group.setAttributes(omitBy(params, isUndefined));
 
@@ -134,7 +141,7 @@ export class GroupsRepository
 		const n = await Group.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Group ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.group.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 	}
 }

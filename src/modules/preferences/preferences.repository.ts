@@ -3,7 +3,9 @@ import {
 	autoInjectable,
 	RepositoryInterface,
 	SearchResultInterface,
+	inject,
 	NotFoundError,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Preferences, {
 	PreferencesCreationAttributes,
@@ -16,6 +18,11 @@ import { isUndefined, omitBy } from "lodash";
 export class PreferencesRepository
 	implements RepositoryInterface<Preferences, PreferencesSearchParamsInterface, PreferencesCreationAttributes>
 {
+	private i18n: I18nType;
+
+	constructor(@inject("i18n") private getI18n: () => I18nType) {
+		this.i18n = this.getI18n();
+	}
 	public async search(
 		params: PreferencesSearchParamsInterface,
 		options?: {
@@ -81,7 +88,9 @@ export class PreferencesRepository
 	public async update(id: number, params: PreferencesUpdateAttributes): Promise<Preferences> {
 		const preferences = await this.read(id);
 		if (!preferences) {
-			throw new NotFoundError(`Preferences ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.preferences.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		preferences.setAttributes(omitBy(params, isUndefined));
 
@@ -92,7 +101,9 @@ export class PreferencesRepository
 		const n = await Preferences.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Preferences ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.preferences.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 	}
 }
