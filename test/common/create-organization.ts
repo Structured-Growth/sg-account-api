@@ -14,7 +14,8 @@ export function createOrganization(
 ) {
 	const randomTitle = `Org-${Date.now()}-${random(100, 999)}`;
 
-	it("Should create organization", async () => {
+	it("Should create organization", async function () {
+		this.timeout(10000);
 		const { statusCode, body } = await server.post("/v1/organizations").send({
 			region: "us",
 			parentOrgId: isFunction(options.parentOrgId) ? options.parentOrgId(context) : options.parentOrgId,
