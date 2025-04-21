@@ -9,6 +9,7 @@ import {
 	SearchResultInterface,
 	ValidateFuncArgs,
 	NotFoundError,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { isString, pick } from "lodash";
 import { Organization, OrganizationAttributes } from "../../../database/models/organization";
@@ -45,11 +46,14 @@ type PublicOrganizationAttributes = Pick<OrganizationAttributes, OrganizationKey
 @Tags("Organizations")
 @autoInjectable()
 export class OrganizationsController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("OrganizationRepository") private organizationsRepository: OrganizationRepository,
-		@inject("OrganizationService") private organizationService: OrganizationService
+		@inject("OrganizationService") private organizationService: OrganizationService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -159,7 +163,9 @@ export class OrganizationsController extends BaseController {
 		const organization = await this.organizationsRepository.read(organizationId);
 
 		if (!organization) {
-			throw new NotFoundError(`Organization ${organizationId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.organization.name")} ${organizationId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		return {
@@ -233,7 +239,9 @@ export class OrganizationsController extends BaseController {
 		const organization = await this.organizationsRepository.read(organizationId);
 
 		if (!organization) {
-			throw new NotFoundError(`Organization ${organizationId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.organization.name")} ${organizationId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		await this.organizationsRepository.delete(organizationId);
 

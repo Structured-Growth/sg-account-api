@@ -1,0 +1,168 @@
+{
+  "system": {
+    "ping":  {
+      "am": "I'm",
+      "service": "service"
+    }
+  },
+  "error": {
+    "common": {
+      "not_found": "not found"
+    },
+    "account": {
+      "name": "Account"
+    },
+    "organization": {
+      "name": "Organization",
+      "parent_organization": "Parent organization",
+      "same_name": "Organization with the same name is already exist",
+      "invalid_image_file": "Invalid image file"
+    },
+    "custom_field": {
+      "name": "CustomField"
+    },
+    "email": {
+      "name": "Email",
+      "already_taken": "Email is already taken",
+      "one_primary_email": "You must have at least one primary email",
+      "ver_code_not_found": "Verification code not found"
+    },
+    "phone": {
+      "name": "Phone",
+      "already_taken": "Phone number is already taken",
+      "one_primary_phone": "You must have at least one primary phone number",
+      "verification_code": "Verification code:",
+      "validation_code_expired": "The validation code has expired or could not be found"
+    },
+    "user": {
+      "name": "User",
+      "invalid_image_file": "Invalid image file",
+      "one_primary_user": "You must have at least one primary user"
+    },
+    "group": {
+      "name": "Group",
+      "parent_group": "Parent group",
+      "same_name": "Group with the same name is already exist",
+      "invalid_image_file": "Invalid image file"
+    },
+    "group_member": {
+      "name": "Group member",
+      "already_group_member": "is already group member"
+    },
+    "preferences": {
+      "name": "Preferences"
+    }
+  },
+  "email_verification": {
+    "subject": "Email verification",
+    "h1": "Verification code",
+    "text_24_hours": "Your verification code is below. It will expire in 24 hours.",
+    "text_issues": "If you have any issues confirming your email we will be happy to help you. You can contact us on"
+  },
+  "validator": {
+    "common": {
+      "id": "Entity IDs",
+      "arn": "Entity ARNs",
+      "page": "Page",
+      "limit": "Limit",
+      "sort": "Sort"
+    },
+    "accounts": {
+      "orgId": "Organization Id",
+      "status": "Status",
+      "metadata": "Metadata",
+      "id": "Entity IDs",
+      "arn": "Entity ARNs",
+      "page": "Page",
+      "limit": "Limit",
+      "sort": "Sort",
+      "image": "Image",
+      "accountId": "Account Id"
+    },
+    "customField": {
+      "orgId": "Organization Id",
+      "entity": "Custom field entity",
+      "title": "Custom field title",
+      "name": "Custom field name",
+      "status": "Status",
+      "includeInherited": "Include inherited",
+      "schema": "Custom field validation schema",
+      "customFieldId": "Custom field Id"
+    },
+    "emails": {
+      "orgId": "Organization Id",
+      "accountId": "Account Id",
+      "userId": "User Id",
+      "email": "Email",
+      "status": "Status",
+      "isPrimary": "Is Primary",
+      "metadata": "Metadata",
+      "sendVerificationCode": "Send verification code",
+      "emailId": "Email Id"
+    },
+    "groupMembers": {
+      "groupId": "Group Id",
+      "accountId": "Account Id",
+      "userId": "User Id",
+      "status": "Status",
+      "metadata": "Metadata",
+      "groupMemberId": "Group member id"
+    },
+    "groups": {
+      "orgId": "Organization Id",
+      "accountId": "Account Id",
+      "parentGroupId": "Parent Group Id",
+      "status": "Status",
+      "metadata": "Metadata",
+      "title": "Title",
+      "imageBase64": "Image",
+      "groupId": "Group ID"
+    },
+    "organizations": {
+      "parentOrgId": "Parent organization Id",
+      "status": "Status",
+      "signUpEnabled": "Sign Up Enabled",
+      "metadata": "Metadata",
+      "title": "Organization title",
+      "name": "Organization name",
+      "region": "Organization region",
+      "organizationId": "Organization Id",
+      "customFieldsOrgId": "Org ID for custom fields validation",
+      "imageBase64": "Image"
+    },
+    "phones": {
+      "orgId": "Organization Id",
+      "accountId": "Account Id",
+      "userId": "User Id",
+      "phoneNumber": "Phone number",
+      "status": "Status",
+      "isPrimary": "Is Primary",
+      "metadata": "Metadata",
+      "sendVerificationCode": "Send verification code",
+      "phoneId": "Phone Id"
+    },
+    "preferences": {
+      "accountId": "Account Id",
+      "units": "Units",
+      "timezone": "Timezone abbreviation",
+      "language": "Language",
+      "locale": "Locale",
+      "metadata": "Metadata"
+    },
+    "users": {
+      "orgId": "Organization Id",
+      "accountId": "Account Id",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "birthday": "Birthday",
+      "gender": "Gender",
+      "isPrimary": "Is primary",
+      "search": "Search",
+      "accountMetadata": "Account Metadata",
+      "status": "Status",
+      "imageBase64": "Image",
+      "metadata": "Metadata",
+      "userId": "User Id"
+    }
+  }
+}

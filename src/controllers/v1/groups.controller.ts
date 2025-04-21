@@ -8,6 +8,7 @@ import {
 	ValidateFuncArgs,
 	NotFoundError,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
@@ -44,11 +45,14 @@ type PublicGroupAttributes = Pick<GroupAttributes, GroupKeys> & { imageUrl: stri
 @Tags("Groups")
 @autoInjectable()
 export class GroupsController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("GroupsRepository") private groupsRepository: GroupsRepository,
-		@inject("GroupService") private groupsService: GroupService
+		@inject("GroupService") private groupsService: GroupService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -140,7 +144,9 @@ export class GroupsController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Group ${groupId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group.name")} ${groupId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		return {
@@ -190,7 +196,9 @@ export class GroupsController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Group ${groupId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group.name")} ${groupId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		await this.groupsRepository.delete(groupId);

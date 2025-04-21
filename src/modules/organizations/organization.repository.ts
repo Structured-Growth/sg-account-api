@@ -3,8 +3,10 @@ import {
 	autoInjectable,
 	RepositoryInterface,
 	SearchResultInterface,
+	inject,
 	NotFoundError,
 	container,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Organization, {
 	OrganizationCreationAttributes,
@@ -18,6 +20,11 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 export class OrganizationRepository
 	implements RepositoryInterface<Organization, OrganizationSearchParamsInterface, OrganizationCreationAttributes>
 {
+	private i18n: I18nType;
+
+	constructor(@inject("i18n") private getI18n: () => I18nType) {
+		this.i18n = this.getI18n();
+	}
 	public async search(
 		params: OrganizationSearchParamsInterface & {
 			metadata?: Record<string, string | number>;
@@ -107,7 +114,9 @@ export class OrganizationRepository
 		const n = await Organization.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Organization ${id} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.organization.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 	}
 }

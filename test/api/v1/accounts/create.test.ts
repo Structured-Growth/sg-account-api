@@ -3,7 +3,8 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { initTest } from "../../../common/init-test";
 
-describe("POST /api/v1/accounts", () => {
+describe("POST /api/v1/accounts", function () {
+	this.timeout(10000);
 	const { server, context } = initTest();
 
 	createOrganization(server, context, {

@@ -3,13 +3,13 @@ import { joi } from "@structured-growth/microservice-sdk";
 export const OrganizationCreateParamsValidator = joi.object({
 	query: joi.object(),
 	body: joi.object({
-		parentOrgId: joi.number().positive().label("Parent organization Id"),
-		title: joi.string().min(3).max(50).required().label("Organization title"),
-		name: joi.string().min(3).max(50).required().label("Organization name"),
-		region: joi.string().min(2).required().label("Organization region"),
-		status: joi.string().valid("active", "inactive").label("Status"),
-		signUpEnabled: joi.boolean().label("Sign Up Enabled"),
+		parentOrgId: joi.number().positive().label("validator.organizations.parentOrgId"),
+		title: joi.string().min(3).max(50).required().label("validator.organizations.title"),
+		name: joi.string().min(3).max(50).required().label("validator.organizations.name"),
+		region: joi.string().min(2).required().label("validator.organizations.region"),
+		status: joi.string().valid("active", "inactive").label("validator.organizations.status"),
+		signUpEnabled: joi.boolean().label("validator.organizations.signUpEnabled"),
 		imageBase64: joi.string(),
-		metadata: joi.object().label("Metadata"),
+		metadata: joi.object().label("validator.organizations.metadata"),
 	}),
 });

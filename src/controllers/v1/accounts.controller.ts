@@ -8,6 +8,7 @@ import {
 	NotFoundError,
 	ValidateFuncArgs,
 	SearchResultInterface,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { pick } from "lodash";
 import { AccountAttributes } from "../../../database/models/account";
@@ -33,12 +34,15 @@ type PublicAccountAttributes = Pick<AccountAttributes, AccountKeys>;
 @Tags("Accounts")
 @autoInjectable()
 export class AccountsController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("AccountRepository") private accountRepository: AccountRepository,
 		@inject("UsersRepository") private usersRepository: UsersRepository,
-		@inject("AccountsService") private accountService: AccountsService
+		@inject("AccountsService") private accountService: AccountsService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -132,7 +136,9 @@ export class AccountsController extends BaseController {
 		const account = await this.accountRepository.read(accountId);
 
 		if (!account) {
-			throw new NotFoundError(`Account ${accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		return {
@@ -180,7 +186,9 @@ export class AccountsController extends BaseController {
 		const account = await this.accountRepository.read(accountId);
 
 		if (!account) {
-			throw new NotFoundError(`Account ${accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		await this.accountRepository.delete(accountId);

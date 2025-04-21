@@ -5,17 +5,19 @@ export const UserSearchWithPostParamsValidator = joi.object({
 	query: joi.object(),
 	body: joi
 		.object({
-			orgId: joi.number().positive().required().label("Organization Id"),
-			accountId: joi.array().items(joi.number().positive()).label("Account Id"),
-			firstName: joi.array().items(joi.string().max(50).required()).label("First name"),
-			lastName: joi.array().items(joi.string().max(50).required()).label("Last name"),
-			birthday: joi.array().items(joi.date().iso().label("Birthday").required().allow(null)).length(2),
-			gender: joi.array().items(joi.string().valid("male", "female", "unspec").required().label("Gender")),
-			isPrimary: joi.boolean().label("Is primary"),
+			orgId: joi.number().positive().required().label("validator.users.orgId"),
+			accountId: joi.array().items(joi.number().positive()).label("validator.users.accountId"),
+			firstName: joi.array().items(joi.string().max(50).required()).label("validator.users.firstName"),
+			lastName: joi.array().items(joi.string().max(50).required()).label("validator.users.lastName"),
+			birthday: joi.array().items(joi.date().iso().label("validator.users.birthday").required().allow(null)).length(2),
+			gender: joi
+				.array()
+				.items(joi.string().valid("male", "female", "unspec").required().label("validator.users.gender")),
+			isPrimary: joi.boolean().label("validator.users.isPrimary"),
 			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required()),
 			metadata: joi.object(),
-			search: joi.string().max(50).label("Search"),
-			accountMetadata: joi.object().label("Account Metadata"),
+			search: joi.string().max(50).label("validator.users.search"),
+			accountMetadata: joi.object().label("validator.users.accountMetadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

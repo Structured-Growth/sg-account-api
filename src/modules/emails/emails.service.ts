@@ -1,4 +1,4 @@
-import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, NotFoundError, ValidationError, I18nType } from "@structured-growth/microservice-sdk";
 import { genSaltSync, hashSync, compareSync } from "bcrypt";
 import { Mailer } from "@structured-growth/microservice-sdk";
 import Email from "../../../database/models/email";
@@ -12,6 +12,7 @@ import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.int
 
 @autoInjectable()
 export class EmailsService {
+	private i18n: I18nType;
 	constructor(
 		@inject("EmailsRepository") private emailRepository: EmailsRepository,
 		@inject("AccountRepository") private accountRepository: AccountRepository,
@@ -20,8 +21,11 @@ export class EmailsService {
 		@inject("encryptionKey") private encryptionKey: string,
 		@inject("Mailer") private mailer: Mailer,
 		@inject("emailVerificationCodeLifeTimeHours") private emailVerificationCodeLifeTimeHours: number,
-		@inject("emailVerificationTestCode") private emailVerificationTestCode: string
-	) {}
+		@inject("emailVerificationTestCode") private emailVerificationTestCode: string,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(params: EmailCreateBodyInterface): Promise<Email> {
 		const [account, user] = await Promise.all([
@@ -30,11 +34,15 @@ export class EmailsService {
 		]);
 
 		if (!account) {
-			throw new NotFoundError(`Account ${params.accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${params.accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		if (!user) {
-			throw new NotFoundError(`User ${params.userId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.user.name")} ${params.userId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const { data, total } = await this.emailRepository.search({
@@ -44,7 +52,7 @@ export class EmailsService {
 
 		if (find(data, { email: params.email })) {
 			throw new ValidationError({
-				email: ["Email is already taken"],
+				email: [this.i18n.__("error.email.already_taken")],
 			});
 		}
 
@@ -75,7 +83,9 @@ export class EmailsService {
 	public async update(emailId: number, params: EmailUpdateBodyInterface): Promise<Email> {
 		const email = await this.emailRepository.read(emailId);
 		if (!email) {
-			throw new NotFoundError(`Email ${emailId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.email.name")} ${emailId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		if (params.isPrimary) {
@@ -93,7 +103,7 @@ export class EmailsService {
 				isPrimary: true,
 			});
 			if (!total || data[0].id === emailId) {
-				throw new ValidationError({}, "You must have at least one primary email");
+				throw new ValidationError({}, this.i18n.__("error.email.one_primary_email"));
 			}
 		}
 
@@ -103,7 +113,9 @@ export class EmailsService {
 	public async sendVerificationEmail(emailId: number, code?: string) {
 		const email = await this.emailRepository.read(emailId);
 		if (!email) {
-			throw new NotFoundError(`Email ${emailId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.email.name")} ${emailId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		let _code = code;
@@ -121,12 +133,12 @@ export class EmailsService {
 		await this.mailer.send({
 			toEmail: email.email,
 			fromEmail: process.env.FROM_EMAIL || "support@example.com",
-			subject: `Email verification`,
+			subject: this.i18n.__("error.email_verification.subject"),
 			html: [
-				`<h1>Verification code</h1>`,
-				`<p>Your verification code is below. It will expire in 24 hours.</p>`,
+				`<h1>${this.i18n.__("error.email_verification.h1")}</h1>`,
+				`<p>${this.i18n.__("error.email_verification.text_24_hours")}</p>`,
 				`<h2>${_code}</h2>`,
-				`<p>If you have any issues confirming your email we will be happy to help you. You can contact us on ${process.env.SUPPORT_EMAIL}.</p>`,
+				`<p>${this.i18n.__("error.email_verification.text_issues")} ${process.env.SUPPORT_EMAIL}.</p>`,
 			].join(""),
 		} as any);
 
@@ -136,13 +148,15 @@ export class EmailsService {
 	public async verifyEmail(emailId: number, code: string): Promise<Email> {
 		const email = await this.emailRepository.read(emailId);
 		if (!email) {
-			throw new NotFoundError(`Email ${emailId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.email.name")} ${emailId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const isValid = compareSync(code, email.verificationCodeHash);
 
 		if (!isValid || new Date(email.verificationCodeExpires).getTime() < Date.now()) {
-			throw new NotFoundError("Verification code not found");
+			throw new NotFoundError(this.i18n.__("error.email.ver_code_not_found"));
 		}
 
 		return this.emailRepository.update(emailId, {
