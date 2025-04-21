@@ -1,4 +1,4 @@
-import { autoInjectable, inject, NotFoundError, ValidationError } from "@structured-growth/microservice-sdk";
+import { autoInjectable, inject, NotFoundError, ValidationError, I18nType } from "@structured-growth/microservice-sdk";
 import User, { UserUpdateAttributes } from "../../../database/models/user";
 import { UserCreateBodyInterface } from "../../interfaces/user-create-body.interface";
 import { UserUpdateBodyInterface } from "../../interfaces/user-update-body.interface";
@@ -11,13 +11,17 @@ import { EmailsRepository } from "../emails/emails.repository";
 
 @autoInjectable()
 export class UsersService {
+	private i18n: I18nType;
 	constructor(
 		@inject("UsersRepository") private userRepository: UsersRepository,
 		@inject("AccountRepository") private accountRepository: AccountRepository,
 		@inject("ImageValidator") private imageValidator: ImageValidator,
 		@inject("EmailsRepository") private emailsRepository: EmailsRepository,
-		@inject("PhonesRepository") private phonesRepository: PhonesRepository
-	) {}
+		@inject("PhonesRepository") private phonesRepository: PhonesRepository,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(params: UserCreateBodyInterface): Promise<User> {
 		const account = await this.accountRepository.read(params.accountId, {
@@ -25,7 +29,9 @@ export class UsersService {
 		});
 
 		if (!account) {
-			throw new NotFoundError(`Account ${params.accountId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.account.name")} ${params.accountId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const organization = await account.$get("org", {
@@ -36,7 +42,7 @@ export class UsersService {
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					title: this.i18n.__("error.user.invalid_image_file"),
 				});
 			}
 			// imageUuid = v4();
@@ -72,14 +78,14 @@ export class UsersService {
 	public async update(userId, params: UserUpdateBodyInterface): Promise<User> {
 		const checkUser = await this.userRepository.read(userId, { attributes: ["id"] });
 		if (!checkUser) {
-			throw new NotFoundError(`User ${userId} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.user.name")} ${userId} ${this.i18n.__("error.common.not_found")}`);
 		}
 
 		let imageUuid = null;
 		if (params.imageBase64) {
 			if (!this.imageValidator.hasValidImageSignature(Buffer.from(params.imageBase64, "base64"))) {
 				throw new ValidationError({
-					title: "Invalid image file",
+					title: this.i18n.__("error.user.invalid_image_file"),
 				});
 			}
 			// imageUuid = v4();
@@ -101,7 +107,7 @@ export class UsersService {
 				isPrimary: true,
 			});
 			if (!total || data[0].id === userId) {
-				throw new ValidationError({}, "You must have at least one primary user");
+				throw new ValidationError({}, this.i18n.__("error.user.one_primary_user"));
 			}
 		}
 

@@ -8,6 +8,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	ValidateFuncArgs,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { GroupMemberAttributes } from "../../../database/models/group-member";
 import { GroupMemberRepository } from "../../modules/group-member/group-member.repository";
@@ -43,12 +44,15 @@ type PublicGroupMemberAttributes = Pick<GroupMemberAttributes, GroupMemberKeys>;
 @Tags("Group Members")
 @autoInjectable()
 export class GroupMembersController extends BaseController {
+	private i18n: I18nType;
 	constructor(
 		@inject("GroupMemberRepository") private groupMemberRepository: GroupMemberRepository,
 		@inject("GroupsRepository") private groupsRepository: GroupsRepository,
-		@inject("GroupMemberService") private groupMemberService: GroupMemberService
+		@inject("GroupMemberService") private groupMemberService: GroupMemberService,
+		@inject("i18n") private getI18n: () => I18nType
 	) {
 		super();
+		this.i18n = this.getI18n();
 	}
 
 	/**
@@ -158,12 +162,16 @@ export class GroupMembersController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Group ${groupId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group.name")} ${groupId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		const groupMember = await this.groupMemberRepository.read(groupMemberId);
 
 		if (!groupMember) {
-			throw new NotFoundError(`Group member ${groupMemberId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group_member.name")} ${groupMemberId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		return {
@@ -191,7 +199,9 @@ export class GroupMembersController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Group ${groupId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group.name")} ${groupId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const groupMember = await this.groupMemberService.update(Number(groupMemberId), body);
@@ -224,13 +234,17 @@ export class GroupMembersController extends BaseController {
 		const group = await this.groupsRepository.read(groupId);
 
 		if (!group) {
-			throw new NotFoundError(`Group ${groupId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group.name")} ${groupId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		const groupMember = await this.groupMemberRepository.read(groupMemberId);
 
 		if (!groupMember) {
-			throw new NotFoundError(`Group member ${groupMemberId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.group_member.name")} ${groupMemberId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 
 		await this.groupMemberRepository.delete(groupMemberId);

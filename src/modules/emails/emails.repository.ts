@@ -4,6 +4,7 @@ import {
 	RepositoryInterface,
 	SearchResultInterface,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Email, { EmailAttributes, EmailCreationAttributes } from "../../../database/models/email";
 import { EmailSearchParamsInterface } from "../../interfaces/email-search-params.interface";
@@ -14,7 +15,13 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 export class EmailsRepository
 	implements RepositoryInterface<Email, EmailSearchParamsInterface, EmailCreationAttributes>
 {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: EmailSearchParamsInterface & {
@@ -98,7 +105,7 @@ export class EmailsRepository
 	public async update(id: number, params: Partial<EmailAttributes>): Promise<Email> {
 		const email = await this.read(id);
 		if (!email) {
-			throw new NotFoundError(`Email ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.email.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		email.setAttributes(params);
 		await this.customFieldService.validate("Email", email.toJSON().metadata, email.orgId);
@@ -110,7 +117,7 @@ export class EmailsRepository
 		const n = await Email.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Email ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.email.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 	}
 }

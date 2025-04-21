@@ -6,6 +6,7 @@ import {
 	ValidationError,
 	NotFoundError,
 	RegionEnum,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import { CustomFieldRepository } from "./custom-field.repository";
 import { OrganizationRepository } from "../organizations/organization.repository";
@@ -19,18 +20,24 @@ import { flatten, map, omit } from "lodash";
 
 @autoInjectable()
 export class CustomFieldService {
+	private i18n: I18nType;
 	constructor(
 		@inject("CustomFieldRepository") private customFieldRepository: CustomFieldRepository,
 		@inject("OrganizationRepository") private organizationRepository: OrganizationRepository,
-		@inject("OrganizationService") private organizationService: OrganizationService
-	) {}
+		@inject("OrganizationService") private organizationService: OrganizationService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async create(data: CustomFieldCreateBodyInterface): Promise<CustomField> {
 		let region = RegionEnum.US;
 		const organization = await this.organizationRepository.read(data.orgId);
 
 		if (!organization) {
-			throw new NotFoundError(`Organization ${data.orgId} not found`);
+			throw new NotFoundError(
+				`${this.i18n.__("error.organization.name")} ${data.orgId} ${this.i18n.__("error.common.not_found")}`
+			);
 		}
 		region = organization.region;
 
@@ -92,7 +99,7 @@ export class CustomFieldService {
 			}, {})
 		);
 
-		const { valid, message, errors } = validate(validator, data);
+		const { valid, message, errors } = await validate(validator, data);
 
 		if (!valid && throwError) {
 			throw new ValidationError({

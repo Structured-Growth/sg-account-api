@@ -5,6 +5,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import User, { UserCreationAttributes, UserUpdateAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
@@ -17,7 +18,13 @@ import { Sequelize } from "sequelize-typescript";
 
 @autoInjectable()
 export class UsersRepository implements RepositoryInterface<User, UserSearchParamsInterface, UserCreationAttributes> {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: UserSearchParamsInterface & {
@@ -153,7 +160,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 	public async update(id: number, params: UserUpdateAttributes): Promise<User> {
 		const user = await this.read(id);
 		if (!user) {
-			throw new NotFoundError(`User ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.user.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		user.setAttributes(omitBy(params, isUndefined));
 		await this.customFieldService.validate("User", user.toJSON().metadata, user.orgId);
@@ -165,7 +172,7 @@ export class UsersRepository implements RepositoryInterface<User, UserSearchPara
 		const n = await User.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`User ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.user.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 	}
 }

@@ -1,11 +1,11 @@
 import { joi } from "@structured-growth/microservice-sdk";
 
 export const GroupMemberUpdateParamsValidator = joi.object({
-	groupId: joi.number().required().label("Group id"),
-	groupMemberId: joi.number().required().label("Group member id"),
+	groupId: joi.number().required().label("validator.groupMembers.groupId"),
+	groupMemberId: joi.number().required().label("validator.groupMembers.groupMemberId"),
 	query: joi.object(),
 	body: joi.object({
-		status: joi.string().valid("active", "inactive", "archived").label("Status"),
-		metadata: joi.object().label("Metadata"),
+		status: joi.string().valid("active", "inactive", "archived").label("validator.groupMembers.status"),
+		metadata: joi.object().label("validator.groupMembers.metadata"),
 	}),
 });

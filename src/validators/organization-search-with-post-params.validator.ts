@@ -5,12 +5,14 @@ export const OrganizationSearchWithPostParamsValidator = joi.object({
 	query: joi.object(),
 	body: joi
 		.object({
-			parentOrgId: joi.number().positive().label("Parent organization Id"),
-			status: joi.array().items(joi.string().valid("active", "inactive", "archived").required().label("Status")),
+			parentOrgId: joi.number().positive().label("validator.organizations.parentOrgId"),
+			status: joi
+				.array()
+				.items(joi.string().valid("active", "inactive", "archived").required().label("validator.organizations.status")),
 			title: joi.array().items(joi.string().max(50).required()),
 			name: joi.array().items(joi.string().max(50).required()),
-			signUpEnabled: joi.boolean().label("Sign Up Enabled"),
-			metadata: joi.object().label("Metadata"),
+			signUpEnabled: joi.boolean().label("validator.organizations.signUpEnabled"),
+			metadata: joi.object().label("validator.organizations.metadata"),
 		})
 		.concat(CommonSearchParamsValidator),
 });

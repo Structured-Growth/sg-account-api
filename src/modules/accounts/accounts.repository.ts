@@ -5,6 +5,7 @@ import {
 	SearchResultInterface,
 	NotFoundError,
 	inject,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import Account, { AccountAttributes, AccountCreationAttributes } from "../../../database/models/account";
 import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
@@ -15,7 +16,13 @@ import { CustomFieldService } from "../custom-fields/custom-field.service";
 export class AccountRepository
 	implements RepositoryInterface<Account, AccountSearchParamsInterface, AccountCreationAttributes>
 {
-	constructor(@inject("CustomFieldService") private customFieldService: CustomFieldService) {}
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		this.i18n = this.getI18n();
+	}
 
 	public async search(
 		params: AccountSearchParamsInterface & {
@@ -74,7 +81,7 @@ export class AccountRepository
 		const account = await this.read(id);
 
 		if (!account) {
-			throw new NotFoundError(`Account ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.account.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		account.setAttributes(params);
 		await this.customFieldService.validate("Account", account.toJSON().metadata, account.orgId);
@@ -86,7 +93,7 @@ export class AccountRepository
 		const n = await Account.destroy({ where: { id } });
 
 		if (n === 0) {
-			throw new NotFoundError(`Account ${id} not found`);
+			throw new NotFoundError(`${this.i18n.__("error.account.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 	}
 }
