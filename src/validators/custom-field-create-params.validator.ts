@@ -1,4 +1,6 @@
 import { joi } from "@structured-growth/microservice-sdk";
+import { CustomFieldsEnum } from "../modules/custom-fields/custom-fields.enum";
+import { getEnumValues } from "../helpers/get-enum-values";
 
 export const CustomFieldCreateParamsValidator = joi.object({
 	query: joi.object(),
@@ -6,7 +8,7 @@ export const CustomFieldCreateParamsValidator = joi.object({
 		orgId: joi.number().positive().required().label("validator.customField.orgId"),
 		entity: joi
 			.string()
-			.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember", "Metric")
+			.valid(...getEnumValues(CustomFieldsEnum))
 			.required()
 			.label("validator.customField.entity"),
 		title: joi.string().min(2).max(50).required().label("validator.customField.title"),
