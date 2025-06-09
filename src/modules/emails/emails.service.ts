@@ -110,6 +110,8 @@ export class EmailsService {
 		return this.emailRepository.update(emailId, params);
 	}
 
+	private code1: string;
+
 	public async sendVerificationEmail(emailId: number, code?: string) {
 		const email = await this.emailRepository.read(emailId);
 		if (!email) {
@@ -118,7 +120,8 @@ export class EmailsService {
 			);
 		}
 
-		let _code = code;
+		this.code1 = code;
+		let _code = this.code1;
 
 		if (!_code) {
 			const { code, hash, expirationDate } = this.generateVerificationCode();

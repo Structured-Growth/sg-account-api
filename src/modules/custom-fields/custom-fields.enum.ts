@@ -8,5 +8,5 @@ export enum CustomFieldsEnum {
 	Group = "Group",
 	GroupMember = "GroupMember",
 	Metric = "Metric",
-	Device = "Device"
+	Device = "Device",
 }
