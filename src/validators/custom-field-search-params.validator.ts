@@ -1,5 +1,7 @@
 import { joi } from "@structured-growth/microservice-sdk";
 import { CommonSearchParamsValidator } from "./common-search-params.validator";
+import { getEnumValues } from "../helpers/get-enum-values";
+import { CustomFieldsEnum } from "../modules/custom-fields/custom-fields.enum";
 
 export const CustomFieldSearchParamsValidator = joi.object({
 	query: joi
@@ -10,7 +12,7 @@ export const CustomFieldSearchParamsValidator = joi.object({
 				.items(
 					joi
 						.string()
-						.valid("Organization", "Account", "User", "Preferences", "Phone", "Email", "Group", "GroupMember", "Metric")
+						.valid(...getEnumValues(CustomFieldsEnum))
 						.required()
 				)
 				.label("validator.customField.entity"),
