@@ -5,6 +5,8 @@ import {
 	BaseController,
 	DescribeAction,
 	DescribeResource,
+	HashFields,
+	MaskFields,
 	SearchResultInterface,
 	NotFoundError,
 	ValidateFuncArgs,
@@ -27,8 +29,6 @@ import { EmailVerifyParamsValidator } from "../../validators/email-verify-params
 import { SearchEmailParamsValidator } from "../../validators/email-search-params.validator";
 import { EmailSearchWithPostParamsValidator } from "../../validators/email-search-with-post-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
-import { AccountSearchWithPostParamsValidator } from "../../validators/account-search-with-post-params.validator";
-import { AccountSearchParamsInterface } from "../../interfaces/account-search-params.interface";
 
 const publicEmailAttributes = [
 	"id",
@@ -70,6 +70,7 @@ export class EmailsController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@DescribeResource("Email", ({ query }) => query.id?.map(Number))
+	@HashFields(["email"])
 	@ValidateFuncArgs(SearchEmailParamsValidator)
 	async search(@Queries() query: EmailSearchParamsInterface): Promise<SearchResultInterface<PublicEmailAttributes>> {
 		const { data, ...result } = await this.emailRepository.search(query);
@@ -93,6 +94,7 @@ export class EmailsController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => body.accountId?.map(Number))
 	@DescribeResource("Email", ({ body }) => body.id?.map(Number))
+	@HashFields(["email"])
 	@ValidateFuncArgs(EmailSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -118,6 +120,7 @@ export class EmailsController extends BaseController {
 	@DescribeAction("emails/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@HashFields(["email"])
 	@ValidateFuncArgs(CreateEmailParamsValidator)
 	async create(@Queries() query: {}, @Body() body: EmailCreateBodyInterface): Promise<PublicEmailAttributes> {
 		const email = await this.emailService.create(body);
@@ -141,6 +144,7 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns email")
 	@DescribeAction("emails/read")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@HashFields(["email"])
 	@ValidateFuncArgs(EmailReadParamsValidator)
 	async get(@Path() emailId: number): Promise<PublicEmailAttributes> {
 		const email = await this.emailRepository.read(emailId);
@@ -163,6 +167,7 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns updated email")
 	@DescribeAction("emails/update")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@HashFields(["email"])
 	@ValidateFuncArgs(UpdateEmailParamsValidator)
 	async update(
 		@Path() emailId: number,
@@ -203,6 +208,8 @@ export class EmailsController extends BaseController {
 	@SuccessResponse(200, "Returns verified email")
 	@DescribeAction("emails/verify")
 	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@HashFields(["email"])
+	@MaskFields(["verificationCode"])
 	@ValidateFuncArgs(EmailVerifyParamsValidator)
 	async verify(
 		@Path() emailId: number,

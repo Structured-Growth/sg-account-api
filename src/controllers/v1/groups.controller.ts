@@ -9,6 +9,7 @@ import {
 	NotFoundError,
 	inject,
 	I18nType,
+	HashFields,
 } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../../database/models/group";
 import { GroupSearchParamsInterface } from "../../interfaces/group-search-params.interface";
@@ -65,6 +66,7 @@ export class GroupsController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
 	@DescribeResource("Group", ({ query }) => query.id?.map(Number))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupSearchParamsValidator)
 	async search(@Queries() query: GroupSearchParamsInterface): Promise<SearchResultInterface<PublicGroupAttributes>> {
 		const { data, ...result } = await this.groupsRepository.search(query);
@@ -89,6 +91,7 @@ export class GroupsController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("Group", ({ body }) => body.id?.map(Number))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -115,6 +118,7 @@ export class GroupsController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("Group", ({ body }) => Number(body.parentGroupId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: GroupCreateBodyInterface): Promise<PublicGroupAttributes> {
 		const group = await this.groupsService.create(body);
@@ -139,6 +143,7 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(200, "Returns group")
 	@DescribeAction("groups/read")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupReadParamsValidator)
 	async get(@Path() groupId: number): Promise<PublicGroupAttributes> {
 		const group = await this.groupsRepository.read(groupId);
@@ -164,6 +169,7 @@ export class GroupsController extends BaseController {
 	@SuccessResponse(200, "Returns updated group")
 	@DescribeAction("groups/update")
 	@DescribeResource("Group", ({ params }) => Number(params.groupId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupUpdateParamsValidator)
 	async update(
 		@Path() groupId: number,

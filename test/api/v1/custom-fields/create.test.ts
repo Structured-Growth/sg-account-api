@@ -19,14 +19,8 @@ describe("POST /api/v1/custom-fields", () => {
 
 	it("Should create custom field", async () => {
 		const schema = joi.object({
-			userType: joi.alternatives(
-				joi.string().allow(null, ""),
-				joi.number().allow(null),
-				joi.boolean().allow(null),
-			)
+			userType: joi.alternatives(joi.string().allow(null, ""), joi.number().allow(null), joi.boolean().allow(null)),
 		});
-
-		console.log(JSON.stringify(schema.describe().keys["userType"]));
 
 		const { statusCode, body } = await server.post("/v1/custom-fields").send({
 			orgId: context.organization.id,
