@@ -4,6 +4,8 @@ import {
 	BaseController,
 	DescribeAction,
 	DescribeResource,
+	HashFields,
+	MaskFields,
 	inject,
 	NotFoundError,
 	ValidateFuncArgs,

@@ -9,6 +9,7 @@ import {
 	ValidateFuncArgs,
 	NotFoundError,
 	I18nType,
+	HashFields,
 } from "@structured-growth/microservice-sdk";
 import { UserAttributes } from "../../../database/models/user";
 import { UserSearchParamsInterface } from "../../interfaces/user-search-params.interface";
@@ -66,6 +67,7 @@ export class UsersController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@DescribeResource("User", ({ query }) => query.id?.map(Number))
+	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserSearchParamsValidator)
 	async search(@Queries() query: UserSearchParamsInterface): Promise<SearchResultInterface<PublicUserAttributes>> {
 		const { data, ...result } = await this.usersRepository.search(query);
@@ -90,6 +92,7 @@ export class UsersController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => body.accountId?.map(Number))
 	@DescribeResource("User", ({ body }) => body.id?.map(Number))
+	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -114,6 +117,7 @@ export class UsersController extends BaseController {
 	@SuccessResponse(201, "Returns created user")
 	@DescribeAction("users/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: UserCreateBodyInterface): Promise<PublicUserAttributes> {
 		const user = await this.usersService.create(body);
@@ -138,6 +142,7 @@ export class UsersController extends BaseController {
 	@SuccessResponse(200, "Returns user")
 	@DescribeAction("users/read")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	async get(@Path() userId: number): Promise<PublicUserAttributes> {
 		const user = await this.usersRepository.read(userId);
 
@@ -160,6 +165,7 @@ export class UsersController extends BaseController {
 	@SuccessResponse(200, "Returns updated user")
 	@DescribeAction("users/update")
 	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserUpdateParamsValidator)
 	async update(
 		@Path() userId: number,
