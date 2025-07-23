@@ -10,6 +10,7 @@ import {
 	ValidateFuncArgs,
 	NotFoundError,
 	I18nType,
+	HashFields,
 } from "@structured-growth/microservice-sdk";
 import { isString, pick } from "lodash";
 import { Organization, OrganizationAttributes } from "../../../database/models/organization";
@@ -66,6 +67,7 @@ export class OrganizationsController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => {
 		return [query.parentOrgId, ...(query.id || [])].filter((i) => !!i).map(Number);
 	})
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationSearchParamsValidator)
 	async search(
 		@Queries() query: OrganizationSearchParamsInterface
@@ -101,6 +103,7 @@ export class OrganizationsController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => {
 		return [body.parentOrgId, ...(body.id || {})].filter((i) => !!i).map(Number);
 	})
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -126,6 +129,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(201, "Returns created organization")
 	@DescribeAction("organizations/create")
 	@DescribeResource("Organization", ({ body }) => Number(body.parentOrgId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationCreateParamsValidator)
 	async create(
 		@Queries() query: {},
@@ -158,6 +162,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns organization")
 	@DescribeAction("organizations/read")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
 		const organization = await this.organizationsRepository.read(organizationId);
@@ -183,6 +188,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns parent organizations")
 	@DescribeAction("organizations/get-parents")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async getParents(@Path() organizationId: number): Promise<PublicOrganizationAttributes[]> {
 		const organizations = await this.organizationService.getParentOrganizations(organizationId);
@@ -202,6 +208,7 @@ export class OrganizationsController extends BaseController {
 	@SuccessResponse(200, "Returns updated organization")
 	@DescribeAction("organizations/update")
 	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationUpdateParamsValidator)
 	async update(
 		@Path() organizationId: number,

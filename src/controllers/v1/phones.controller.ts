@@ -7,6 +7,8 @@ import {
 	inject,
 	SearchResultInterface,
 	I18nType,
+	HashFields,
+	MaskFields,
 } from "@structured-growth/microservice-sdk";
 import { Phone, PhoneAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
@@ -69,6 +71,7 @@ export class PhonesController extends BaseController {
 	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
 	@DescribeResource("Account", ({ query }) => Number(query.accountId))
 	@DescribeResource("Phone", ({ query }) => query.id?.map(Number))
+	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneSearchParamsValidator)
 	async search(@Queries() query: PhoneSearchParamsInterface): Promise<SearchResultInterface<PublicPhoneAttributes>> {
 		const { data, ...result } = await this.phonesRepository.search(query);
@@ -91,6 +94,7 @@ export class PhonesController extends BaseController {
 	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("Phone", ({ body }) => body.id?.map(Number))
+	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneSearchWithPostParamsValidator)
 	async searchPost(
 		@Queries() query: {},
@@ -116,6 +120,7 @@ export class PhonesController extends BaseController {
 	@DescribeAction("phones/create")
 	@DescribeResource("Account", ({ body }) => Number(body.accountId))
 	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: PhoneCreateBodyInterface): Promise<PublicPhoneAttributes> {
 		const phone = await this.phonesService.create(body);
@@ -139,6 +144,7 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns phone")
 	@DescribeAction("phones/read")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneReadParamsValidator)
 	async get(@Path() phoneId: number): Promise<PublicPhoneAttributes> {
 		const phone = await this.phonesRepository.read(phoneId);
@@ -163,6 +169,7 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns updated phone")
 	@DescribeAction("phones/update")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneUpdateParamsValidator)
 	async update(
 		@Path() phoneId: number,
@@ -203,6 +210,8 @@ export class PhonesController extends BaseController {
 	@SuccessResponse(200, "Returns verified phone")
 	@DescribeAction("phones/verify")
 	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@HashFields(["phoneNumber"])
+	@MaskFields(["verificationCode"])
 	@ValidateFuncArgs(PhoneVerifyParamsValidator)
 	async verify(
 		@Path() phoneId: number,
