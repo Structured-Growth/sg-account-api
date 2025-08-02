@@ -9,6 +9,7 @@ import { UsersRepository } from "../users/users.repository";
 import { find, isUndefined, random } from "lodash";
 import { KeyValueStorageInterface } from "@structured-growth/microservice-sdk";
 import { EmailUpdateBodyInterface } from "../../interfaces/email-update-body.interface";
+// For devops
 
 @autoInjectable()
 export class EmailsService {
