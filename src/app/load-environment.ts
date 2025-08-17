@@ -26,7 +26,9 @@ export function loadEnvironment() {
 				"eu-west-2",
 				"eu-west-3",
 				"eu-north-1",
-				"sa-east-1"
+				"sa-east-1",
+				"cn-north-1",
+				"cn-northwest-1"
 			)
 			.required(),
 		LOG_LEVEL: joi.string().valid("debug", "notice", "info", "warning", "error").required(),
