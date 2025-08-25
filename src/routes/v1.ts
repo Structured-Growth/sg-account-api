@@ -26,6 +26,7 @@ router.delete(pathPrefix + '/v1/users/:userId', handleRequest(Controllers.UsersC
 
 //SystemController
 router.post(pathPrefix + '/v1/system/migrate', handleRequest(Controllers.SystemController, "migrate", handlerOpts));
+router.post(pathPrefix + '/v1/system/i18n-upload', handleRequest(Controllers.SystemController, "uploadI18n", handlerOpts));
 
 //PingController
 router.get(pathPrefix + '/v1/ping/alive', handleRequest(Controllers.PingController, "pingGet", handlerOpts));
@@ -108,6 +109,7 @@ export const actionToRouteMap = {
 	"UsersController.update": 'put /v1/users/:userId',
 	"UsersController.delete": 'delete /v1/users/:userId',
 	"SystemController.migrate": 'post /v1/system/migrate',
+	"SystemController.uploadI18n": 'post /v1/system/i18n-upload',
 	"PingController.pingGet": 'get /v1/ping/alive',
 	"OrganizationsController.search": 'get /v1/organizations',
 	"OrganizationsController.searchPost": 'post /v1/organizations/search',
