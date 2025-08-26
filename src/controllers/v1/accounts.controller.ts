@@ -28,7 +28,16 @@ import { AccountDeleteParamsValidator } from "../../validators/account-delete-pa
 import { EventMutation } from "@structured-growth/microservice-sdk";
 import { UsersRepository } from "../../modules/users/users.repository";
 
-const publicAccountAttributes = ["id", "orgId", "createdAt", "updatedAt", "status", "arn", "metadata"] as const;
+const publicAccountAttributes = [
+	"id",
+	"orgId",
+	"region",
+	"createdAt",
+	"updatedAt",
+	"status",
+	"arn",
+	"metadata",
+] as const;
 type AccountKeys = (typeof publicAccountAttributes)[number];
 type PublicAccountAttributes = Pick<AccountAttributes, AccountKeys>;
 
