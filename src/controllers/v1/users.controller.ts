@@ -28,6 +28,7 @@ import { EventMutation } from "@structured-growth/microservice-sdk";
 const publicUserAttributes = [
 	"id",
 	"orgId",
+	"region",
 	"accountId",
 	"createdAt",
 	"updatedAt",
