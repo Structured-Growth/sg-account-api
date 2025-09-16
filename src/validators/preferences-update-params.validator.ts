@@ -8,8 +8,8 @@ export const PreferencesUpdateParamsValidator = joi.object({
 			.object({
 				units: joi.string().valid("imperial", "metric").label("validator.preferences.units"),
 				timezone: joi.string().min(2).max(5).label("validator.preferences.timezone"),
-				language: joi.string().valid("en", "uk").label("validator.preferences.language"),
-				locale: joi.string().valid("US", "UA").label("validator.preferences.locale"),
+				language: joi.string().min(2).max(3).label("validator.preferences.language"),
+				locale: joi.string().min(2).max(5).label("validator.preferences.locale"),
 			})
 			.label("Preferences"),
 		metadata: joi.object().unknown().label("validator.preferences.metadata"),
