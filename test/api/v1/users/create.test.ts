@@ -69,8 +69,8 @@ describe("POST /api/v1/users", () => {
 	it("Should return validation error", async () => {
 		const { statusCode, body } = await server.post("/v1/users").send({
 			accountId: "myaccount",
-			firstName: "o",
-			lastName: 7,
+			firstName: "JonathanAlexanderMaximilianChristopherBenjaminLongname",
+			lastName: "MontgomeryWilliamsonFitzgeraldAndersonTheThird",
 			birthday: "1 april 2054",
 			gender: "males",
 			status: "superuser",
