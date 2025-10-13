@@ -70,7 +70,7 @@ describe("POST /api/v1/users", () => {
 		const { statusCode, body } = await server.post("/v1/users").send({
 			accountId: "myaccount",
 			firstName: "JonathanAlexanderMaximilianChristopherBenjaminLongname",
-			lastName: "MontgomeryWilliamsonFitzgeraldAndersonTheThird",
+			lastName: "MontgomeryWilliamsonFitzgeraldAndersonTheThirdLongname",
 			birthday: "1 april 2054",
 			gender: "males",
 			status: "superuser",
