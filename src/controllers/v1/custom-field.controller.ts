@@ -60,7 +60,7 @@ export class CustomFieldsController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of custom fields")
 	@DescribeAction("custom-fields/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("Organization", ({ query }) => [Number(query.orgId)])
 	@DescribeResource("CustomField", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(CustomFieldSearchParamsValidator)
 	async search(
@@ -87,7 +87,7 @@ export class CustomFieldsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created custom field")
 	@DescribeAction("custom-fields/create")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
 	@ValidateFuncArgs(CustomFieldCreateParamsValidator)
 	async create(
 		@Queries() query: {},
@@ -118,7 +118,7 @@ export class CustomFieldsController extends BaseController {
 	@Get("/:customFieldId")
 	@SuccessResponse(200, "Returns custom field")
 	@DescribeAction("custom-fields/read")
-	@DescribeResource("CustomField", ({ params }) => Number(params.customFieldId))
+	@DescribeResource("CustomField", ({ params }) => [Number(params.customFieldId)])
 	@ValidateFuncArgs(CustomFieldReadParamsValidator)
 	async get(@Path() customFieldId: number): Promise<PublicCustomFieldAttributes> {
 		const customField = await this.customFieldRepository.read(customFieldId);
@@ -142,7 +142,7 @@ export class CustomFieldsController extends BaseController {
 	@Put("/:customFieldId")
 	@SuccessResponse(200, "Returns updated custom field")
 	@DescribeAction("custom-fields/update")
-	@DescribeResource("CustomField", ({ params }) => Number(params.customFieldId))
+	@DescribeResource("CustomField", ({ params }) => [Number(params.customFieldId)])
 	@ValidateFuncArgs(CustomFieldUpdateParamsValidator)
 	async update(
 		@Path() customFieldId: number,
@@ -173,7 +173,7 @@ export class CustomFieldsController extends BaseController {
 	@Delete("/:customFieldId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("custom-fields/delete")
-	@DescribeResource("CustomField", ({ params }) => Number(params.customFieldId))
+	@DescribeResource("CustomField", ({ params }) => [Number(params.customFieldId)])
 	@ValidateFuncArgs(CustomFieldDeleteParamsValidator)
 	async delete(@Path() customFieldId: number): Promise<void> {
 		const customField = await this.customFieldRepository.read(customFieldId);

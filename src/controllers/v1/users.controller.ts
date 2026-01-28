@@ -65,7 +65,7 @@ export class UsersController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of users")
 	@DescribeAction("users/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("Organization", ({ query }) => [Number(query.orgId)])
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@DescribeResource("User", ({ query }) => query.id?.map(Number))
 	@HashFields(["firstName", "lastName", "birthday", "gender"])
@@ -90,7 +90,7 @@ export class UsersController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of users")
 	@DescribeAction("users/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
 	@DescribeResource("Account", ({ body }) => body.accountId?.map(Number))
 	@DescribeResource("User", ({ body }) => body.id?.map(Number))
 	@HashFields(["firstName", "lastName", "birthday", "gender"])
@@ -117,7 +117,7 @@ export class UsersController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created user")
 	@DescribeAction("users/create")
-	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Account", ({ body }) => [Number(body.accountId)])
 	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: UserCreateBodyInterface): Promise<PublicUserAttributes> {
@@ -142,7 +142,7 @@ export class UsersController extends BaseController {
 	@Get("/:userId")
 	@SuccessResponse(200, "Returns user")
 	@DescribeAction("users/read")
-	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@DescribeResource("User", ({ params }) => [Number(params.userId)])
 	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	async get(@Path() userId: number): Promise<PublicUserAttributes> {
 		const user = await this.usersRepository.read(userId);
@@ -165,7 +165,7 @@ export class UsersController extends BaseController {
 	@Put("/:userId")
 	@SuccessResponse(200, "Returns updated user")
 	@DescribeAction("users/update")
-	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@DescribeResource("User", ({ params }) => [Number(params.userId)])
 	@HashFields(["firstName", "lastName", "birthday", "gender"])
 	@ValidateFuncArgs(UserUpdateParamsValidator)
 	async update(
@@ -193,7 +193,7 @@ export class UsersController extends BaseController {
 	@Delete("/:userId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("users/delete")
-	@DescribeResource("User", ({ params }) => Number(params.userId))
+	@DescribeResource("User", ({ params }) => [Number(params.userId)])
 	@ValidateFuncArgs(UserDeleteParamsValidator)
 	async delete(@Path() userId: number): Promise<void> {
 		const user = await this.usersRepository.read(userId);

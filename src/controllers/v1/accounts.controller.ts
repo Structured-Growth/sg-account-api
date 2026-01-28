@@ -63,7 +63,7 @@ export class AccountsController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("Organization", ({ query }) => [Number(query.orgId)])
 	@DescribeResource("Account", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(AccountSearchParamsValidator)
 	async search(
@@ -87,7 +87,7 @@ export class AccountsController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of accounts")
 	@DescribeAction("accounts/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
 	@DescribeResource("Account", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(AccountSearchWithPostParamsValidator)
 	async searchPost(
@@ -113,7 +113,7 @@ export class AccountsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created account")
 	@DescribeAction("accounts/create")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
 	@ValidateFuncArgs(AccountCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: AccountCreateBodyInterface): Promise<PublicAccountAttributes> {
 		const account = await this.accountService.create(body);
@@ -141,7 +141,7 @@ export class AccountsController extends BaseController {
 	@Get("/:accountId")
 	@SuccessResponse(200, "Returns account")
 	@DescribeAction("accounts/read")
-	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@DescribeResource("Account", ({ params }) => [Number(params.accountId)])
 	@ValidateFuncArgs(AccountReadParamsValidator)
 	async get(@Path() accountId: number): Promise<PublicAccountAttributes> {
 		const account = await this.accountRepository.read(accountId);
@@ -165,7 +165,7 @@ export class AccountsController extends BaseController {
 	@Put("/:accountId")
 	@SuccessResponse(200, "Returns updated account")
 	@DescribeAction("accounts/update")
-	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@DescribeResource("Account", ({ params }) => [Number(params.accountId)])
 	@ValidateFuncArgs(AccountUpdateParamsValidator)
 	async update(
 		@Path() accountId: number,
@@ -191,7 +191,7 @@ export class AccountsController extends BaseController {
 	@Delete("/:accountId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("accounts/delete")
-	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@DescribeResource("Account", ({ params }) => [Number(params.accountId)])
 	@ValidateFuncArgs(AccountDeleteParamsValidator)
 	async delete(@Path() accountId: number): Promise<void> {
 		const account = await this.accountRepository.read(accountId);

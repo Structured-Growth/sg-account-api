@@ -67,7 +67,7 @@ export class EmailsController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of emails")
 	@DescribeAction("emails/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
+	@DescribeResource("Organization", ({ query }) => [Number(query.orgId)])
 	@DescribeResource("Account", ({ query }) => query.accountId?.map(Number))
 	@DescribeResource("Email", ({ query }) => query.id?.map(Number))
 	@HashFields(["email"])
@@ -91,7 +91,7 @@ export class EmailsController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of emails")
 	@DescribeAction("emails/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
 	@DescribeResource("Account", ({ body }) => body.accountId?.map(Number))
 	@DescribeResource("Email", ({ body }) => body.id?.map(Number))
 	@HashFields(["email"])
@@ -118,8 +118,8 @@ export class EmailsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created email")
 	@DescribeAction("emails/create")
-	@DescribeResource("Account", ({ body }) => Number(body.accountId))
-	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@DescribeResource("Account", ({ body }) => [Number(body.accountId)])
+	@DescribeResource("User", ({ body }) => [Number(body.userId)])
 	@HashFields(["email"])
 	@ValidateFuncArgs(CreateEmailParamsValidator)
 	async create(@Queries() query: {}, @Body() body: EmailCreateBodyInterface): Promise<PublicEmailAttributes> {
@@ -143,7 +143,7 @@ export class EmailsController extends BaseController {
 	@Get("/:emailId")
 	@SuccessResponse(200, "Returns email")
 	@DescribeAction("emails/read")
-	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@DescribeResource("Email", ({ params }) => [Number(params.emailId)])
 	@HashFields(["email"])
 	@ValidateFuncArgs(EmailReadParamsValidator)
 	async get(@Path() emailId: number): Promise<PublicEmailAttributes> {
@@ -166,7 +166,7 @@ export class EmailsController extends BaseController {
 	@Put("/:emailId")
 	@SuccessResponse(200, "Returns updated email")
 	@DescribeAction("emails/update")
-	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@DescribeResource("Email", ({ params }) => [Number(params.emailId)])
 	@HashFields(["email"])
 	@ValidateFuncArgs(UpdateEmailParamsValidator)
 	async update(
@@ -193,7 +193,7 @@ export class EmailsController extends BaseController {
 	@Post("/:emailId/send-code")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("emails/send-code")
-	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@DescribeResource("Email", ({ params }) => [Number(params.emailId)])
 	@ValidateFuncArgs(EmailSendCodeParamsValidator)
 	async sendCode(@Path() emailId: number): Promise<void> {
 		await this.emailService.sendVerificationEmail(emailId);
@@ -207,7 +207,7 @@ export class EmailsController extends BaseController {
 	@Post("/:emailId/verify")
 	@SuccessResponse(200, "Returns verified email")
 	@DescribeAction("emails/verify")
-	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@DescribeResource("Email", ({ params }) => [Number(params.emailId)])
 	@HashFields(["email"])
 	@MaskFields(["verificationCode"])
 	@ValidateFuncArgs(EmailVerifyParamsValidator)
@@ -235,7 +235,7 @@ export class EmailsController extends BaseController {
 	@Delete("/:emailId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("emails/delete")
-	@DescribeResource("Email", ({ params }) => Number(params.emailId))
+	@DescribeResource("Email", ({ params }) => [Number(params.emailId)])
 	@ValidateFuncArgs(EmailDeleteParamsValidator)
 	async delete(@Path() emailId: number): Promise<void> {
 		const email = await this.emailRepository.read(emailId);
