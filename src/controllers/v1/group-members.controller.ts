@@ -62,8 +62,8 @@ export class GroupMembersController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("Account", ({ query }) => [Number(query.accountId)])
 	@DescribeResource("User", ({ query }) => query.userId?.map(Number))
 	@DescribeResource("GroupMember", ({ query }) => query.id?.map(Number))
 	@ValidateFuncArgs(GroupMemberSearchParamsValidator)
@@ -92,8 +92,8 @@ export class GroupMembersController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of group members")
 	@DescribeAction("group-members/search")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("Account", ({ body }) => [Number(body.accountId)])
 	@DescribeResource("User", ({ body }) => body.userId?.map(Number))
 	@DescribeResource("GroupMember", ({ body }) => body.id?.map(Number))
 	@ValidateFuncArgs(GroupMemberSearchWithPostParamsValidator)
@@ -123,8 +123,8 @@ export class GroupMembersController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created group member")
 	@DescribeAction("group-members/create")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("User", ({ body }) => [Number(body.userId)])
 	@ValidateFuncArgs(GroupMemberCreateParamsValidator)
 	async create(
 		@Path() groupId: number,
@@ -156,8 +156,8 @@ export class GroupMembersController extends BaseController {
 	@Get(":groupMemberId")
 	@SuccessResponse(200, "Returns group member")
 	@DescribeAction("group-members/read")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("GroupMember", ({ params }) => [Number(params.groupMemberId)])
 	async get(@Path() groupId: number, @Path() groupMemberId: number): Promise<PublicGroupMemberAttributes> {
 		const group = await this.groupsRepository.read(groupId);
 
@@ -187,8 +187,8 @@ export class GroupMembersController extends BaseController {
 	@Put(":groupMemberId")
 	@SuccessResponse(200, "Returns updated groupMember")
 	@DescribeAction("group-members/update")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("GroupMember", ({ params }) => [Number(params.groupMemberId)])
 	@ValidateFuncArgs(GroupMemberUpdateParamsValidator)
 	async update(
 		@Path() groupId: number,
@@ -228,8 +228,8 @@ export class GroupMembersController extends BaseController {
 	@Delete(":groupMemberId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("group-members/delete")
-	@DescribeResource("Group", ({ params }) => Number(params.groupId))
-	@DescribeResource("GroupMember", ({ params }) => Number(params.groupMemberId))
+	@DescribeResource("Group", ({ params }) => [Number(params.groupId)])
+	@DescribeResource("GroupMember", ({ params }) => [Number(params.groupMemberId)])
 	async delete(@Path() groupId: number, @Path() groupMemberId: number): Promise<void> {
 		const group = await this.groupsRepository.read(groupId);
 

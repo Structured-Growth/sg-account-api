@@ -128,7 +128,7 @@ export class OrganizationsController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created organization")
 	@DescribeAction("organizations/create")
-	@DescribeResource("Organization", ({ body }) => Number(body.parentOrgId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.parentOrgId)])
 	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationCreateParamsValidator)
 	async create(
@@ -161,7 +161,7 @@ export class OrganizationsController extends BaseController {
 	@Get("/:organizationId")
 	@SuccessResponse(200, "Returns organization")
 	@DescribeAction("organizations/read")
-	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@DescribeResource("Organization", ({ params }) => [Number(params.organizationId)])
 	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async get(@Path() organizationId: number): Promise<PublicOrganizationAttributes> {
@@ -187,7 +187,7 @@ export class OrganizationsController extends BaseController {
 	@Get("/:organizationId/parents")
 	@SuccessResponse(200, "Returns parent organizations")
 	@DescribeAction("organizations/get-parents")
-	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@DescribeResource("Organization", ({ params }) => [Number(params.organizationId)])
 	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationReadParamsValidator)
 	async getParents(@Path() organizationId: number): Promise<PublicOrganizationAttributes[]> {
@@ -207,7 +207,7 @@ export class OrganizationsController extends BaseController {
 	@Put("/:organizationId")
 	@SuccessResponse(200, "Returns updated organization")
 	@DescribeAction("organizations/update")
-	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@DescribeResource("Organization", ({ params }) => [Number(params.organizationId)])
 	@HashFields(["title", "name"])
 	@ValidateFuncArgs(OrganizationUpdateParamsValidator)
 	async update(
@@ -240,7 +240,7 @@ export class OrganizationsController extends BaseController {
 	@Delete("/:organizationId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("organizations/delete")
-	@DescribeResource("Organization", ({ params }) => Number(params.organizationId))
+	@DescribeResource("Organization", ({ params }) => [Number(params.organizationId)])
 	@ValidateFuncArgs(OrganizationDeleteParamsValidator)
 	async delete(@Path() organizationId: number): Promise<void> {
 		const organization = await this.organizationsRepository.read(organizationId);
