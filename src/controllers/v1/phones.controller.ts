@@ -68,8 +68,8 @@ export class PhonesController extends BaseController {
 	@Get("/")
 	@SuccessResponse(200, "Returns list of phones")
 	@DescribeAction("phones/search")
-	@DescribeResource("Organization", ({ query }) => Number(query.orgId))
-	@DescribeResource("Account", ({ query }) => Number(query.accountId))
+	@DescribeResource("Organization", ({ query }) => [Number(query.orgId)])
+	@DescribeResource("Account", ({ query }) => [Number(query.accountId)])
 	@DescribeResource("Phone", ({ query }) => query.id?.map(Number))
 	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneSearchParamsValidator)
@@ -91,8 +91,8 @@ export class PhonesController extends BaseController {
 	@Post("/search")
 	@SuccessResponse(200, "Returns list of phones")
 	@DescribeAction("phones/search")
-	@DescribeResource("Organization", ({ body }) => Number(body.orgId))
-	@DescribeResource("Account", ({ body }) => Number(body.accountId))
+	@DescribeResource("Organization", ({ body }) => [Number(body.orgId)])
+	@DescribeResource("Account", ({ body }) => [Number(body.accountId)])
 	@DescribeResource("Phone", ({ body }) => body.id?.map(Number))
 	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneSearchWithPostParamsValidator)
@@ -118,8 +118,8 @@ export class PhonesController extends BaseController {
 	@Post("/")
 	@SuccessResponse(201, "Returns created phone")
 	@DescribeAction("phones/create")
-	@DescribeResource("Account", ({ body }) => Number(body.accountId))
-	@DescribeResource("User", ({ body }) => Number(body.userId))
+	@DescribeResource("Account", ({ body }) => [Number(body.accountId)])
+	@DescribeResource("User", ({ body }) => [Number(body.userId)])
 	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneCreateParamsValidator)
 	async create(@Queries() query: {}, @Body() body: PhoneCreateBodyInterface): Promise<PublicPhoneAttributes> {
@@ -143,7 +143,7 @@ export class PhonesController extends BaseController {
 	@Get("/:phoneId")
 	@SuccessResponse(200, "Returns phone")
 	@DescribeAction("phones/read")
-	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@DescribeResource("Phone", ({ params }) => [Number(params.phoneId)])
 	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneReadParamsValidator)
 	async get(@Path() phoneId: number): Promise<PublicPhoneAttributes> {
@@ -168,7 +168,7 @@ export class PhonesController extends BaseController {
 	@Put("/:phoneId")
 	@SuccessResponse(200, "Returns updated phone")
 	@DescribeAction("phones/update")
-	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@DescribeResource("Phone", ({ params }) => [Number(params.phoneId)])
 	@HashFields(["phoneNumber"])
 	@ValidateFuncArgs(PhoneUpdateParamsValidator)
 	async update(
@@ -195,7 +195,7 @@ export class PhonesController extends BaseController {
 	@Post("/:phoneId/send-code")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("phones/send-code")
-	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@DescribeResource("Phone", ({ params }) => [Number(params.phoneId)])
 	@ValidateFuncArgs(PhoneSendCodeParamsValidator)
 	async sendCode(@Path() phoneId: number): Promise<void> {
 		await this.phonesService.sendVerificationCode(phoneId);
@@ -209,7 +209,7 @@ export class PhonesController extends BaseController {
 	@Post("/:phoneId/verify")
 	@SuccessResponse(200, "Returns verified phone")
 	@DescribeAction("phones/verify")
-	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@DescribeResource("Phone", ({ params }) => [Number(params.phoneId)])
 	@HashFields(["phoneNumber"])
 	@MaskFields(["verificationCode"])
 	@ValidateFuncArgs(PhoneVerifyParamsValidator)
@@ -237,7 +237,7 @@ export class PhonesController extends BaseController {
 	@Delete("/:phoneId")
 	@SuccessResponse(204, "Returns nothing")
 	@DescribeAction("phones/delete")
-	@DescribeResource("Phone", ({ params }) => Number(params.phoneId))
+	@DescribeResource("Phone", ({ params }) => [Number(params.phoneId)])
 	@ValidateFuncArgs(PhoneDeleteParamsValidator)
 	async delete(@Path() phoneId: number): Promise<void> {
 		const phone = await this.phonesRepository.read(phoneId);

@@ -32,7 +32,7 @@ export class PreferencesController extends BaseController {
 	@Get(":accountId")
 	@SuccessResponse(200, "Returns account preferences")
 	@DescribeAction("preferences/read")
-	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@DescribeResource("Account", ({ params }) => [Number(params.accountId)])
 	@ValidateFuncArgs(PreferencesReadParamsValidator)
 	async read(@Path() accountId: number): Promise<PublicPreferenceAttributes> {
 		return await this.preferencesService.read(accountId);
@@ -45,7 +45,7 @@ export class PreferencesController extends BaseController {
 	@Post(":accountId")
 	@SuccessResponse(200, "Returns updated preferences")
 	@DescribeAction("preferences/update")
-	@DescribeResource("Account", ({ params }) => Number(params.accountId))
+	@DescribeResource("Account", ({ params }) => [Number(params.accountId)])
 	@ValidateFuncArgs(PreferencesUpdateParamsValidator)
 	async update(
 		@Path() accountId: number,
