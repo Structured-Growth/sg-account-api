@@ -12,7 +12,7 @@ permissions:
   issues: read
 
 jobs:
-  # 1. beta release
+  # 1. beta release test
   release:
     name: Beta Release
     runs-on: ubuntu-latest
