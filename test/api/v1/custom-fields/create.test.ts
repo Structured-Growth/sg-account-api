@@ -47,7 +47,7 @@ describe("POST /api/v1/custom-fields", () => {
 	it("Should return validation error", async () => {
 		const { statusCode, body } = await server.post("/v1/custom-fields").send({
 			orgId: -1,
-			entity: "UserS",
+			entity: 1,
 			title: 1,
 			name: false,
 			schema: "string",
