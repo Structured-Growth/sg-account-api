@@ -6,13 +6,12 @@ import {
 	BelongsToAccountInterface,
 } from "@structured-growth/microservice-sdk";
 import Organization from "./organization";
-import { CustomFieldsEnum } from "../../src/modules/custom-fields/custom-fields.enum";
 
 export interface CustomFieldAttributes
 	extends Omit<DefaultModelInterface, keyof BelongsToAccountInterface | "orgId" | "region"> {
 	orgId?: number;
 	region?: RegionEnum;
-	entity: CustomFieldsEnum;
+	entity: string;
 	title: string;
 	name: string;
 	schema: Record<string, any>;

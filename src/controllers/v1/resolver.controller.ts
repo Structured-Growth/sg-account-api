@@ -1,21 +1,37 @@
-import { Get, Route, Tags, Queries, SuccessResponse, OperationId } from "tsoa";
+import { Get, Route, Tags, Queries, SuccessResponse, OperationId, Post, Body } from "tsoa";
 import {
 	inject,
 	autoInjectable,
 	BaseController,
 	DescribeAction,
 	NotFoundError,
+	ValidateFuncArgs,
+	I18nType,
 } from "@structured-growth/microservice-sdk";
 import * as controllers from "./index";
 import { ResolveQueryParamsInterface } from "../../interfaces/resolve-query-params.interface";
 import { ResolveResourceResponseInterface } from "../../interfaces/resolve-resource-response.interface";
 import { ResolveActionsResponseInterface } from "../../interfaces/resolve-actions-response.interface";
 import { ResolveModelsResponseInterface } from "../../interfaces/resolve-models-response.interface";
+import { CustomFieldService } from "../../modules/custom-fields/custom-field.service";
+import { ResolveCustomFieldValidateBodyInterface } from "../../interfaces/resolve-custom-field-validate-body.interface";
+import { ResolveCustomFieldValidateResponseInterface } from "../../interfaces/resolve-custom-field-validate-response.interface";
+import { ResolveCustomFieldValidateValidator } from "../../validators/resolve-custom-field-validate.validator";
 
 @Route("v1/resolver")
 @Tags("Resolver")
 @autoInjectable()
 export class ResolverController extends BaseController {
+	private i18n: I18nType;
+	constructor(
+		@inject("CustomFieldService") private customFieldService: CustomFieldService,
+
+		@inject("i18n") private getI18n: () => I18nType
+	) {
+		super();
+		this.i18n = this.getI18n();
+	}
+
 	/**
 	 * Resolve resource's ARN
 	 */
@@ -101,5 +117,20 @@ export class ResolverController extends BaseController {
 		return {
 			data: models,
 		};
+	}
+
+	/**
+	 * Validate custom field payload for entity.
+	 */
+	@OperationId("Validate custom fields")
+	@Post("/validate")
+	@SuccessResponse(200, "Returns validation result")
+	@DescribeAction("resolve/validate")
+	@ValidateFuncArgs(ResolveCustomFieldValidateValidator)
+	async validateCustomFields(
+		@Queries() query: {},
+		@Body() body: ResolveCustomFieldValidateBodyInterface
+	): Promise<ResolveCustomFieldValidateResponseInterface> {
+		return this.customFieldService.validate(body.entity, body.data, body.orgId, false);
 	}
 }
