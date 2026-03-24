@@ -133,6 +133,7 @@ export class GroupsRepository
 			throw new NotFoundError(`${this.i18n.__("error.group.name")} ${id} ${this.i18n.__("error.common.not_found")}`);
 		}
 		group.setAttributes(omitBy(params, isUndefined));
+		await this.customFieldService.validate("Group", group.toJSON().metadata, group.orgId);
 
 		return group.save();
 	}
