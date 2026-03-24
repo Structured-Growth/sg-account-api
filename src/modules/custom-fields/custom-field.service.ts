@@ -69,7 +69,7 @@ export class CustomFieldService {
 	 */
 	public async validate(
 		entityName: string,
-		data: Record<string, string | number>,
+		data: Record<string, unknown>,
 		orgId?: number,
 		throwError = true
 	): Promise<{

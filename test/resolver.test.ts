@@ -1,34 +1,40 @@
-import "../src/app/providers";
 import { assert } from "chai";
-import { App } from "../src/app/app";
-import { container, NotFoundError } from "@structured-growth/microservice-sdk";
-import { ResolverController } from "../src/controllers/v1";
+import "../src/app/providers";
+import { initTest } from "./common/init-test";
 
 describe("Test resolver", () => {
-	const controller = new ResolverController();
-	const app = container.resolve<App>("App");
-
-	before(async () => app.ready);
+	const { server } = initTest();
 
 	it("Should return resolved model", async () => {
-		try {
-			await controller.resolve({
-				resource: "Unknown",
-				id: 1,
-			});
-		} catch (e) {
-			assert.isTrue(e instanceof NotFoundError);
-		}
+		const { statusCode, body } = await server.get("/v1/resolver/resolve").query({
+			resource: "Unknown",
+			id: 1,
+		});
+		assert.equal(statusCode, 404);
+		assert.equal(body.name, "NotFound");
 	});
 
 	it("Should return list of actions", async () => {
-		const { data } = await controller.actions();
-		assert.isArray(data);
-		assert.equal(data.filter((item) => item.action.includes("resolve")).length, 3);
+		const { statusCode, body } = await server.get("/v1/resolver/actions");
+		assert.equal(statusCode, 200);
+		assert.isArray(body.data);
+		assert.equal(body.data.filter((item) => item.action.includes("resolve")).length, 4);
 	});
 
 	it("Should return list of models", async () => {
-		const { data } = await controller.models();
-		assert.isString(data[0].resource);
+		const { statusCode, body } = await server.get("/v1/resolver/models");
+		assert.equal(statusCode, 200);
+		assert.isString(body.data[0].resource);
+	});
+
+	it("Should validate custom fields payload", async () => {
+		const { statusCode, body } = await server.post("/v1/resolver/validate").send({
+			entity: "User",
+			data: {},
+		});
+		assert.equal(statusCode, 200);
+		assert.deepEqual(body, {
+			valid: true,
+		});
 	});
 });
