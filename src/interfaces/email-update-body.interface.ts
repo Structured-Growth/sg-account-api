@@ -7,5 +7,5 @@ export interface EmailUpdateBodyInterface {
 	 * Custom fields with their values.
 	 * Field should be created before.
 	 */
-	metadata?: Record<string, string>;
+	metadata?: Record<string, unknown>;
 }

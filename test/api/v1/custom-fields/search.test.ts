@@ -62,6 +62,43 @@ describe("GET /api/v1/custom-fields", () => {
 		assert.equal(body.total, 1);
 	});
 
+	it("Should return validation error", async () => {
+		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
+			orgId: "bad",
+			"id[0]": "bad",
+			"entity[0]": "VeryLongEntity".repeat(10),
+			"title[0]": "VeryLongTitle".repeat(10),
+			"name[0]": "bad name!",
+			"status[0]": "bad",
+			includeInherited: "bad",
+			page: "bad",
+			limit: "bad",
+		});
+
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.orgId[0]);
+		assert.isString(body.validation.query.id[0][0]);
+		assert.isString(body.validation.query.entity[0][0]);
+		assert.isString(body.validation.query.title[0][0]);
+		assert.isString(body.validation.query.name[0][0]);
+		assert.isString(body.validation.query.status[0][0]);
+		assert.isString(body.validation.query.includeInherited[0]);
+		assert.isString(body.validation.query.page[0]);
+		assert.isString(body.validation.query.limit[0]);
+	});
+
+	it("Should return validation error for invalid name characters", async () => {
+		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
+			orgId: context.organization.id,
+			"name[0]": "bad name!",
+		});
+
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.name[0][0]);
+	});
+
 	it("Should not return inherited custom fields", async () => {
 		const { statusCode, body } = await server.get(`/v1/custom-fields`).query({
 			orgId: context.organization2.id,

@@ -14,7 +14,7 @@ export interface CustomFieldAttributes
 	entity: string;
 	title: string;
 	name: string;
-	schema: Record<string, any>;
+	schema: Record<string, unknown>;
 	status: "active" | "inactive" | "archived";
 }
 
@@ -60,9 +60,7 @@ export class CustomField
 	status: CustomFieldAttributes["status"];
 
 	static get arnPattern(): string {
-		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", `custom-fields/<customFieldId>`].join(
-			":"
-		);
+		return [container.resolve("appPrefix"), "<region>", "<orgId>", "-", `custom-fields/<customFieldId>`].join(":");
 	}
 
 	get arn(): string {

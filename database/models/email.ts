@@ -12,7 +12,7 @@ export interface EmailAttributes extends DefaultModelInterface {
 	verificationCodeHash: string;
 	verificationCodeSalt: string;
 	verificationCodeExpires: Date;
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface EmailCreationAttributes
@@ -68,7 +68,7 @@ export class Email extends Model<EmailAttributes, EmailCreationAttributes> imple
 	verificationCodeExpires: Date;
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "emails/<emailId>"].join(":");

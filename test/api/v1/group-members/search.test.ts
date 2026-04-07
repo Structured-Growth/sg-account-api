@@ -5,6 +5,7 @@ import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
 import { createGroup } from "../../../common/create-group";
 import { createUser } from "../../../common/create-user";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/groups/:groupId/members", () => {
 	const { server, context } = initTest();
@@ -33,10 +34,20 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		contextPath: "group",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "GroupMember",
+		name: "memberRole",
+		title: "Member Role",
+	});
+
 	it("Should add member to group", async () => {
 		const { statusCode, body } = await server.post(`/v1/groups/${context.group.id}/members`).send({
 			userId: context.user.id,
 			status: "active",
+			metadata: {
+				memberRole: "owner",
+			},
 		});
 		assert.equal(statusCode, 201);
 		context.groupMemberId = body.id;
@@ -46,6 +57,9 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		const { statusCode, body } = await server.post(`/v1/groups/${context.group.id}/members`).send({
 			userId: context.user2.id,
 			status: "active",
+			metadata: {
+				memberRole: "viewer",
+			},
 		});
 		assert.equal(statusCode, 201);
 		context.groupMember2Id = body.id;
@@ -54,6 +68,9 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 	it("Should return group members", async () => {
 		const { statusCode, body } = await server.get(`/v1/groups/${context.group.id}/members`).query({
 			"id[0]": context.groupMemberId,
+			metadata: {
+				memberRole: "owner",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.groupMemberId);
@@ -63,10 +80,22 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		assert.isString(body.data[0].createdAt);
 		assert.isString(body.data[0].updatedAt);
 		assert.equal(body.data[0].status, "active");
+		assert.equal(body.data[0].metadata.memberRole, "owner");
 		assert.isString(body.data[0].arn);
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+	});
+
+	it("Should search members by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get(`/v1/groups/${context.group.id}/members`).query({
+			metadata: {
+				memberRole: "own*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.groupMemberId);
 	});
 
 	it("Should return group", async () => {
@@ -98,6 +127,7 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 			page: "b",
 			limit: false,
 			sort: "createdAt:asc",
+			metadata: "bad",
 		});
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");
@@ -109,5 +139,6 @@ describe("GET /api/v1/groups/:groupId/members", () => {
 		assert.isString(body.validation.query.page[0]);
 		assert.isString(body.validation.query.limit[0]);
 		assert.isString(body.validation.query.sort[0]);
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });

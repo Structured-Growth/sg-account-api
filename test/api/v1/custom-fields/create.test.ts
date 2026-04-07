@@ -44,6 +44,44 @@ describe("POST /api/v1/custom-fields", () => {
 		context["customFieldId"] = body.id;
 	});
 
+	it("Should return validation error for duplicate custom field", async () => {
+		const schema = joi.object({
+			userType: joi.alternatives(joi.string().allow(null, ""), joi.number().allow(null), joi.boolean().allow(null)),
+		});
+
+		const { statusCode, body } = await server.post("/v1/custom-fields").send({
+			orgId: context.organization.id,
+			entity: "User",
+			title: "User Type Duplicate",
+			name: "userType",
+			schema: schema.describe().keys["userType"],
+			status: "active",
+		});
+
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.body.name[0]);
+	});
+
+	it("Should return validation error for invalid name characters", async () => {
+		const schema = joi.object({
+			userType: joi.alternatives(joi.string().allow(null, ""), joi.number().allow(null), joi.boolean().allow(null)),
+		});
+
+		const { statusCode, body } = await server.post("/v1/custom-fields").send({
+			orgId: context.organization.id,
+			entity: "User",
+			title: "User Type",
+			name: "user type!",
+			schema: schema.describe().keys["userType"],
+			status: "active",
+		});
+
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.body.name[0]);
+	});
+
 	it("Should return validation error", async () => {
 		const { statusCode, body } = await server.post("/v1/custom-fields").send({
 			orgId: -1,

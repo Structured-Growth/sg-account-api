@@ -4,6 +4,7 @@ import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
 import { createUser } from "../../../common/create-user";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/phones", () => {
 	const { server, context } = initTest();
@@ -22,11 +23,21 @@ describe("GET /api/v1/phones", () => {
 		contextPath: "user",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Phone",
+		name: "phoneType",
+		title: "Phone Type",
+	});
+
 	it("Should create primary phone", async () => {
 		const { statusCode, body } = await server.post("/v1/phones").send({
 			accountId: context.account.id,
 			userId: context.user.id,
 			phoneNumber: "+15551112233",
+			metadata: {
+				phoneType: "mobile",
+			},
 		});
 		assert.equal(statusCode, 201);
 		context.phoneId = body.id;
@@ -68,6 +79,9 @@ describe("GET /api/v1/phones", () => {
 			"accountId[0]": context.account.id,
 			isPrimary: true,
 			"status[0]": "verification",
+			metadata: {
+				phoneType: "mobile",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.phoneId);
@@ -82,6 +96,7 @@ describe("GET /api/v1/phones", () => {
 		assert.isUndefined(body.data[0].verificationCodeHash);
 		assert.isUndefined(body.data[0].verificationCodeSalt);
 		assert.isUndefined(body.data[0].verificationCodeExpires);
+		assert.equal(body.data[0].metadata.phoneType, "mobile");
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
@@ -95,5 +110,27 @@ describe("GET /api/v1/phones", () => {
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.phoneId);
+	});
+
+	it("Should search by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/phones").query({
+			orgId: context.organization.id,
+			metadata: {
+				phoneType: "mob*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.phoneId);
+	});
+
+	it("Should return validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.get("/v1/phones").query({
+			orgId: context.organization.id,
+			metadata: "bad",
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });

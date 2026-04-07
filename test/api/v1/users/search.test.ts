@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/users", () => {
 	const { server, context } = initTest();
@@ -16,6 +17,29 @@ describe("GET /api/v1/users", () => {
 		contextPath: "account",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Account",
+		name: "accountType",
+		title: "Account Type",
+	});
+
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "User",
+		name: "userType",
+		title: "User Type",
+	});
+
+	it("Should update account metadata", async () => {
+		const { statusCode } = await server.put(`/v1/accounts/${context.account.id}`).send({
+			metadata: {
+				accountType: "patient",
+			},
+		});
+		assert.equal(statusCode, 200);
+	});
+
 	it("Should create primary user", async () => {
 		const { statusCode, body } = await server.post("/v1/users").send({
 			accountId: context.account.id,
@@ -24,6 +48,9 @@ describe("GET /api/v1/users", () => {
 			birthday: "1986-04-01",
 			gender: "male",
 			status: "inactive",
+			metadata: {
+				userType: "doctor",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -82,6 +109,12 @@ describe("GET /api/v1/users", () => {
 			"gender[0]": "male",
 			isPrimary: true,
 			"status[0]": "inactive",
+			metadata: {
+				userType: "doctor",
+			},
+			accountMetadata: {
+				accountType: "patient",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.userId);
@@ -95,10 +128,47 @@ describe("GET /api/v1/users", () => {
 		assert.equal(body.data[0].gender, "male");
 		assert.equal(body.data[0].isPrimary, true);
 		assert.equal(body.data[0].status, "inactive");
+		assert.equal(body.data[0].metadata.userType, "doctor");
 		assert.isString(body.data[0].arn);
 		assert.isNull(body.data[0].imageUrl);
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+	});
+
+	it("Should search users by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/users").query({
+			orgId: context.organization.id,
+			metadata: {
+				userType: "doc*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.userId);
+	});
+
+	it("Should search users by account metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/users").query({
+			orgId: context.organization.id,
+			accountMetadata: {
+				accountType: "pat*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.userId);
+	});
+
+	it("Should return validation error for invalid metadata query", async () => {
+		const { statusCode, body } = await server.get("/v1/users").query({
+			orgId: context.organization.id,
+			metadata: "bad",
+			accountMetadata: "bad",
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.metadata[0]);
+		assert.isString(body.validation.query.accountMetadata[0]);
 	});
 });

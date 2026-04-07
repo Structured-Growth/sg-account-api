@@ -7,7 +7,7 @@ import {
 } from "@structured-growth/microservice-sdk";
 import Phone, { PhoneAttributes, PhoneCreationAttributes } from "../../../database/models/phone";
 import { PhoneSearchParamsInterface } from "../../interfaces/phone-search-params.interface";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { NotFoundError } from "@structured-growth/microservice-sdk";
 import { CustomFieldService } from "../custom-fields/custom-field.service";
 import { isUndefined, omitBy } from "lodash";
@@ -26,7 +26,7 @@ export class PhonesRepository
 
 	public async search(
 		params: PhoneSearchParamsInterface & {
-			metadata?: Record<string, string | number>;
+			metadata?: Record<string, unknown>;
 		},
 		options?: {
 			onlyTotal: boolean;
@@ -51,8 +51,26 @@ export class PhonesRepository
 			};
 		}
 
-		if (params.metadata) {
-			where["metadata"] = params.metadata;
+		if (params.metadata && typeof params.metadata === "object") {
+			where[Op.and] = where[Op.and] ?? [];
+
+			for (const [keyRaw, valRaw] of Object.entries(params.metadata)) {
+				if (valRaw === null || valRaw === undefined) continue;
+
+				const key = String(keyRaw).replace(/[^a-zA-Z0-9_-]/g, "");
+				if (!key) continue;
+
+				const value = String(valRaw).trim();
+				if (!value) continue;
+
+				const left = Sequelize.literal(`("metadata"->>'${key}')`);
+
+				if (value.includes("*")) {
+					where[Op.and].push(Sequelize.where(left, { [Op.iLike]: value.replace(/\*/g, "%") }));
+				} else {
+					where[Op.and].push(Sequelize.where(left, { [Op.eq]: value }));
+				}
+			}
 		}
 
 		if (options?.onlyTotal) {

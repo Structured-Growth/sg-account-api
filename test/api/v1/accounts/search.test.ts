@@ -2,6 +2,7 @@ import "../../../../src/app/providers";
 import { assert } from "chai";
 import { initTest } from "../../../common/init-test";
 import { createOrganization } from "../../../common/create-organization";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/accounts", () => {
 	const { server, context } = initTest();
@@ -10,9 +11,19 @@ describe("GET /api/v1/accounts", () => {
 		contextPath: "organization",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Account",
+		name: "accountType",
+		title: "Account Type",
+	});
+
 	it("Should create account", async () => {
 		const { statusCode, body } = await server.post("/v1/accounts").send({
 			orgId: context.organization.id,
+			metadata: {
+				accountType: "patient",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -31,6 +42,9 @@ describe("GET /api/v1/accounts", () => {
 		const { statusCode, body } = await server.get("/v1/accounts").query({
 			"id[0]": context.accountId,
 			orgId: context.organization.id,
+			metadata: {
+				accountType: "patient",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.accountId);
@@ -42,6 +56,19 @@ describe("GET /api/v1/accounts", () => {
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+		assert.equal(body.data[0].metadata.accountType, "patient");
+	});
+
+	it("Should search account by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/accounts").query({
+			orgId: context.organization.id,
+			metadata: {
+				accountType: "pat*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.accountId);
 	});
 
 	it("Should return validation error", async () => {
@@ -52,6 +79,7 @@ describe("GET /api/v1/accounts", () => {
 			limit: false,
 			sort: "createdAt:asc",
 			"status[0]": "deleted",
+			metadata: "bad",
 		});
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");
@@ -59,5 +87,6 @@ describe("GET /api/v1/accounts", () => {
 		assert.isString(body.validation.query.id[0]);
 		assert.isString(body.validation.query.orgId[0]);
 		assert.isString(body.validation.query.status[0][0]);
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });
