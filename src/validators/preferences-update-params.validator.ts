@@ -12,6 +12,6 @@ export const PreferencesUpdateParamsValidator = joi.object({
 				locale: joi.string().min(2).max(5).label("validator.preferences.locale"),
 			})
 			.label("Preferences"),
-		metadata: joi.object().unknown().label("validator.preferences.metadata"),
+		metadata: joi.object().label("validator.preferences.metadata"),
 	}),
 });

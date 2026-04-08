@@ -12,6 +12,7 @@ import { CustomFieldRepository } from "./custom-field.repository";
 import { OrganizationRepository } from "../organizations/organization.repository";
 import CustomField, { CustomFieldAttributes } from "../../../database/models/custom-field";
 import { CustomFieldCreateBodyInterface } from "../../interfaces/custom-field-create-body.interface";
+import { CustomFieldUpdateBodyInterface } from "../../interfaces/custom-field-update-body.interface";
 import { Op } from "sequelize";
 import { CustomFieldSearchParamsInterface } from "../../interfaces/custom-field-search-params.interface";
 import { SearchResultInterface } from "@structured-growth/microservice-sdk";
@@ -41,11 +42,53 @@ export class CustomFieldService {
 		}
 		region = organization.region;
 
+		const duplicate = await this.customFieldRepository.search({
+			orgId: [data.orgId],
+			entity: [data.entity],
+			name: [data.name],
+		});
+
+		if (duplicate.data.length > 0) {
+			throw new ValidationError({
+				body: {
+					name: [this.i18n.__("error.custom_field.custom_field_created")],
+				},
+			});
+		}
+
 		return this.customFieldRepository.create({
 			...data,
 			region,
 			status: data.status || "active",
 		});
+	}
+
+	public async update(id: number, params: CustomFieldUpdateBodyInterface): Promise<CustomField> {
+		const customField = await this.customFieldRepository.read(id);
+
+		if (!customField) {
+			throw new NotFoundError(
+				`${this.i18n.__("error.custom_field.name")} ${id} ${this.i18n.__("error.common.not_found")}`
+			);
+		}
+
+		const nextEntity = params.entity ?? customField.entity;
+		const nextName = params.name ?? customField.name;
+		const duplicate = await this.customFieldRepository.search({
+			orgId: [customField.orgId],
+			entity: [nextEntity],
+			name: [nextName],
+		});
+
+		if (duplicate.data.some((item) => Number(item.id) !== Number(id))) {
+			throw new ValidationError({
+				body: {
+					name: [this.i18n.__("error.custom_field.custom_field_created")],
+				},
+			});
+		}
+
+		return this.customFieldRepository.update(id, params);
 	}
 
 	public async search(params: CustomFieldSearchParamsInterface): Promise<SearchResultInterface<CustomField>> {

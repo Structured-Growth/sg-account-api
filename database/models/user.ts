@@ -14,7 +14,7 @@ export interface UserAttributes extends DefaultModelInterface {
 	imageUuid: string | null;
 	isPrimary: boolean;
 	status: "active" | "inactive" | "archived";
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface UserCreationAttributes
@@ -74,7 +74,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
 	status: UserAttributes["status"];
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	@HasMany(() => Phone)
 	phone: Phone;

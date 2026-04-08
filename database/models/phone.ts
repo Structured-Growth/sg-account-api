@@ -13,7 +13,7 @@ export interface PhoneAttributes extends DefaultModelInterface {
 	verificationCodeHash: string;
 	verificationCodeSalt: string;
 	verificationCodeExpires: Date;
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface PhoneCreationAttributes
@@ -69,7 +69,7 @@ export class Phone extends Model<PhoneAttributes, PhoneCreationAttributes> imple
 	verificationCodeExpires: Date;
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "phones/<phoneId>"].join(":");

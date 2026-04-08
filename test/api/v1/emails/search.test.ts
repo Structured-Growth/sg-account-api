@@ -4,6 +4,7 @@ import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
 import { createUser } from "../../../common/create-user";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/emails", () => {
 	const { server, context } = initTest();
@@ -22,11 +23,21 @@ describe("GET /api/v1/emails", () => {
 		contextPath: "user",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Email",
+		name: "emailType",
+		title: "Email Type",
+	});
+
 	it("Should create primary email", async () => {
 		const { statusCode, body } = await server.post("/v1/emails").send({
 			accountId: context.account.id,
 			userId: context.user.id,
 			email: "test@example.com",
+			metadata: {
+				emailType: "work",
+			},
 		});
 		assert.equal(statusCode, 201);
 		context.emailId = body.id;
@@ -68,6 +79,9 @@ describe("GET /api/v1/emails", () => {
 			"accountId[0]": context.account.id,
 			isPrimary: true,
 			"status[0]": "verification",
+			metadata: {
+				emailType: "work",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.emailId);
@@ -82,8 +96,31 @@ describe("GET /api/v1/emails", () => {
 		assert.isUndefined(body.data[0].verificationCodeHash);
 		assert.isUndefined(body.data[0].verificationCodeSalt);
 		assert.isUndefined(body.data[0].verificationCodeExpires);
+		assert.equal(body.data[0].metadata.emailType, "work");
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+	});
+
+	it("Should search by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/emails").query({
+			orgId: context.organization.id,
+			metadata: {
+				emailType: "wo*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.emailId);
+	});
+
+	it("Should return validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.get("/v1/emails").query({
+			orgId: context.organization.id,
+			metadata: "bad",
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });

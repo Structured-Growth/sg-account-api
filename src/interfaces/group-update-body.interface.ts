@@ -9,5 +9,5 @@ export interface GroupUpdateBodyInterface {
 	 * Custom fields with their values.
 	 * Custom field must be created before.
 	 */
-	metadata?: Record<string, string>;
+	metadata?: Record<string, unknown>;
 }

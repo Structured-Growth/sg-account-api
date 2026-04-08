@@ -10,7 +10,7 @@ export interface GroupAttributes extends DefaultModelInterface {
 	name: string;
 	imageUuid: string | null;
 	status: "active" | "inactive" | "archived";
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface GroupCreationAttributes
@@ -63,7 +63,7 @@ export class Group extends Model<GroupAttributes, GroupCreationAttributes> imple
 	status: GroupAttributes["status"];
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	@HasMany(() => GroupMember)
 	members: GroupMember[];

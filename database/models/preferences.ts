@@ -10,7 +10,7 @@ export interface PreferencesAttributes extends DefaultModelInterface {
 		language: string;
 		locale: string;
 	};
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface PreferencesCreationAttributes
@@ -49,7 +49,7 @@ export class Preferences
 	preferences: PreferencesAttributes["preferences"];
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>", "<accountId>", "preferences/<preferencesId>"].join(

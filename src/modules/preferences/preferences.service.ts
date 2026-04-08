@@ -47,6 +47,7 @@ export class PreferencesService {
 				accountId: account.id,
 				region: account.region,
 				preferences: this.defaultPreferences,
+				metadata: {},
 			});
 		}
 	}

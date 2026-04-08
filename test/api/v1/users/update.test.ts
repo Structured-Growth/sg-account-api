@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { initTest } from "../../../common/init-test";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("PUT /api/v1/users/:userId", () => {
 	const { server, context } = initTest();
@@ -16,6 +17,13 @@ describe("PUT /api/v1/users/:userId", () => {
 		contextPath: "account",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "User",
+		name: "userType",
+		title: "User Type",
+	});
+
 	it("Should create primary user", async () => {
 		const { statusCode, body } = await server.post("/v1/users").send({
 			accountId: context.account.id,
@@ -24,9 +32,13 @@ describe("PUT /api/v1/users/:userId", () => {
 			birthday: "1986-04-01",
 			gender: "male",
 			status: "inactive",
+			metadata: {
+				userType: "doctor",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
+		assert.equal(body.metadata.userType, "doctor");
 		context.userId = body.id;
 	});
 
@@ -38,6 +50,9 @@ describe("PUT /api/v1/users/:userId", () => {
 			gender: "female",
 			isPrimary: true,
 			status: "active",
+			metadata: {
+				userType: "nurse",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.id, context.userId);
@@ -51,17 +66,19 @@ describe("PUT /api/v1/users/:userId", () => {
 		assert.equal(body.gender, "female");
 		assert.equal(body.isPrimary, true);
 		assert.equal(body.status, "active");
+		assert.equal(body.metadata.userType, "nurse");
 		assert.isString(body.arn);
 	});
 
 	it("Should return validation error", async () => {
-		const { statusCode, body } = await server.put(`/v1/accounts/${context.userId}`).send({
+		const { statusCode, body } = await server.put(`/v1/users/${context.userId}`).send({
 			firstName: 4,
 			lastName: 1,
 			birthday: "1986 April 1",
 			gender: "unknown",
 			isPrimary: 1,
 			status: "deleted",
+			metadata: "bad",
 		});
 		assert.equal(statusCode, 422);
 		assert.isDefined(body.validation);
@@ -73,6 +90,20 @@ describe("PUT /api/v1/users/:userId", () => {
 		assert.isString(body.validation.body.gender[0]);
 		assert.isString(body.validation.body.isPrimary[0]);
 		assert.isString(body.validation.body.status[0]);
+		assert.isString(body.validation.body.metadata[0]);
+	});
+
+	it("Should return custom fields validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.put(`/v1/users/${context.userId}`).send({
+			metadata: {
+				userType: {
+					invalid: true,
+				},
+			},
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.body.metadata.userType[0]);
 	});
 
 	it("Should return validation error if user id is wrong", async () => {

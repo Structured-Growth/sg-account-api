@@ -16,7 +16,7 @@ export interface OrganizationAttributes
 	imageUuid: string | null;
 	status: "active" | "inactive" | "archived";
 	signUpEnabled?: boolean;
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface OrganizationCreationAttributes
@@ -61,7 +61,7 @@ export class Organization
 	signUpEnabled: boolean;
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	static get arnPattern(): string {
 		return [container.resolve("appPrefix"), "<region>", "<orgId>"].join(":");
