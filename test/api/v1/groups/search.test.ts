@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/groups", () => {
 	const { server, context } = initTest();
@@ -16,11 +17,21 @@ describe("GET /api/v1/groups", () => {
 		contextPath: "account",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Group",
+		name: "groupType",
+		title: "Group Type",
+	});
+
 	it("Should create a group", async () => {
 		const { statusCode, body } = await server.post("/v1/groups").send({
 			accountId: context.account.id,
 			title: `group-${context.account.id}`,
 			status: "active",
+			metadata: {
+				groupType: "patients",
+			},
 		});
 		assert.equal(statusCode, 201);
 		context.groupId = body.id;
@@ -61,6 +72,9 @@ describe("GET /api/v1/groups", () => {
 			orgId: context.organization.id,
 			accountId: context.account.id,
 			"status[0]": "active",
+			metadata: {
+				groupType: "patients",
+			},
 		});
 		assert.equal(statusCode, 200);
 		assert.equal(body.data[0].id, context.groupId);
@@ -71,10 +85,33 @@ describe("GET /api/v1/groups", () => {
 		assert.equal(body.data[0].title, `group-${context.account.id}`);
 		assert.equal(body.data[0].name, `group-${context.account.id}`);
 		assert.equal(body.data[0].status, "active");
+		assert.equal(body.data[0].metadata.groupType, "patients");
 		assert.isNull(body.data[0].imageUrl);
 		assert.isString(body.data[0].arn);
 		assert.equal(body.page, 1);
 		assert.equal(body.limit, 20);
 		assert.equal(body.total, 1);
+	});
+
+	it("Should search by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			orgId: context.organization.id,
+			metadata: {
+				groupType: "pat*",
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.groupId);
+	});
+
+	it("Should return validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			orgId: context.organization.id,
+			metadata: "bad",
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });

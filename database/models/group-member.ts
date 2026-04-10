@@ -10,7 +10,7 @@ export interface GroupMemberAttributes extends DefaultModelInterface {
 	groupId: number;
 	userId: number;
 	status: "active" | "inactive" | "archived";
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 }
 
 export interface GroupMemberCreationAttributes
@@ -63,7 +63,7 @@ export class GroupMember
 	status: GroupMemberAttributes["status"];
 
 	@Column(DataType.JSONB)
-	metadata?: Record<string, string | number>;
+	metadata: Record<string, unknown>;
 
 	static get arnPattern(): string {
 		return [

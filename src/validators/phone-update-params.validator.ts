@@ -6,6 +6,6 @@ export const PhoneUpdateParamsValidator = joi.object({
 	body: joi.object({
 		isPrimary: joi.boolean().label("validator.phones.isPrimary"),
 		status: joi.string().valid("verification", "active", "inactive", "archived"),
+		metadata: joi.object().label("validator.phones.metadata"),
 	}),
-	metadata: joi.object().label("validator.phones.metadata"),
 });

@@ -19,7 +19,8 @@
       "invalid_image_file": "Invalid image file"
     },
     "custom_field": {
-      "name": "CustomField"
+      "name": "CustomField",
+      "custom_field_created": "A custom field with this orgId, entity and name has already been created."
     },
     "email": {
       "name": "Email",

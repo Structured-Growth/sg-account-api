@@ -149,7 +149,7 @@ export class CustomFieldsController extends BaseController {
 		@Queries() query: {},
 		@Body() body: CustomFieldUpdateBodyInterface
 	): Promise<PublicCustomFieldAttributes> {
-		const customField = await this.customFieldRepository.update(customFieldId, body);
+		const customField = await this.customFieldService.update(customFieldId, body);
 
 		await this.eventBus.publish(
 			new EventMutation(

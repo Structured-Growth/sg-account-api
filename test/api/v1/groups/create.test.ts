@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("POST /api/v1/groups", () => {
 	const { server, context } = initTest();
@@ -16,11 +17,21 @@ describe("POST /api/v1/groups", () => {
 		contextPath: "account",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "Group",
+		name: "groupType",
+		title: "Group Type",
+	});
+
 	it("Should create a group", async () => {
 		const { statusCode, body } = await server.post("/v1/groups").send({
 			accountId: context.account.id,
 			title: `group-${context.account.id}`,
 			status: "active",
+			metadata: {
+				groupType: "patients",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -32,6 +43,7 @@ describe("POST /api/v1/groups", () => {
 		assert.equal(body.title, `group-${context.account.id}`);
 		assert.equal(body.name, `group-${context.account.id}`);
 		assert.equal(body.status, "active");
+		assert.equal(body.metadata.groupType, "patients");
 		assert.isNull(body.imageUrl);
 		assert.isString(body.arn);
 		context.groupId = body.id;
@@ -51,10 +63,11 @@ describe("POST /api/v1/groups", () => {
 	});
 
 	it("Should return validation error", async () => {
-		const { statusCode, body } = await server.post("/v1/users").send({
+		const { statusCode, body } = await server.post("/v1/groups").send({
 			accountId: -1,
 			title: -1,
 			status: "example",
+			metadata: "bad",
 		});
 		assert.equal(statusCode, 422);
 		assert.isDefined(body.validation);
@@ -63,5 +76,22 @@ describe("POST /api/v1/groups", () => {
 		assert.isString(body.validation.body.accountId[0]);
 		assert.isString(body.validation.body.title[0]);
 		assert.isString(body.validation.body.status[0]);
+		assert.isString(body.validation.body.metadata[0]);
+	});
+
+	it("Should return custom fields validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.post("/v1/groups").send({
+			accountId: context.account.id,
+			title: `group-invalid-${context.account.id}`,
+			status: "active",
+			metadata: {
+				groupType: {
+					invalid: true,
+				},
+			},
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.body.metadata.groupType[0]);
 	});
 });

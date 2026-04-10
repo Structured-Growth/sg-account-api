@@ -7,10 +7,12 @@ import { routes } from "../../../../src/routes";
 import Organization from "../../../../database/models/organization";
 import { initTest } from "../../../common/init-test";
 import * as slug from "slug";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("GET /api/v1/organizations", () => {
 	const { server, context } = initTest();
 	const randomTitle = `TestParentOrgName-${Date.now()}`;
+	const orgType = `clinic-${Date.now()}`;
 
 	it("Should create organisation", async () => {
 		const { statusCode, body } = await server.post("/v1/organizations").send({
@@ -21,6 +23,27 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
 		context["createdOrgId"] = body.id;
+	});
+
+	createCustomField(server, context, {
+		orgId: (context) => context.createdOrgId,
+		entity: "Organization",
+		name: "orgType",
+		title: "Org Type",
+	});
+
+	it("Should create child organisation with metadata", async () => {
+		const { statusCode, body } = await server.post("/v1/organizations").send({
+			parentOrgId: context.createdOrgId,
+			region: "us",
+			title: `${randomTitle}-child`,
+			name: slug(`${randomTitle}-child`),
+			metadata: {
+				orgType,
+			},
+		});
+		assert.equal(statusCode, 201);
+		context.childOrgId = body.id;
 	});
 
 	it("Should return validation error", async () => {
@@ -48,17 +71,20 @@ describe("GET /api/v1/organizations", () => {
 
 	it("Should return organizations", async () => {
 		const { statusCode, body } = await server.get("/v1/organizations").query({
-			"id[0]": context["createdOrgId"],
+			"id[0]": context["childOrgId"],
+			metadata: {
+				orgType,
+			},
 		});
 		assert.equal(statusCode, 200);
-		assert.equal(body.data[0].id, context["createdOrgId"]);
+		assert.equal(body.data[0].id, context["childOrgId"]);
 		assert.isString(body.data[0].createdAt);
 		assert.isString(body.data[0].updatedAt);
 		assert.equal(body.data[0].status, "inactive");
 		assert.isString(body.data[0].arn);
-		assert.isNull(body.data[0].parentOrgId);
+		assert.equal(body.data[0].parentOrgId, context.createdOrgId);
 		assert.equal(body.data[0].region, "us");
-		assert.equal(body.data[0].title, randomTitle);
+		assert.equal(body.data[0].metadata.orgType, orgType);
 		assert.isString(body.data[0].name);
 		assert.isNull(body.data[0].imageUrl);
 		assert.equal(body.page, 1);
@@ -74,6 +100,17 @@ describe("GET /api/v1/organizations", () => {
 		assert.equal(statusCode, 200);
 		assert.equal(body.total, 1);
 		assert.equal(body.data[0].id, context["createdOrgId"]);
+	});
+
+	it("Should search organizations by metadata wildcard", async () => {
+		const { statusCode, body } = await server.get("/v1/organizations").query({
+			metadata: {
+				orgType: `${orgType.slice(0, -1)}*`,
+			},
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.childOrgId);
 	});
 
 	it("Should return error if parentOrgIs is invalid", async () => {
@@ -110,5 +147,14 @@ describe("GET /api/v1/organizations", () => {
 			"status[1]": "active",
 		});
 		assert.equal(statusCode, 200);
+	});
+
+	it("Should return validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.get("/v1/organizations").query({
+			metadata: "bad",
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.query.metadata[0]);
 	});
 });

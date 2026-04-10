@@ -3,6 +3,7 @@ import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
 import { initTest } from "../../../common/init-test";
+import { createCustomField } from "../../../common/create-custom-field";
 
 describe("POST /api/v1/users", () => {
 	const { server, context } = initTest();
@@ -16,6 +17,13 @@ describe("POST /api/v1/users", () => {
 		contextPath: "account",
 	});
 
+	createCustomField(server, context, {
+		orgId: (context) => context.organization.id,
+		entity: "User",
+		name: "userType",
+		title: "User Type",
+	});
+
 	it("Should create primary user", async () => {
 		const { statusCode, body } = await server.post("/v1/users").send({
 			accountId: context.account.id,
@@ -24,6 +32,9 @@ describe("POST /api/v1/users", () => {
 			birthday: "1986-04-01",
 			gender: "male",
 			status: "inactive",
+			metadata: {
+				userType: "doctor",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -36,6 +47,7 @@ describe("POST /api/v1/users", () => {
 		assert.isNotNaN(new Date(body.birthday).getTime());
 		assert.isTrue(body.isPrimary);
 		assert.equal(body.status, "inactive");
+		assert.equal(body.metadata.userType, "doctor");
 		assert.isString(body.arn);
 		assert.isNull(body.imageUrl);
 		context["userId"] = body.id;
@@ -49,6 +61,9 @@ describe("POST /api/v1/users", () => {
 			birthday: "1986-04-01",
 			gender: "female",
 			status: "inactive",
+			metadata: {
+				userType: "patient",
+			},
 		});
 		assert.equal(statusCode, 201);
 		assert.isNumber(body.id);
@@ -61,6 +76,7 @@ describe("POST /api/v1/users", () => {
 		assert.isNotNaN(new Date(body.birthday).getTime());
 		assert.isFalse(body.isPrimary);
 		assert.equal(body.status, "inactive");
+		assert.equal(body.metadata.userType, "patient");
 		assert.isString(body.arn);
 		assert.isNull(body.imageUrl);
 		context["user2Id"] = body.id;
@@ -74,6 +90,7 @@ describe("POST /api/v1/users", () => {
 			birthday: "1 april 2054",
 			gender: "males",
 			status: "superuser",
+			metadata: "bad",
 		});
 		assert.equal(statusCode, 422);
 		assert.isDefined(body.validation);
@@ -85,5 +102,22 @@ describe("POST /api/v1/users", () => {
 		assert.isString(body.validation.body.birthday[0]);
 		assert.isString(body.validation.body.gender[0]);
 		assert.isString(body.validation.body.status[0]);
+		assert.isString(body.validation.body.metadata[0]);
+	});
+
+	it("Should return custom fields validation error for invalid metadata", async () => {
+		const { statusCode, body } = await server.post("/v1/users").send({
+			accountId: context.account.id,
+			firstName: "invalid",
+			lastName: "metadata",
+			metadata: {
+				userType: {
+					invalid: true,
+				},
+			},
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+		assert.isString(body.validation.body.metadata.userType[0]);
 	});
 });
