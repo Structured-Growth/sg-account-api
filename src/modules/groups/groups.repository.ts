@@ -31,7 +31,7 @@ export class GroupsRepository
 			metadata?: Record<string, unknown>;
 		},
 		options?: {
-			onlyTotal: boolean;
+			onlyTotal?: boolean;
 		}
 	): Promise<SearchResultInterface<Group>> {
 		const page = params.page || 1;
@@ -73,10 +73,15 @@ export class GroupsRepository
 				model: GroupMember,
 				attributes: [],
 			});
-			where[Op.or] = [
-				{ accountId: Number(params.accountId) },
-				Sequelize.literal(`members.account_id = ${params.accountId}`),
-			];
+			if (params.includeOwner === false) {
+				where[Op.and] = where[Op.and] ?? [];
+				where[Op.and].push(Sequelize.literal(`members.account_id = ${params.accountId}`));
+			} else {
+				where[Op.or] = [
+					{ accountId: Number(params.accountId) },
+					Sequelize.literal(`members.account_id = ${params.accountId}`),
+				];
+			}
 		}
 
 		if (params.name?.length > 0) {
