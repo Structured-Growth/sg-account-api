@@ -14,5 +14,6 @@ export const GroupSearchWithPostParamsValidator = joi.object({
 			name: joi.array().items(joi.string().max(50).required()),
 			metadata: joi.object().label("validator.groups.metadata"),
 		})
+		.or("orgId", "accountId")
 		.concat(CommonSearchParamsValidator),
 });

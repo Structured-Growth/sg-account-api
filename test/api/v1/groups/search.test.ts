@@ -147,6 +147,22 @@ describe("GET /api/v1/groups", () => {
 		assert.isString(body.validation.query.metadata[0]);
 	});
 
+	it("Should return validation error when orgId and accountId are missing in GET search", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+	});
+
+	it("Should return validation error when orgId and accountId are missing in POST search", async () => {
+		const { statusCode, body } = await server.post("/v1/groups/search").send({
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+	});
+
 	it("Should return member groups in GET search without orgId when includeOwner is false", async () => {
 		const { statusCode, body } = await server.get("/v1/groups").query({
 			accountId: context.memberAccount.id,
