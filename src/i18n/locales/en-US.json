@@ -112,6 +112,7 @@
     "groups": {
       "orgId": "Organization Id",
       "accountId": "Account Id",
+      "includeOwner": "Include owner",
       "parentGroupId": "Parent Group Id",
       "status": "Status",
       "metadata": "Metadata",
