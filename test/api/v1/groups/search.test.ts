@@ -2,6 +2,7 @@ import "../../../../src/app/providers";
 import { assert } from "chai";
 import { createOrganization } from "../../../common/create-organization";
 import { createAccount } from "../../../common/create-account";
+import { createUser } from "../../../common/create-user";
 import { initTest } from "../../../common/init-test";
 import { createCustomField } from "../../../common/create-custom-field";
 
@@ -15,6 +16,16 @@ describe("GET /api/v1/groups", () => {
 	createAccount(server, context, {
 		orgId: (context) => context.organization.id,
 		contextPath: "account",
+	});
+
+	createAccount(server, context, {
+		orgId: (context) => context.organization.id,
+		contextPath: "memberAccount",
+	});
+
+	createUser(server, context, {
+		accountId: (context) => context.memberAccount.id,
+		contextPath: "memberUser",
 	});
 
 	createCustomField(server, context, {
@@ -35,6 +46,27 @@ describe("GET /api/v1/groups", () => {
 		});
 		assert.equal(statusCode, 201);
 		context.groupId = body.id;
+	});
+
+	it("Should create another group", async () => {
+		const { statusCode, body } = await server.post("/v1/groups").send({
+			accountId: context.account.id,
+			title: `group-member-${context.account.id}`,
+			status: "active",
+			metadata: {
+				groupType: "policy-members",
+			},
+		});
+		assert.equal(statusCode, 201);
+		context.memberGroupId = body.id;
+	});
+
+	it("Should add member from another account to the second group", async () => {
+		const { statusCode } = await server.post(`/v1/groups/${context.memberGroupId}/members`).send({
+			userId: context.memberUser.id,
+			status: "active",
+		});
+		assert.equal(statusCode, 201);
 	});
 
 	it("Should return validation error", async () => {
@@ -113,5 +145,54 @@ describe("GET /api/v1/groups", () => {
 		assert.equal(statusCode, 422);
 		assert.equal(body.name, "ValidationError");
 		assert.isString(body.validation.query.metadata[0]);
+	});
+
+	it("Should return validation error when orgId and accountId are missing in GET search", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+	});
+
+	it("Should return validation error when orgId and accountId are missing in POST search", async () => {
+		const { statusCode, body } = await server.post("/v1/groups/search").send({
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 422);
+		assert.equal(body.name, "ValidationError");
+	});
+
+	it("Should return member groups in GET search without orgId when includeOwner is false", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			accountId: context.memberAccount.id,
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 1);
+		assert.equal(body.data[0].id, context.memberGroupId);
+		assert.equal(body.data[0].accountId, context.account.id);
+	});
+
+	it("Should not return owner groups in GET search by accountId when includeOwner is false", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			accountId: context.account.id,
+			includeOwner: false,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 0);
+		assert.deepEqual(body.data, []);
+	});
+
+	it("Should return owner groups in GET search by accountId by default", async () => {
+		const { statusCode, body } = await server.get("/v1/groups").query({
+			accountId: context.account.id,
+		});
+		assert.equal(statusCode, 200);
+		assert.equal(body.total, 2);
+		assert.sameMembers(
+			body.data.map((group) => group.id),
+			[context.groupId, context.memberGroupId]
+		);
 	});
 });

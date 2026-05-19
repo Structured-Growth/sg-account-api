@@ -1,11 +1,13 @@
 import { DefaultSearchParamsInterface } from "@structured-growth/microservice-sdk";
 import { GroupAttributes } from "../../database/models/group";
 
-export interface GroupSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId"> {
+export interface GroupSearchParamsInterface extends Omit<DefaultSearchParamsInterface, "accountId" | "orgId"> {
+	orgId?: number;
 	/**
 	 * Returns groups where accountId is owner or a member.
 	 */
 	accountId?: number;
+	includeOwner?: boolean;
 	parentGroupId?: number;
 	status?: GroupAttributes["status"][];
 	/**

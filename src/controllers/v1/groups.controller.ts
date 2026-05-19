@@ -21,7 +21,7 @@ import { GroupSearchParamsValidator } from "../../validators/group-search-params
 import { GroupSearchWithPostParamsValidator } from "../../validators/group-search-with-post-params.validator";
 import { GroupCreateParamsValidator } from "../../validators/group-create-params.validator";
 import { GroupUpdateParamsValidator } from "../../validators/group-update-params.validator";
-import { pick, result } from "lodash";
+import { isString, pick, result } from "lodash";
 import { GroupReadParamsValidator } from "../../validators/group-read-params.validator";
 import { GroupDeleteParamsValidator } from "../../validators/group-delete-params.validator";
 import { EventMutation } from "@structured-growth/microservice-sdk";
@@ -69,7 +69,10 @@ export class GroupsController extends BaseController {
 	@HashFields(["title", "name"])
 	@ValidateFuncArgs(GroupSearchParamsValidator)
 	async search(@Queries() query: GroupSearchParamsInterface): Promise<SearchResultInterface<PublicGroupAttributes>> {
-		const { data, ...result } = await this.groupsRepository.search(query);
+		const { data, ...result } = await this.groupsRepository.search({
+			...query,
+			includeOwner: isString(query.includeOwner) ? query.includeOwner === "true" : query.includeOwner,
+		});
 
 		return {
 			data: data.map((group) => ({
