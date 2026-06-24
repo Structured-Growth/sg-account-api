@@ -149,7 +149,7 @@ export class PhonesController extends BaseController {
 	async get(@Path() phoneId: number): Promise<PublicPhoneAttributes> {
 		const phone = await this.phonesRepository.read(phoneId);
 
-		if (!phoneId) {
+		if (!phone) {
 			throw new NotFoundError(
 				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
 			);
@@ -242,7 +242,7 @@ export class PhonesController extends BaseController {
 	async delete(@Path() phoneId: number): Promise<void> {
 		const phone = await this.phonesRepository.read(phoneId);
 
-		if (!phoneId) {
+		if (!phone) {
 			throw new NotFoundError(
 				`${this.i18n.__("error.phone.name")} ${phoneId} ${this.i18n.__("error.common.not_found")}`
 			);
