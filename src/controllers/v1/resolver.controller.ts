@@ -7,6 +7,8 @@ import {
 	NotFoundError,
 	ValidateFuncArgs,
 	I18nType,
+	EmitsManifestEntryInterface,
+	readGeneratedEmitsManifest,
 } from "@structured-growth/microservice-sdk";
 import * as controllers from "./index";
 import { ResolveQueryParamsInterface } from "../../interfaces/resolve-query-params.interface";
@@ -132,5 +134,18 @@ export class ResolverController extends BaseController {
 		@Body() body: ResolveCustomFieldValidateBodyInterface
 	): Promise<ResolveCustomFieldValidateResponseInterface> {
 		return this.customFieldService.validate(body.entity, body.data, body.orgId, false);
+	}
+
+	/**
+	 * List all events emitted by the microservice
+	 */
+	@OperationId("List events")
+	@Get("/events")
+	@SuccessResponse(200, "Returns events")
+	@DescribeAction("resolve/events")
+	async events(): Promise<{ data: EmitsManifestEntryInterface[] }> {
+		return {
+			data: readGeneratedEmitsManifest(),
+		};
 	}
 }
