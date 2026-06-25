@@ -60,6 +60,7 @@ program
 	.command("events")
 	.description("Generate emits manifest")
 	.action(async () => {
+		container.register("App", AppMock, { lifecycle: Lifecycle.Singleton });
 		const app = container.resolve<AppMock>("App");
 		await app.ready;
 		const entries = generateEmitsManifest();
