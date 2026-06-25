@@ -29,7 +29,7 @@ describe("Test resolver", () => {
 		const { statusCode, body } = await server.get("/v1/resolver/actions");
 		assert.equal(statusCode, 200);
 		assert.isArray(body.data);
-		assert.equal(body.data.filter((item) => item.action.includes("resolve")).length, 4);
+		assert.equal(body.data.filter((item) => item.action.includes("resolve")).length, 5);
 	});
 
 	it("Should return list of models", async () => {
